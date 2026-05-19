@@ -1,0 +1,125 @@
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+
+// GET - Fetch profile
+export async function GET(req: NextRequest ): Promise<Response> {
+  const supabase = (await createServerClient()) as SupabaseClient<Database>;
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { searchParams } = new URL(req.url);
+  const handle = searchParams.get('handle');
+  const userId = searchParams.get('user_id');
+
+  let query = supabase.from('profiles').select('*');
+
+  if (handle) {
+    query = query.eq('handle', handle);
+  } else if (userId) {
+    query = query.eq('id', userId);
+  } else if (user) {
+    query = query.eq('id', user.id);
+  } else {
+    return NextResponse.json({ error: 'No profile identifier provided' }, { status: 400 });
+  }
+
+  const { data: profile, error } = await query.single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (!profile) {
+    return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+  }
+
+  // Run follower/following counts (and optional follow-check) in parallel
+  const followCheckQuery =
+    user && profile.id !== user.id
+      ? supabase
+          .from('follows')
+          .select('id')
+          .eq('follower_id', user.id)
+          .eq('following_id', profile.id)
+          .single()
+      : Promise.resolve({ data: null });
+
+  const [
+    { count: followersCount },
+    { count: followingCount },
+    { data: followRow },
+  ] = await Promise.all([
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', profile.id),
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', profile.id),
+    followCheckQuery,
+  ]);
+
+  const isFollowing = !!followRow;
+
+  return NextResponse.json({
+    profile: {
+      ...profile,
+      followers_count: followersCount || 0,
+      following_count: followingCount || 0,
+      is_following: isFollowing,
+      is_own_profile: user?.id === profile.id,
+    },
+  });
+}
+
+// PUT - Update profile
+export async function PUT(req: NextRequest ): Promise<Response> {
+  const supabase = (await createServerClient()) as SupabaseClient<Database>;
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const body = await req.json().catch(() => ({})) as {
+    display_name?: string;
+    handle?: string;
+    bio?: string;
+    avatar_url?: string;
+    banner_url?: string;
+    website?: string;
+    location?: string;
+    dream_config?: unknown;
+    widget_config?: unknown;
+    widget_order?: unknown;
+  };
+  const { display_name, handle, bio, avatar_url, banner_url, website, location, dream_config, widget_config, widget_order } = body;
+
+  const updateData: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (display_name !== undefined) updateData.display_name = display_name?.trim();
+  if (handle !== undefined && handle?.trim()) updateData.handle = handle.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+  if (bio !== undefined) updateData.bio = bio?.trim();
+  if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+  if (banner_url !== undefined) updateData.banner_url = banner_url;
+  if (website !== undefined) updateData.website = website?.trim();
+  if (location !== undefined) updateData.location = location?.trim();
+  if (dream_config !== undefined || widget_config !== undefined) updateData.dream_config = dream_config ?? widget_config;
+  if (widget_order !== undefined) updateData.profile_dream_widgets = widget_order;
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .update(updateData)
+    .eq('id', user.id)
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ profile });
+}

@@ -1,0 +1,193 @@
+// app/api/ai/eams/route.ts
+// Canonical Dr. Eams endpoint — user-facing AI agent.
+// AI keys are server-side only (Vercel env vars, never client).
+
+import { NextRequest, NextResponse } from 'next/server';
+import { jsonApiError } from '@/lib/api/route';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { v4 as uuidv4 } from 'uuid';
+import { DrEamsRunBodySchema, type DrEamsRunResponse } from '@/lib/ai/schemas';
+import { boogieEvaluate } from '@/lib/ai/boogieman';
+import { makeConfirmToken } from '@/lib/ai/confirm';
+import { writeAuditLog } from '@/lib/ai/audit';
+import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
+import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from '@/lib/ai/triad';
+
+
+
+export async function POST(req: NextRequest ): Promise<Response> {
+  const requestStart = Date.now();
+  const request_id = uuidv4();
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return jsonApiError(400, 'BAD_JSON', 'Body must be valid JSON.');
+  }
+
+  const parseResult = DrEamsRunBodySchema.safeParse(body);
+  if (!parseResult.success) {
+    return jsonApiError(400, 'VALIDATION_ERROR', 'Invalid request body', parseResult.error.flatten());
+  }
+
+  const request = parseResult.data;
+
+  // Authenticate
+  const supabase = await createServerClient();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !user) {
+    return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
+  }
+
+  // Rate limit
+  const rateOk = await checkRateLimit(user.id, '/api/ai/eams', 30, 60);
+  if (!rateOk.allowed) {
+    return jsonApiError(429, 'RATE_LIMIT', 'Too many requests. Please slow down.');
+  }
+  const rateRpm = await getCurrentRPM(user.id, '/api/ai/eams');
+
+  // Determine actor role
+   
+  const { data: roleData } = await (supabase as SupabaseClient)
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+  const actorRole: 'user' | 'admin' | 'owner' = isOwnerEmail(user.email)
+    ? 'owner'
+    : ((roleData as { role?: string } | null)?.role === 'admin' ? 'admin' : 'user');
+
+  // BoogieMan policy gate — check message before planning
+  const boogiePolicy = await boogiePolicyCheck({
+    actorRole,
+    actorEmail: user.email,
+    message: request.message,
+  });
+  if (boogiePolicy.hard_block) {
+    return jsonApiError(403, 'POLICY_BLOCKED', boogiePolicy.reason ?? 'Request blocked by policy.');
+  }
+
+  // Phase 8 §A Point 10: optionally enrich with real Supabase content context.
+  // Detect if the user is asking about content (posts, profiles, connectors).
+  // If so, query the DB and include a summary in the system prompt.
+  let contentContext: string | undefined;
+  try {
+    const lowerMsg = request.message.toLowerCase();
+    const isContentQuery =
+      lowerMsg.includes('post') ||
+      lowerMsg.includes('content') ||
+      lowerMsg.includes('feed') ||
+      lowerMsg.includes('profile') ||
+      lowerMsg.includes('follow');
+
+    if (isContentQuery) {
+      // Fetch the user's recent posts as context
+      const { data: recentPosts } = await supabase
+        .from('app_posts')
+        .select('id, content, visibility, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (recentPosts && recentPosts.length > 0) {
+        const postsText = recentPosts
+           
+          .map((p: unknown) =>
+            `- "${String(p.content ?? '').slice(0, 80)}" (${p.visibility ?? 'unknown'}, ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'unknown'})`
+          )
+          .join('\n');
+        contentContext = `User's recent posts:\n${postsText}`;
+      }
+
+      // Also fetch follower/following counts
+       
+      const { count: followersCount } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', user.id);
+      const { count: followingCount } = await supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', user.id);
+
+      const statsText = `User stats: ${followersCount ?? 0} followers, ${followingCount ?? 0} following.`;
+      contentContext = contentContext ? `${contentContext}\n${statsText}` : statsText;
+    }
+  } catch {
+    // Non-critical — proceed without content context
+  }
+
+  // Plan with Dr. Eams
+  let plan: Awaited<ReturnType<typeof planWithEams>>;
+  try {
+    plan = await planWithEams({
+      message: request.message,
+      actorEmail: user.email,
+      actorRole,
+      uiRoute: request.ui?.route,
+      contentContext,
+      // Code-assist mode: forward sanitised code context when present.
+      // selected_code is already capped at 2 000 chars by the Zod schema.
+      codeContext: request.code_context
+        ? {
+            language:     request.code_context.language,
+            selected_code: request.code_context.selected_code,
+            cursor_line:   request.code_context.cursor_line,
+          }
+        : undefined,
+    });
+  } catch {
+    plan = { response_text: "I'm here to help! What would you like to do?", intents: [] };
+  }
+
+  // Idari sanity check (synchronous rule-based)
+  const idariResult = validateWithIdari(plan.intents);
+  const validatedIntents = idariResult.intents;
+
+  // BoogieMan rule-engine evaluation
+  const boogieResult = boogieEvaluate({
+    actorRole: actorRole === 'owner' ? 'admin' : actorRole,
+    rateRpm,
+    intents: validatedIntents,
+  });
+
+  // Filter to ALLOW and CONFIRM intents
+  const allowedIntents = validatedIntents.filter((_, i: number) => {
+    const d = boogieResult.per_intent[i];
+    return d && (d.decision === 'ALLOW' || d.decision === 'CONFIRM');
+  });
+
+  const allowedDecisions = boogieResult.per_intent.filter(
+    (d) => d.decision === 'ALLOW' || d.decision === 'CONFIRM'
+  );
+
+  // Generate confirm token if any intent needs confirmation
+  let confirm_token: string | undefined;
+  if (allowedDecisions.some((d) => d.decision === 'CONFIRM')) {
+    confirm_token = makeConfirmToken({ requestId: request_id, userId: user.id, ttlSeconds: 300 });
+  }
+
+  const response_text = plan.interpreted_intent
+    ? `${plan.response_text}\n\n• ${plan.interpreted_intent}`
+    : plan.response_text;
+
+  await writeAuditLog({
+    request_id,
+    user_id: user.id,
+    agent: 'dr_eams',
+    ok: true,
+    latency_ms: Date.now() - requestStart,
+    payload: { message: request.message, intent_count: allowedIntents.length },
+  });
+
+  const response: DrEamsRunResponse = {
+    response_text,
+    proposed_intents: allowedIntents,
+    boogie_decisions: allowedDecisions,
+    confirm_token,
+  };
+
+  return NextResponse.json(response, { headers: { 'Cache-Control': 'no-store' } });
+}
