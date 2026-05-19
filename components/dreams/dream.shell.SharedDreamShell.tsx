@@ -54,7 +54,7 @@ function peerColor(peerId: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function SharedDreamShell(){
+export function SharedDreamShell({
   channelId,
   children,
   title,

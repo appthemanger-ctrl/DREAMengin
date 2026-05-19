@@ -72,7 +72,7 @@ function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats): boolean {
   return a.microsecondsPerTick.every((value, index: number) => value === b.microsecondsPerTick[index]);
 }
 
-export default function DREAMenginOS(){
+export default function DREAMenginOS({
   audioSource,
   onReady,
   onSelectSubsystem,

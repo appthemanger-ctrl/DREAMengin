@@ -96,7 +96,7 @@ interface CanvasDropZoneProps {
   disabled?: boolean;
 }
 
-export default function CanvasDropZone(){
+export default function CanvasDropZone({
   children,
   onImport,
   className,
