@@ -20,7 +20,7 @@ interface ConfigureSheetProps {
   onClose: () => void;
 }
 
-export default function ConfigureSheet(){
+export default function ConfigureSheet({
   title,
   description,
   fields = [],

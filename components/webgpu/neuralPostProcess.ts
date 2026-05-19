@@ -208,7 +208,7 @@ export const NEURAL_UNIFORM_SIZE = 32;
 /**
  * Create a Float32Array for the neural post-process uniform buffer.
  */
-export function createNeuralUniforms(params: ){
+export function createNeuralUniforms(params: {
   width: number;
   height: number;
   sharpness?: number;

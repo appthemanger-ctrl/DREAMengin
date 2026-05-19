@@ -741,7 +741,7 @@ const LUCID_CONTRACT_DEFS: Array<{
   },
 ];
 
-export function createInitialLucidAvenueState(options: ){ mode?: LucidAvenueMode } = {}: LucidAvenueState {
+export function createInitialLucidAvenueState(options: { mode?: LucidAvenueMode } = {}): LucidAvenueState {
   const mode = options.mode ?? 'story';
   return {
     mode,
@@ -918,11 +918,11 @@ export function isSamePosition(a: Position, b): Position {
   return a.x === b.x && a.y === b.y;
 }
 
-function isAdjacent(a: Position, b): Position {
+function isAdjacent(a: Position, b: Position) {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y) <= 1;
 }
 
-function meetsRequirements(state: LucidAvenueState, requirements): Requirement[] = [] {
+function meetsRequirements(state: LucidAvenueState, requirements: Requirement[] = []) {
   if (state.mode === 'sandbox') return true;
   return requirements.every((requirement) => (
     requirement === 'allShards'
