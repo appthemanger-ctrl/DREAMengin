@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.EnginesPortfolioQuantum  (framework-mandated basename: page.tsx)
+import PortfolioQuantumPanel from '@/components/engines/portfolio/panels/dream.panel.PortfolioQuantumPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import PortfolioQuantumPanel from '@/components/engines/portfolio/panels/dream.panel.PortfolioQuantumPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Quantum – PortfolioEngin', description: 'Design QAOA/VQE circuits for portfolio selection.' };

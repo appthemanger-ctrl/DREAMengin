@@ -4,18 +4,16 @@
 // Records user activity with tier classification and optional verification.
 // Awards activity points based on tier per ACTIVITY_FIRST_PROTOCOL.md §II
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase/server';
 import { calculateActivityPoints, calculateDecayDate } from '@/lib/activity/scoring';
 import type {
-  TrackActivityRequest,
-  TrackActivityResponse,
-  ActivityTier,
-  VerificationMethod,
-  ActivityVerification,
+    ActivityVerification,
+    TrackActivityRequest,
+    TrackActivityResponse,
 } from '@/lib/activity/types';
 import { VERIFICATION_STRENGTH } from '@/lib/activity/types';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();

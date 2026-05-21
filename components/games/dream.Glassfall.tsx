@@ -11,8 +11,8 @@
  * Render: 2-D canvas, dithered stained-crystal sunset, pixel-rim outlines.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef } from 'react';
 import { ParticlePool, ScreenShake, prefersReducedMotion } from './_fx/canvasFx';
 
 const COLS = 12;

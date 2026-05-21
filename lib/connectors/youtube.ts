@@ -1,11 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import 'server-only'
+import 'server-only';
 
-import { createServiceClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server';
 
 export async function pollYouTube(userId: string, accessToken: string): Promise<string> {
   try {
-    const supabase = (await createServiceClient()) as SupabaseClient
     // Fetch user's subscriptions
     const response = await fetch(
       'https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=50',

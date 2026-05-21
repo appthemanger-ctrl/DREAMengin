@@ -22,11 +22,11 @@
 //   provider — filter connector items to a specific provider
 //   sort     — "activity" (default, Phase 9: by visibility_score) | "recent" | "trending"
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { sortByVisibilityScore } from '@/lib/activity/visibility-score';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createServerClient } from '@/lib/supabase/server';
-import { sortByVisibilityScore } from '@/lib/activity/visibility-score';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 // Unified feed item shape returned by this route.

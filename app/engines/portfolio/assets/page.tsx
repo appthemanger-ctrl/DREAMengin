@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.EnginesPortfolioAssets  (framework-mandated basename: page.tsx)
+import AssetsPanel from '@/components/engines/portfolio/panels/dream.panel.AssetsPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import AssetsPanel from '@/components/engines/portfolio/panels/dream.panel.AssetsPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Assets – PortfolioEngin', description: 'Select asset universe for optimization.' };

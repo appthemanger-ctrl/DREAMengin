@@ -1,4 +1,3 @@
-import type { Database } from '@/types/supabase';
 // lib/activity/types.ts
 // Phase 9 — Activity-First Protocol Types
 //

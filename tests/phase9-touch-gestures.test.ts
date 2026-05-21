@@ -28,7 +28,7 @@ function makeEvent(touches: Touch[], changedTouches: Touch[] = touches): TouchEv
     touches,
     changedTouches,
     preventDefault: vi.fn(),
-  } as unknown as TouchEvent;
+  } as any as TouchEvent;
 }
 
 afterEach(() => {
@@ -67,7 +67,7 @@ describe('Touch Gestures — GestureRecogniser', () => {
       removeEventListener: (type: string) => {
         listeners.delete(type);
       },
-    } as unknown as HTMLElement;
+    } as any as HTMLElement;
 
     const detach = recogniser.attach(el);
     expect(typeof detach).toBe('function');

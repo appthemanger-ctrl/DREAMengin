@@ -14,9 +14,7 @@
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  ComputeShaderPipeline,
-  WGSLShaderManager,
-  GPUProfiler,
+    ComputeShaderPipeline, GPUProfiler, WGSLShaderManager
 } from '../power-systems';
 
 /** Alias: GPUComputeSystem → ComputeShaderPipeline. */
@@ -25,9 +23,5 @@ export { ComputeShaderPipeline as GPUComputeSystem } from '../power-systems';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  ComputeKernel,
-  ComputeDispatch,
-  ShaderVariant,
-  ProfileSpan,
-  ProfileFrame,
+    ComputeDispatch, ComputeKernel, ProfileFrame, ProfileSpan, ShaderVariant
 } from '../power-systems';

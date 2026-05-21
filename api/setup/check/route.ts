@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { getSetupStatus } from '@/lib/setup/checks';
+import { NextResponse } from 'next/server';
 
 /**
  * GET /api/setup/check

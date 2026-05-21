@@ -16,25 +16,24 @@
  * Follows AXIOM 4 (security by default) and AXIOM 5 (privacy by design).
  */
 
-import { useEffect, useRef, useState } from 'react';
-import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
-import { createClient } from '@/lib/supabase/client';
-import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
-import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import { useSharedDream } from '@/hooks/useSharedDream';
-import Link from 'next/link';
-import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import type { EngineBase, UpgradedEngine } from '@/lib/dreamenginOS';
+import { createEventBus, upgradeEngine } from '@/lib/dreamenginOS';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useBrandEnginRuntime } from '@/lib/engins/brand/useBrandEnginRuntime';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useBrandingEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
-import { ArtifactSlot } from '@/lib/enginpipe';
-import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
-import { useBrandEnginRuntime } from '@/lib/engins/brand/useBrandEnginRuntime';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
+import { createClient } from '@/lib/supabase/client';
+import { ArrowLeft, BarChart2, BookOpen, DollarSign, Eye, FlaskConical, Layers, Megaphone, Minus, Palette, TrendingDown, TrendingUp, Users } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   onBack: () => void;
@@ -70,14 +69,6 @@ const ACCENT = '#ec4899';
 // const ACCENT_GRADIENT_LEGACY = 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)';
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
-const AudienceSegment     = 'brand-feature';
-const BrandVoiceAi        = 'brand-feature';
-const CompetitorWatch     = 'brand-feature';
-const AssetLibrary        = 'brand-feature';
-const ContentCalendarLink = 'brand-feature';
-const AIBrandKit          = 'brand-feature-2026'; // 2026: AI-powered brand kit generator
-const MotionGraphics      = 'brand-feature-2026'; // 2026: Motion graphics support
-const Analytics2_0        = 'brand-feature-2026'; // 2026: Advanced analytics 2.0
 
 export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const brandBridge = useBrandingEnginBridge();
@@ -95,7 +86,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useBrandEnginRuntime();
 
   // ── Workflow (brand:campaign — default workflow) ──
-  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  const { loadWorkflow } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('brand:campaign'); }, [loadWorkflow]);
 
   // ── Shared Dream Analytics state ──

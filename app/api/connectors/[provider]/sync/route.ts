@@ -16,12 +16,12 @@
  * ARCHITECTURE.md §3 — Logic layer (lib/connectors) handles provider calls.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase/server';
 import { reconcileConnector } from '@/lib/connectors/reconcile';
 import { DISPATCH_SUPPORTED_PROVIDERS } from '@/lib/connectors/syncDispatch';
+import { createServerClient } from '@/lib/supabase/server';
 import type { ConnectorSyncResponse } from '@/types/connector';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(
   _req: NextRequest,

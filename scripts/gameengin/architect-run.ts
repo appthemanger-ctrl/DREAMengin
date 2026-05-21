@@ -22,15 +22,15 @@
  */
 
 import {
-  listConceptPatterns,
-  listMechanics,
-  recordVisionStatement,
-  readVisionStatement,
-  signatureHash,
-  isOriginal,
-  logRDSession,
-  type VisionStatement,
-  type ConceptPattern,
+    isOriginal,
+    listConceptPatterns,
+    listMechanics,
+    logRDSession,
+    readVisionStatement,
+    recordVisionStatement,
+    signatureHash,
+    type ConceptPattern,
+    type VisionStatement,
 } from '../../lib/gameengin/brain-reader.js';
 
 interface ArchitectInputs {

@@ -23,17 +23,17 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import {
-  listMechanics,
-  signatureHash,
-  isOriginal,
-  logRDSession,
-  listCartridges,
-  getLastTouched,
-  recordAssignments,
-  readCartridgeStatus,
-  type AgentName,
-  type AssignmentLogEntry,
-  type CartridgeStatus,
+    getLastTouched,
+    isOriginal,
+    listCartridges,
+    listMechanics,
+    logRDSession,
+    readCartridgeStatus,
+    recordAssignments,
+    signatureHash,
+    type AgentName,
+    type AssignmentLogEntry,
+    type CartridgeStatus,
 } from '../../lib/gameengin/brain-reader.js';
 
 interface Thresholds {

@@ -13,14 +13,14 @@
  * Architecture: ARCHITECTURE.md §5 (projection boundaries), LAW.md §2 (nothing public by default).
  */
 
-import { createServerClient } from '@/lib/supabase/server';
-import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, ShoppingBag, Tag, User, Calendar } from 'lucide-react';
-import DreamWord from '@/components/ui/dream.DreamWord';
 import MarketplaceRequestButton from '@/components/marketplace/dream.MarketplaceRequestButton';
-import { connection } from 'next/server';
+import DreamWord from '@/components/ui/dream.DreamWord';
+import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { ArrowLeft, Calendar, ShoppingBag, Tag, User } from 'lucide-react';
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 
 const CATEGORY_EMOJI: Record<string, string> = {

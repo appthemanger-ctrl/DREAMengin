@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Bot, Send, X, Minimize2, Maximize2, Mic, MicOff, Volume2, VolumeX, Radio, Sparkles } from 'lucide-react';
 import { onIdariEvent } from '@/lib/agents/agentBus';
+import { Bot, Maximize2, Mic, MicOff, Minimize2, Radio, Send, Sparkles, Volume2, VolumeX, X } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 // Browser Speech API type declarations
 type SpeechRecognition = {
@@ -103,7 +103,6 @@ export default function DrEamsVoiceAssistant( ){
 
      
     const SpeechRecognitionImpl = ((window as unknown as Record<string, unknown>).SpeechRecognition || (window as unknown as Record<string, unknown>).webkitSpeechRecognition) as (new () => SpeechRecognition) | undefined;
-    const SpeechSynthesis = window.speechSynthesis;
 
     // Detect browser support once
     setSpeechSupported(!!SpeechRecognitionImpl);
@@ -452,35 +451,6 @@ export default function DrEamsVoiceAssistant( ){
     setIsLoading(false);
   };
 
-  const getSmartResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes('post') || lowerQuery.includes('create')) {
-      return 'Great question! To create a post, simply click the "+ Create" button in the navigation bar, or you can press Ctrl+P for quick access. You can add text, images, and tags to make your posts engaging. Would you like me to walk you through the posting process step by step?';
-    } else if (lowerQuery.includes('profile')) {
-      return 'Your profile is your creative hub on Dreamengin! Navigate to Settings → Edit Profile to customize everything about your presence. You can update your bio, change your avatar, select a theme, showcase your music, display merchandise, and highlight your lab projects. Think of it as your personal portfolio that tells your story!';
-    } else if (lowerQuery.includes('ad') || lowerQuery.includes('monetize')) {
-      return 'Monetization is one of the most powerful features here! The Ad Marketplace lets you create ad slots on your profile and set your own pricing. You manage bookings, track performance, and revenue sharing is built right in. Head to the Ads page to get started. Many creators find this to be a great passive income stream!';
-    } else if (lowerQuery.includes('lab') || lowerQuery.includes('science')) {
-      return 'The Lab is where science meets collaboration! You can create projects with markdown notebooks, attach research files, embed interactive physics simulations, and invite other researchers to collaborate. It\'s like having your own research journal that\'s also a social platform. Perfect for documenting experiments and sharing discoveries!';
-    } else if (lowerQuery.includes('feed') || lowerQuery.includes('dashboard')) {
-      return 'Your dashboard is fully customizable to fit your workflow! You can drag and drop widgets to rearrange them however you like. Add Dreams for notifications, promotions, quick stats, analytics, and more. Try clicking and dragging one of your widgets now to see how easy it is to personalize your experience!';
-    } else if (lowerQuery.includes('music')) {
-      return 'Music is a first-class citizen on Dreamengin! Head to the Music page to upload your tracks, create playlists, and embed them directly on your profile. We support Spotify integration, SoundCloud embeds, and direct uploads. Your music becomes part of your creative identity here!';
-    } else if (lowerQuery.includes('shop') || lowerQuery.includes('merch')) {
-      return 'Your merch shop is your direct line to your audience! You can add products with images, detailed descriptions, and pricing. Your fans can browse and purchase right from your profile without leaving the platform. It\'s a great way to build your brand and connect with supporters through physical goods!';
-    } else if (lowerQuery.includes('connector') || lowerQuery.includes('youtube') || lowerQuery.includes('import')) {
-      return 'Connectors are incredibly useful for aggregating your content! You can automatically import from platforms like YouTube, and you have full control over what appears in your feed. Set up rules to mute certain content, boost others, or create digest summaries. It\'s all about bringing your digital presence together in one place!';
-    } else if (lowerQuery.includes('dark mode') || lowerQuery.includes('theme')) {
-      return 'I see you\'re interested in customizing your visual experience! You can toggle between light and dark mode using the moon/sun icon in the navigation bar. Your preference is saved automatically, and you can switch anytime. The entire platform adapts beautifully to your chosen theme!';
-    } else if (lowerQuery.includes('analytics')) {
-      return 'Analytics help you understand your impact! Visit the Analytics page to see comprehensive metrics including views, likes, comments, follower growth, and revenue tracking. You can filter by time range, identify your top-performing content, and even export data for deeper analysis. Knowledge is power!';
-    } else if (lowerQuery.includes('who are you') || lowerQuery.includes('what are you')) {
-      return 'I\'m Dr. Eams, your dedicated voice-enabled AI assistant for Dreamengin! Think of me as your knowledgeable companion who knows every corner of this platform. I\'m here to help you succeed hands-free. Just say "Hey Doc" anytime you need me, and I\'ll spring into action!';
-    } else {
-      return 'I\'m here to help with anything Dreamengin-related! You can ask me about creating posts, customizing your profile, setting up ads, managing lab projects, organizing your feed, exploring analytics, or navigating anywhere on the platform. Try saying "Hey Doc, go to home" or "Hey Doc, open messages". What would you like to do?';
-    }
-  };
 
   if (!isOpen) {
     return (

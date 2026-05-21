@@ -7,8 +7,8 @@
  * creative momentum overview. Refreshes every 15 seconds.
  */
 
-import { useState, useEffect } from 'react';
 import { computeMomentum, getLevelColor, getLevelEmoji, type MomentumSnapshot } from '@/lib/forge/forgeMomentum';
+import { useEffect, useState } from 'react';
 
 export default function ForgeMomentumWidget( ){
   const [snap, setSnap] = useState<MomentumSnapshot | null>(null);

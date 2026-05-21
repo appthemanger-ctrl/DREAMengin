@@ -23,18 +23,18 @@
  * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
  */
 
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
 import {
-  type DualRuntimeState,
-  type RuntimeWorld,
-  DEFAULT_DUAL_RUNTIME,
-  setRuntimeWorld,
-  swapDominantRuntime,
-  makeHomeActiveTop,
-  makeHomeDreamSpaceActive,
-  makeDreamSpaceActiveSurface,
-  isHomeActiveTop,
+    type DualRuntimeState,
+    type RuntimeWorld,
+    DEFAULT_DUAL_RUNTIME,
+    isHomeActiveTop,
+    makeDreamSpaceActiveSurface,
+    makeHomeActiveTop,
+    makeHomeDreamSpaceActive,
+    setRuntimeWorld,
+    swapDominantRuntime,
 } from '@/lib/runtime/dualRuntime';
+import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
 
 interface DualRuntimeContextValue {
   state: DualRuntimeState;

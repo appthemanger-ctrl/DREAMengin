@@ -1,10 +1,10 @@
 // lib/widgets/parseConfig.ts
 import type {
-  SocialEmbedWidgetConfig,
-  SocialFeedWidgetConfig,
-  SocialProfileWidgetConfig,
-  SocialProvider,
-  YouTubeWidgetConfig,
+    SocialEmbedWidgetConfig,
+    SocialFeedWidgetConfig,
+    SocialProfileWidgetConfig,
+    SocialProvider,
+    YouTubeWidgetConfig,
 } from '@/types/widgetConfigs';
 
 function isRecord(v: unknown): v is Record<string, unknown> {

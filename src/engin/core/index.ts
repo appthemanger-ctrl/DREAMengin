@@ -3,17 +3,17 @@
 import baseStateSeed from '@/engin/state/base.json';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 
-export type { LedgerEntry, DreamLedger } from './engin.ledger';
-export { createLedger, appendEntry } from './engin.ledger';
+export { appendEntry, createLedger } from './engin.ledger';
+export type { DreamLedger, LedgerEntry } from './engin.ledger';
 
-export type { EnginEvent, EventBus } from './engin.eventbus';
 export { createEventBus } from './engin.eventbus';
+export type { EnginEvent, EventBus } from './engin.eventbus';
 
-export type { RenderFrame, RenderLoop } from './engin.renderloop';
 export { createRenderLoop } from './engin.renderloop';
+export type { RenderFrame, RenderLoop } from './engin.renderloop';
 
-export type { EnginSession } from './engin.auth';
 export { createSession, validateSession } from './engin.auth';
+export type { EnginSession } from './engin.auth';
 
 export type RegistrySlot =
   | 'surface'

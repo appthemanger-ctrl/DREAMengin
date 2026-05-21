@@ -28,10 +28,10 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import type { RealtimePostgresInsertPayload } from '@/engine/io';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
+import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Public types ───────────────────────────────────────────────────────────────
 

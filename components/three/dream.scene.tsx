@@ -1,12 +1,12 @@
 'use client';
 
-import { Suspense, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, OrbitControls, Sparkles, Stars, Trail } from '@react-three/drei';
-import * as THREE from 'three';
-import { NeonGlow } from '@/components/shaders/dream.NeonGlow';
 import { LightningWing } from '@/components/shaders/dream.LightningWing';
+import { NeonGlow } from '@/components/shaders/dream.NeonGlow';
 import { Refractor } from '@/components/shaders/dream.Refractor';
+import { Float, OrbitControls, Sparkles, Stars, Trail } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Suspense, useRef } from 'react';
+import * as THREE from 'three';
 
 /* ------------------------------------------------------------------ */
 /*  Slowly rotating group used as a scene container                    */

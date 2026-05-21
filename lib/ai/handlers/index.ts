@@ -5,28 +5,28 @@ import { registerHandler } from '../tool-router';
 
 // Import navigation handlers
 import {
-  handleNavDelta,
-  handleHomeAnchorSetState,
-  handleHomeMenuOpen,
+    handleHomeAnchorSetState,
+    handleHomeMenuOpen,
+    handleNavDelta,
 } from './navigation';
 
 // Import dream handlers
 import {
-  handleDreamPreview,
-  handleDreamOpen,
-  handleDreamConfigPatch,
-  handleDreamReorder,
-  handleDreamAddFromPreset,
-  handleDreamRemove,
+    handleDreamAddFromPreset,
+    handleDreamConfigPatch,
+    handleDreamOpen,
+    handleDreamPreview,
+    handleDreamRemove,
+    handleDreamReorder,
 } from './dreams';
 
 // Import social handlers
 import {
-  handlePostCreate,
-  handlePostLike,
-  handleFollowUser,
-  handleSearch,
-  handleDraftSave,
+    handleDraftSave,
+    handleFollowUser,
+    handlePostCreate,
+    handlePostLike,
+    handleSearch,
 } from './social';
 
 // ============================================================================

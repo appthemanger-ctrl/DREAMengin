@@ -22,47 +22,55 @@
  * Performance impact: all new widgets are pure local state — zero extra network calls.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
-import { createClient } from '@/lib/supabase/client';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
-import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import {
-  ArrowLeft, Gamepad2, Trophy, Play, Share2,
-  Map, Award, Sliders, FileCode, Radio, Lock, Unlock,
-} from 'lucide-react';
-import GameHUD from '@/components/games/dream.hud.GameHUD';
-import { GAMES } from '@/components/games/dream.GamesHub';
-import {
-  GAME_LIBRARY_SELECTION_STORAGE_KEY,
-  GAME_LIBRARY_SESSION_STORAGE_KEY,
-  MAX_SAVED_GAME_SESSIONS,
-  type SavedGameSession,
-} from '@/lib/games/library-state';
-import { useGamepad } from '@/lib/games/useGamepad';
-import { isLaunchFlagEnabled, buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
-import { consumePlayAsMe, getAvatarDataUrl } from '@/lib/games/avatar';
-import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
-import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import { useGameEnginBridge } from '@/lib/runtime/useEnginBridge';
-import { useSharedEnginChannel } from '@/lib/runtime/useSharedEnginChannel';
-import { createInstance } from '@/lib/runtime/instanceManager';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
-import { buildLedgerMediaUrl } from '@/lib/media/ledger';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { GAMES } from '@/components/games/dream.GamesHub';
+import RecordingControls from '@/components/games/dream.RecordingControls';
+import GameHUD from '@/components/games/dream.hud.GameHUD';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import type { EngineBase, UpgradedEngine } from '@/lib/dreamenginOS';
+import { createEventBus, upgradeEngine } from '@/lib/dreamenginOS';
+import { useGameEnginRuntime } from '@/lib/engins/game/useGameEnginRuntime';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import GameRuntime from '@/lib/gameengin/GameRuntime';
 import type { GameCartridge } from '@/lib/gameengin/cartridge';
 import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';
-import RecordingControls from '@/components/games/dream.RecordingControls';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
-import { useGameEnginRuntime } from '@/lib/engins/game/useGameEnginRuntime';
+import { consumePlayAsMe, getAvatarDataUrl } from '@/lib/games/avatar';
+import {
+    GAME_LIBRARY_SESSION_STORAGE_KEY,
+    MAX_SAVED_GAME_SESSIONS,
+    type SavedGameSession,
+} from '@/lib/games/library-state';
+import { buildGameLaunchHref, isLaunchFlagEnabled, resolveGameLaunchId } from '@/lib/games/navigation';
+import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
+import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBridge';
+import { useGamepad } from '@/lib/games/useGamepad';
+import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
+import { buildLedgerMediaUrl } from '@/lib/media/ledger';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { createInstance } from '@/lib/runtime/instanceManager';
+import { useGameEnginBridge } from '@/lib/runtime/useEnginBridge';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
+import { useSharedEnginChannel } from '@/lib/runtime/useSharedEnginChannel';
+import { createClient } from '@/lib/supabase/client';
+import {
+    ArrowLeft,
+    Award,
+    FileCode,
+    Gamepad2,
+    Lock,
+    Map,
+    Play,
+    Radio,
+    Share2,
+    Sliders,
+    Trophy,
+    Unlock,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -88,10 +96,6 @@ type GravityPreset = 'moon' | 'earth' | 'mars' | 'jupiter';
 /** Script language selector options */
 type ScriptLanguage = 'GameScript' | 'Lua';
 
-interface WorldState {
-  name: string;
-  grid: TileType[][];
-}
 
 interface PhysicsConfig {
   gravity: GravityPreset;
@@ -121,14 +125,6 @@ const SESSION_BAR_HIDE_COVER_HEIGHT = 122;
 const SESSION_BAR_REVEAL_GAP = 24;
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
-const MultiplayerLobby = 'game-feature';
-const TournamentMode   = 'game-feature';
-const GameAnalytics    = 'game-feature';
-const ReplaySystem     = 'game-feature';
-const SocialChallenge  = 'game-feature';
-const RayTracedLighting = 'game-feature-2026'; // 2026: Ray-traced lighting
-const SpatialAudio      = 'game-feature-2026'; // 2026: 3D spatial audio
-const AICompanions      = 'game-feature-2026'; // 2026: AI-powered NPCs
 
 const GAME_LABELS = Object.fromEntries(GAMES.map((game) => [game.id, game.label])) as Record<string, string>;
 const QUICK_PLAY_GAME_IDS = [
@@ -480,31 +476,8 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Share Game Clip to ContentEngin ─────────────────────────────────────────
-  function handleShareClip(game: string, score: any): void {
-    forgeRecord(`Shared ${game} clip to Content`);
-    recordForgeTransfer('games', 'create', 'clip', `${game} clip → ContentEngin`);
-    bridge.emit('create', 'create:game-clip-embedded', {
-      sessionId: `session-${Date.now()}`,
-      gameTitle: game,
-      score,
-      timestamp: new Date().toISOString(),
-      worldState: savedWorld ? savedWorld.name : null,
-      achievements: unlockedAchievements,
-    });
-  }
 
   // ── Share Achievement Campaign to BrandingEngin ──────────────────────────────
-  function handleShareAchievementCampaign(achievementName: string ){
-    forgeRecord(`Shared ${achievementName} achievement to Brand`);
-    recordForgeTransfer('games', 'brand', 'campaign', `${achievementName} → BrandingEngin`);
-    bridge.emit('brand', 'brand:achievement-campaign-requested', {
-      achievementId: `achievement-${Date.now()}`,
-      achievementName,
-      timestamp: new Date().toISOString(),
-      totalAchievements: unlockedAchievements.length,
-      playerLevel: savedWorld ? savedWorld.name : 'Unknown',
-    });
-  }
 
   function handleControlProfileSelect(profileId: string ){
     engineDispatch({ type: 'game:control-profile', payload: { profile: profileId } });
@@ -812,20 +785,6 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     setSavedLaunches(updated);
   }, [savedLaunches]);
 
-  const launchPlayableGame = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
-    engineDispatch({ type: 'game:select', payload: { gameId } });
-    engineDispatch({ type: 'game:session-start', payload: { gameId } });
-    if (options.expand) {
-      setShowEnginSplash(true);
-      setExpandedPlayableGame(gameId);
-    }
-    queuePlayableGameStart();
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('de:games:last-launch', gameId);
-    }
-    // Announce to world focus so top viewport and other engins know we're playing
-    setFocus('games.play', { gameId });
-  }, [queuePlayableGameStart, engineDispatch, setFocus]);
 
   const openPlayableGamePage = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
     savePlayableGame(gameId, options.expand ? 'fullscreen' : 'library-screen');

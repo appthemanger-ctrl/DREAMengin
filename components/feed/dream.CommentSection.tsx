@@ -2,10 +2,10 @@
 
 const COMMENT_MAX_LENGTH = 300;
 
-import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
-import { MessageCircle, Loader2, AlertCircle, Send } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
+import { AlertCircle, Loader2, MessageCircle, Send } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 
 interface CommentProfile {
   display_name: string | null;

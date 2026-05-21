@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
 import { registerCartridges } from '@/lib/gameengin/registerCartridges';
+import { useEffect } from 'react';
 
 export default function CartridgeRegistryBootstrap( ){
   useEffect(() => {

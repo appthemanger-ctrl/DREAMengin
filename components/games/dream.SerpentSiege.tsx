@@ -9,8 +9,8 @@
  * mid-wave but cannot cross your own body. Defend or the brood dies.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ParticlePool, ScreenShake, prefersReducedMotion } from './_fx/canvasFx';
 
 const COLS = 22;

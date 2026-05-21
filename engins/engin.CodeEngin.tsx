@@ -5,52 +5,49 @@
  * All features are real. No mock data.
  */
 
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import DiffViewer from '@/components/daydream/dream.DiffViewer';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
+import { useSharedDream } from '@/hooks/useSharedDream';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import type { EngineBase, UpgradedEngine } from '@/lib/dreamenginOS';
+import { createEventBus, upgradeEngine } from '@/lib/dreamenginOS';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useCodeEnginRuntime } from '@/lib/engins/code/useCodeEnginRuntime';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
 import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
-import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
-import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
-import { useSharedDream } from '@/hooks/useSharedDream';
-import Link from 'next/link';
 import {
-  ArrowLeft, ArrowLeftRight, Zap, Bug, ListChecks,
-  Play, Loader2, CheckCircle, XCircle,
-  Plus, X, Trash2, Copy, Clipboard, Scissors, Undo2,
-  Code2, FolderOpen, Github, Gamepad2, Music2, FlaskConical,
-  ZoomIn, ZoomOut, MousePointer2, Bot, ShieldCheck,
-  Terminal, ExternalLink, BarChart2, Shield,
+    ArrowLeft, ArrowLeftRight,
+    BarChart2,
+    Bot,
+    Bug,
+    CheckCircle,
+    Clipboard,
+    Code2,
+    Copy,
+    ListChecks,
+    Loader2,
+    MousePointer2,
+    Plus,
+    Scissors,
+    Shield,
+    Terminal,
+    Trash2,
+    X,
+    XCircle,
+    Zap,
+    ZoomIn, ZoomOut,
 } from 'lucide-react';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import DiffViewer from '@/components/daydream/dream.DiffViewer';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
-import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
-import { ArtifactSlot } from '@/lib/enginpipe';
-import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
-import { useCodeEnginRuntime } from '@/lib/engins/code/useCodeEnginRuntime';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
-import {
-  parseAiInstruction,
-  buildEditPreview,
-  applyEdit,
-  undoEdit,
-  SCOPE_ORDER,
-  SCOPE_LABEL,
-  SCOPE_DESCRIPTION,
-  SCOPE_RISK,
-  CONFIRMATION_REQUIRED,
-  CODEENGIN_PRODUCTION_MODE,
-  type EditScope,
-  type AiSuggestion,
-  type EditPreview,
-  type UndoSnapshot,
-  type EditableCell,
-} from '@/lib/diff/aiEditEngine';
-import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
+import Link from 'next/link';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { parseCode } from './CodeEngin/core/parser';
+import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
 
 // ----------------------------------------------------------------------
 // Types
@@ -408,7 +405,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useCodeEnginRuntime();
 
   // ── Workflow (code:sprint — default workflow) ──
-  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  const { loadWorkflow } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('code:sprint'); }, [loadWorkflow]);
 
   // ── Pair programming state ──

@@ -11,15 +11,15 @@
 // Intended usage: IDariPanel polls this endpoint to display the live
 // observability dashboard in the admin UI.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { isOwnerEmail } from '@/lib/ai/triad';
 import { jsonApiError } from '@/lib/api/route';
+import { getBufferStats, getSnapshot } from '@/lib/observability/collector';
+import { correlate } from '@/lib/observability/correlator';
+import { buildImmediateRemediationAction } from '@/lib/observability/immediateAction';
+import { inferRootCause } from '@/lib/observability/rootCauseAnalyzer';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { isOwnerEmail } from '@/lib/ai/triad';
-import { getSnapshot, getBufferStats } from '@/lib/observability/collector';
-import { correlate } from '@/lib/observability/correlator';
-import { inferRootCause } from '@/lib/observability/rootCauseAnalyzer';
-import { buildImmediateRemediationAction } from '@/lib/observability/immediateAction';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 export async function GET(req: NextRequest ): Promise<Response> {

@@ -17,13 +17,13 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
-  Reality,
-  RealityMember,
-  RealitySnapshot,
-  RealityActivityEntry,
-  RealityMode,
-  RealityEnginSlot,
-  RealityActivityKind,
+    Reality,
+    RealityActivityEntry,
+    RealityActivityKind,
+    RealityEnginSlot,
+    RealityMember,
+    RealityMode,
+    RealitySnapshot,
 } from './types';
 
 // ── helpers ───────────────────────────────────────────────────────────────────

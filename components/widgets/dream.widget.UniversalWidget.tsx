@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import WidgetCard from './dream.widget.WidgetCard';
 
 type ServiceType = 'instagram' | 'youtube' | 'spotify' | 'news' | 'weather' | 'github' | null;

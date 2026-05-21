@@ -1,7 +1,7 @@
 // SURFACE: dreamsurface.Messages  (framework-mandated basename: page.tsx)
+import MessagesClient from '@/components/dream.MessagesClient';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import MessagesClient from '@/components/dream.MessagesClient';
 import { connection } from 'next/server';
 
 

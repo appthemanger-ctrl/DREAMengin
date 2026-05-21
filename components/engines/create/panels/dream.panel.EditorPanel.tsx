@@ -7,8 +7,8 @@
  * Lives at /engines/create/editor.
  */
 
-import { useState, useRef } from 'react';
-import { Bold, Italic, Hash, Link2, Image, List, Save, Sparkles, RefreshCw } from 'lucide-react';
+import { Bold, Hash, Italic, Link2, List, Save, Sparkles } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 type ContentType = 'Post' | 'Thread' | 'Story' | 'Video';
 

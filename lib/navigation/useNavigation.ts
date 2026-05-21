@@ -1,7 +1,7 @@
 // useNavigation - React hook for spatial navigation engine
 // Mobile-optimized integration with React
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SpatialNavigationEngine } from './SpatialNavigationEngine';
 import type { WidgetInstanceRecord } from './WidgetInstanceMemory';
 

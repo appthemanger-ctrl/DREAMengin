@@ -1,12 +1,12 @@
 // SURFACE: dreamsurface.DreamR  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { Radio } from 'lucide-react';
-import { connection } from 'next/server';
-import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import DreamRSection from '@/app/dreamdmbar/_components/dreamr/dreamsurface.dreamr';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { safeGetUser } from '@/lib/supabase/safeGetUser';
+import { createServerClient } from '@/lib/supabase/server';
+import { Radio } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 export const metadata = {
   title: 'DreamR – DREAMengin',

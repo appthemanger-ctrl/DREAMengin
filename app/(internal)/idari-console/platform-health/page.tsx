@@ -6,9 +6,9 @@
 // Per LAW.md §9: IDARi is admin-only.
 // Per ARCHITECTURE.md §9 (AI Triad): IDARi handles admin builder/optimizer role.
 
-import { redirect } from 'next/navigation';
-import { createServerClient } from '@/lib/supabase/server';
 import { PlatformHealth } from '@/components/idari/dream.PlatformHealth';
+import { createServerClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = {

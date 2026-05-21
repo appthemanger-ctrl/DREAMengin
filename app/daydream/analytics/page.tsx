@@ -1,12 +1,12 @@
 // SURFACE: dreamsurface.DaydreamAnalytics  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { BarChart2 } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import dynamic from 'next/dynamic';
 import AnalyticsDaydream from '@/components/daydream/dreamsurface.daydream.AnalyticsDaydream';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import { isDevBypassActive } from '@/lib/dev-bypass';
+import { createServerClient } from '@/lib/supabase/server';
+import { BarChart2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 // Stream 8.3 — Bundle split: AnalyticsEngin only loads when Side B mounts.

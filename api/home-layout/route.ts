@@ -18,9 +18,9 @@
 // Architecture: docs/ARCHITECTURE.md §3 — layout config in Supabase.
 // Privacy (AXIOM 5): layout is user-scoped; RLS prevents cross-user reads.
 
-import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 interface LayoutSlot {

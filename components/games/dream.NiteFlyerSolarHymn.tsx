@@ -7,8 +7,8 @@
  * out-rally a moon-king. Three chapters → final dialogue with The Long Pause.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef } from 'react';
 
 const W = 720;
 const H = 400;

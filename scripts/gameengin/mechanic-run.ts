@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { logRDSession, listMechanics, recordBuild } from '../../lib/gameengin/brain-reader.js';
+import { listMechanics, logRDSession, recordBuild } from '../../lib/gameengin/brain-reader.js';
 
 const MAX_WASM_BYTES = 500 * 1024;
 

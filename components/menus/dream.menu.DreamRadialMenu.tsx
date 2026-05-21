@@ -9,8 +9,8 @@ declare module 'react' {
   }
 }
 
-import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import MenuPanel, { type MenuItem } from './dream.panel.MenuPanel';
 
 type Props = {

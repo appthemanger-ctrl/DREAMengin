@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, ReactNode } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>;

@@ -16,9 +16,9 @@
  * AXIOM 4 — Security by Default: API key stays server-side; never returned.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { youtubeDiscovery, getYouTubeApiKey } from '@/lib/connectors/providers/youtube';
+import { getYouTubeApiKey, youtubeDiscovery } from '@/lib/connectors/providers/youtube';
 import type { UnifiedFeedItem } from '@/types/connector';
+import { NextRequest, NextResponse } from 'next/server';
 
 export interface YouTubeDiscoveryResponse {
   ok: boolean;

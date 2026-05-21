@@ -6,9 +6,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { formatAQS, formatRealShitRate, getAQSTier, getAQSTierColor } from '@/lib/activity/aqs';
 import { ActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
+import { useEffect, useState } from 'react';
 import { TierBadge } from './dream.TierBadge';
 
 interface ActivityProfileProps {

@@ -12,8 +12,8 @@
  * Nothing in daydream_states is shared publicly (LAW.md §2, AXIOM 5).
  */
 
-import { useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useRef } from 'react';
 
 export type DaydreamSide = 'A' | 'B';
 

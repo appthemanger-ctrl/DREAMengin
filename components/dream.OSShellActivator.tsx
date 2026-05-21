@@ -31,15 +31,15 @@
  *     this activator stays out of the way to avoid double-registration.
  */
 
-import { useCallback, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
-import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
+import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 import { EnginDispatcher } from '@/lib/runtime/EnginDispatcher';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
-import { isPublicSurfacePath } from '@/lib/routing/surfaces';
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect } from 'react';
 
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 

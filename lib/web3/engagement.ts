@@ -14,14 +14,14 @@
  * endpoint instead and the tx is recorded as "off-chain".
  */
 
-import {
-  EngagementPayload,
-  EngagementStats,
-  Web3Error,
-  SUPPORTED_CHAINS,
-  DEFAULT_CHAIN_ID,
-} from './types';
 import { web3Client } from './client';
+import {
+    DEFAULT_CHAIN_ID,
+    EngagementPayload,
+    EngagementStats,
+    SUPPORTED_CHAINS,
+    Web3Error,
+} from './types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

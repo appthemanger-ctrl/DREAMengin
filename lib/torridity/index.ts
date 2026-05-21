@@ -4,15 +4,9 @@
  * Re-exports all constants and physics functions.
  */
 
-export { n, deltaP, lambda, a0Perception } from './constants';
+export { a0Perception, deltaP, lambda, n } from './constants';
 
 export {
-  mu,
-  contentMass,
-  torridityRank,
-  decayFactor,
-  throttlingGate,
-  rankFeed,
-  type ContentItem,
-  type RankedItem,
+    contentMass, decayFactor, mu, rankFeed, throttlingGate, torridityRank, type ContentItem,
+    type RankedItem
 } from './physics';

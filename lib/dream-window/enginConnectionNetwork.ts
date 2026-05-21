@@ -30,12 +30,12 @@
  */
 
 import {
-  DAYDREAM_DOMAINS,
-  ENGIN_SURFACES,
-  NETWORK_COUNTS,
-  type DaydreamDomain,
-  type EnginSurface,
-  type ConnectionVerb,
+    DAYDREAM_DOMAINS,
+    ENGIN_SURFACES,
+    NETWORK_COUNTS,
+    type ConnectionVerb,
+    type DaydreamDomain,
+    type EnginSurface,
 } from '@/lib/identity/canonical-names';
 
 // ---------------------------------------------------------------------------

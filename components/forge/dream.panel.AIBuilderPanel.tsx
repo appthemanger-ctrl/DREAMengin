@@ -12,17 +12,26 @@
  * via the useForgeBuild hook only. No direct server calls from this file.
  */
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import {
-  Zap, Copy, ExternalLink, ChevronDown, ChevronUp,
-  User, Settings, Shield, CheckCircle2, AlertCircle,
-  FileText, Clock, RotateCcw, Code2, Check,
-} from 'lucide-react';
-import { useForgeBuild } from '@/lib/forge/useForgeBuild';
-import { readForgeBuilds, canBuildToday, type ForgeLogEvent, type ForgeBuildRecord } from '@/lib/forge/forgeBuild';
+import { canBuildToday, readForgeBuilds, type ForgeBuildRecord, type ForgeLogEvent } from '@/lib/forge/forgeBuild';
 import { ENGIN_REGISTRY } from '@/lib/forge/forgeRegistry';
+import { useForgeBuild } from '@/lib/forge/useForgeBuild';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    AlertCircle,
+    Check,
+    CheckCircle2,
+    ChevronDown, ChevronUp,
+    Clock,
+    Code2,
+    Copy, ExternalLink,
+    FileText,
+    RotateCcw,
+    Settings, Shield,
+    User,
+    Zap,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ── Design tokens (matches ForgeEngin FORGE object) ──────────────────────────
 const FORGE = {

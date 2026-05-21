@@ -17,11 +17,11 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import {
-  logRDSession,
-  readCharacterVoice,
-  readEmotionalTone,
-  readNarrativePacing,
-  listDialoguePatterns,
+    listDialoguePatterns,
+    logRDSession,
+    readCharacterVoice,
+    readEmotionalTone,
+    readNarrativePacing,
 } from '../../lib/gameengin/brain-reader.js';
 
 interface StoryBeat {

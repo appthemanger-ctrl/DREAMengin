@@ -7,8 +7,8 @@
  * Lives at /engines/code/notebook.
  */
 
-import { useState, useCallback } from 'react';
-import { Plus, Play, Trash2, ChevronDown, ChevronUp, Code2, TerminalSquare } from 'lucide-react';
+import { Code2, Play, Plus, TerminalSquare, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 type CellType = 'code' | 'markdown';
 type CellStatus = 'idle' | 'running' | 'done' | 'error';

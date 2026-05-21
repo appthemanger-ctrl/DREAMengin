@@ -31,16 +31,41 @@
  * Naming: docs/NAMING_AUTHORITY.md — uses canonical vocabulary throughout.
  */
 
-import type { Database } from '@/types/supabase';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { createClient } from '@/lib/supabase/client';
 import {
-  Search, Filter, RefreshCw, Plus, Trash2, Edit3, ChevronDown, ChevronUp,
-  Gamepad2, Music, FlaskConical, Code2, Palette, Lightbulb, FileText,
-  Box, Layers, Cpu, Link2, Database as DatabaseIcon, Clock, Tag, Hash, X, Check, Loader2,
-  Eye, Download, Settings, Zap, Grid, List,
+    Box,
+    Check,
+    ChevronDown, ChevronUp,
+    Clock,
+    Code2,
+    Cpu,
+    Database as DatabaseIcon,
+    Edit3,
+    Eye,
+    FileText,
+    Filter,
+    FlaskConical,
+    Gamepad2,
+    Grid,
+    Hash,
+    Layers,
+    Lightbulb,
+    Link2,
+    List,
+    Loader2,
+    Music,
+    Palette,
+    Plus,
+    RefreshCw,
+    Search,
+    Settings,
+    Tag,
+    Trash2,
+    X,
+    Zap,
 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -95,8 +120,6 @@ type ViewMode = 'grid' | 'list';
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const ACCENT = '#c8981a'; // Gold — canonical DREAMengin premium accent
-const ACCENT_BG = 'rgba(200,152,26,0.08)';
-const ACCENT_BORDER = 'rgba(200,152,26,0.2)';
 
 /** Known object types and their visual metadata. */
 const TYPE_META: Record<string, { icon: React.ReactNode; color: string; label: string }> = {

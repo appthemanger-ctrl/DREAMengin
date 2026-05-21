@@ -8,13 +8,13 @@
  * filters, and a launch link straight into `/gameengin/cartridges/[id]`.
  */
 
-import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import {
-  CARTRIDGE_MANIFEST,
-  getCartridgeCategories,
-  type CartridgeManifestEntry,
+    CARTRIDGE_MANIFEST,
+    getCartridgeCategories,
+    type CartridgeManifestEntry,
 } from '@/lib/gameengin/cartridges/manifest';
+import Link from 'next/link';
+import { useMemo, useState } from 'react';
 
 const ALL = 'All';
 const TIER_ORDER = ['flagship', 'advanced', 'classic', 'casual'] as const;

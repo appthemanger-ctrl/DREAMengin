@@ -12,12 +12,12 @@
  */
 
 import type {
-  CartridgeSaveAPI,
-  CartridgeAchievementsAPI,
-  CartridgeAudioAPI,
-  CartridgeHapticsAPI,
-  CartridgeAssetsAPI,
-  CartridgeNetworkAPI,
+    CartridgeAchievementsAPI,
+    CartridgeAssetsAPI,
+    CartridgeAudioAPI,
+    CartridgeHapticsAPI,
+    CartridgeNetworkAPI,
+    CartridgeSaveAPI,
 } from '../cartridge';
 
 function warn(capability: string, method: any): void {

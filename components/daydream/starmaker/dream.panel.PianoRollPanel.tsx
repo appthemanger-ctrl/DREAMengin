@@ -14,17 +14,17 @@
  *  - Note count and range readout
  */
 
-import { type CSSProperties, useState, useCallback } from 'react';
-import { Piano, ChevronUp, ChevronDown } from 'lucide-react';
 import {
-  type MidiNote,
-  type PianoRollQuantize,
-  type PianoRollState,
-  createMidiNote,
-  isBlackKey,
-  midiPitchToName,
-  snapToGrid,
+    type MidiNote,
+    type PianoRollQuantize,
+    type PianoRollState,
+    createMidiNote,
+    isBlackKey,
+    midiPitchToName,
+    snapToGrid,
 } from '@/lib/music/starmakerDaw';
+import { ChevronDown, ChevronUp, Piano } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 // ─── Theme tokens ─────────────────────────────────────────────────────────────
 

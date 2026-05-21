@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.SettingsHelp  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-react';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import { createServerClient } from '@/lib/supabase/server';
+import { BookOpen, HelpCircle, MessageCircle, Wand2 } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Help – Dreamengin Settings' };

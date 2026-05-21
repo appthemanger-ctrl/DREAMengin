@@ -8,15 +8,15 @@
  * Gyroscope aiming for natural mobile gameplay
  * Haptic rumble feedback on shooting
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
-import {
-  createPerformanceBaselineSampler,
-  publishGamePerformanceBaseline,
-} from '@/lib/games/performance-baseline';
-import { useRegisterMobileGameControls } from '@/lib/games/mobileControls';
-import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useRegisterMobileGameControls } from '@/lib/games/mobileControls';
+import {
+    createPerformanceBaselineSampler,
+    publishGamePerformanceBaseline,
+} from '@/lib/games/performance-baseline';
+import * as BABYLON from '@babylonjs/core';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Phase = 'menu' | 'playing' | 'gameover';
 

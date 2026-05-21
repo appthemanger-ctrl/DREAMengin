@@ -15,10 +15,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
-  isOnline,
-  onConnectivityChange,
-  processSyncQueue,
-  type SyncQueueEntry,
+    isOnline,
+    onConnectivityChange,
+    processSyncQueue,
+    type SyncQueueEntry,
 } from './offlineCache';
 
 export interface UseOfflineSyncReturn {

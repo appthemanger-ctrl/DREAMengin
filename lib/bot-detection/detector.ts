@@ -10,12 +10,12 @@
  */
 
 import {
-  perpendicularDeviation,
-  crossSwipeSimilarity,
-  coarseGrainInvariance,
-  deviationEntropy,
-  velocityVarianceJerk,
-  type Path,
+    coarseGrainInvariance,
+    crossSwipeSimilarity,
+    deviationEntropy,
+    perpendicularDeviation,
+    velocityVarianceJerk,
+    type Path,
 } from './swipe-physics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

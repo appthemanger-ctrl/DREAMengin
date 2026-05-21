@@ -12,14 +12,13 @@
  * Performance:  render-on-demand; no polling or continuous loops
  */
 
-import { useState } from 'react';
-import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import QuantumCircuitCanvas, { type QuantumMeasurementResult } from '@/engins/dream.QuantumCircuitCanvas';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import QuantumCircuitCanvas, { type QuantumMeasurementResult } from '@/engins/dream.QuantumCircuitCanvas';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { Activity, ArrowLeft, Cpu, ShieldCheck, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
   onBack: () => void;

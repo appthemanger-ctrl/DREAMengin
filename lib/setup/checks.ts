@@ -1,7 +1,7 @@
 import {
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY,
-  SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_PUBLISHABLE_KEY,
+    SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_URL,
 } from '@/lib/supabase/config';
 
 export type SetupCheck = {

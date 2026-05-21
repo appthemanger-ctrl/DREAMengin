@@ -11,9 +11,9 @@
  * pulsing HUD beat ring, chromatic-aberration on speed.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
-import { ParticlePool, ScreenShake, prefersReducedMotion, motionTrail } from './_fx/canvasFx';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ParticlePool, ScreenShake, motionTrail, prefersReducedMotion } from './_fx/canvasFx';
 
 const W = 640;
 const H = 720;

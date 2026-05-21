@@ -13,15 +13,21 @@
  *  Shadow pair: -5px -5px 12px rgba(255,255,255,0.88), 5px 5px 14px rgba(163,189,218,0.42)
  */
 
-import { useEffect, useRef, useState } from 'react';
+import type { FeedPost } from '@/lib/feed/useLiveFeed';
+import {
+    ExternalLink,
+    Globe,
+    Hash, Instagram,
+    MessageCircle,
+    Music, Sparkles,
+    UserCheck,
+    UserPlus,
+    X,
+    Youtube,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  X, UserPlus, UserCheck, ExternalLink,
-  Music, Sparkles, Hash, Instagram, Youtube,
-  MessageCircle, Globe,
-} from 'lucide-react';
-import type { FeedPost } from '@/lib/feed/useLiveFeed';
+import { useEffect, useRef, useState } from 'react';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 

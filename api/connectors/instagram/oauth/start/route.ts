@@ -18,8 +18,8 @@
  * ARCHITECTURE.md §3 — Auth flow lives in API routes.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 const IG_AUTH_URL = 'https://api.instagram.com/oauth/authorize';
 

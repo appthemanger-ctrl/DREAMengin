@@ -17,9 +17,9 @@
  * Performance impact: neutral — Zustand store; no polling loops.
  */
 
-import { create } from 'zustand';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import type { ModuleManifest, RuntimeId } from '@/types/module-manifest';
+import { create } from 'zustand';
 
 // ── Store shape ────────────────────────────────────────────────────────────────
 

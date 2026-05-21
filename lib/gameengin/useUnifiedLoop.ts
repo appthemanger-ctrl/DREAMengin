@@ -23,9 +23,9 @@
 
 import { useEffect, useRef } from 'react';
 import {
-  registerGame,
-  unregisterGame,
-  type LoopPriority,
+    registerGame,
+    unregisterGame,
+    type LoopPriority,
 } from './unifiedLoop';
 
 /**

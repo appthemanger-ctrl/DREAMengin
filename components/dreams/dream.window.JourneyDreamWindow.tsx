@@ -12,8 +12,8 @@
  *   Layer 4 — Output     (link to full journey in BrandingEngin)
  */
 
-import Link from 'next/link';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import Link from 'next/link';
 
 export default function JourneyDreamWindow( ){
   return (

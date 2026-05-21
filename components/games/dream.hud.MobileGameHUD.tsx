@@ -1,21 +1,21 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import clsx from 'clsx';
 import styles from '@/components/games/dream.hud.MobileGameHUD.module.css';
 import {
-  emitMobileButton,
-  emitMobileLook,
-  emitMobileMove,
-  fireLegacyGameInput,
-  getLegacyActionForMobileButton,
-  getLegacyMoveAction,
-  MOBILE_HUD_BUTTON_RING,
-  normalizeStickVector,
-  type MobileControlVector,
-  type MobileHudButton,
-  type MobileHudMode,
+    emitMobileButton,
+    emitMobileLook,
+    emitMobileMove,
+    fireLegacyGameInput,
+    getLegacyActionForMobileButton,
+    getLegacyMoveAction,
+    MOBILE_HUD_BUTTON_RING,
+    normalizeStickVector,
+    type MobileControlVector,
+    type MobileHudButton,
+    type MobileHudMode,
 } from '@/lib/games/mobileControls';
+import clsx from 'clsx';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const SCALE_MIN = 0.55;
 const SCALE_MAX = 1.45;
@@ -343,12 +343,6 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
   }, []);
 
   // ── Drag to reposition ────────────────────────────────────────────────────
-  const handleDragStart = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    (event.currentTarget as HTMLDivElement).setPointerCapture(event.pointerId);
-    dragStartRef.current = { y: event.clientY, baseOffsetY: offsetY };
-    markTouchStart();
-  }, [markTouchStart, offsetY]);
 
   const handleDragMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     if (!dragStartRef.current) return;

@@ -235,7 +235,6 @@ export class DrEamsAnimator {
     this.markActive();
 
     const rect = this.ctx.canvas.getBoundingClientRect();
-    const x = (xPx - rect.left) / rect.width;
     const y = (yPx - rect.top) / rect.height;
 
     // Zones: head (top 0.00-0.35), stomach (0.35-0.70), feet (0.70-1.00)

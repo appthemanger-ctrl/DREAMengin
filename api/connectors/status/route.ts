@@ -16,10 +16,10 @@
  *   - token_blob is never selected
  */
 
-import { NextResponse } from 'next/server';
+import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
+import { NextResponse } from 'next/server';
 
 
 export interface ConnectorStatusEntry {

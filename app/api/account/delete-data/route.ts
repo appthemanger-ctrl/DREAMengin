@@ -3,13 +3,13 @@
 // Removes feed_rules, dream_instances, connector_configs, page configs.
 // Preserves auth identity and profile handle.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { writeAuditLog } from '@/lib/ai/audit';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import { writeAuditLog } from '@/lib/ai/audit';
 
 
 const DeleteDataBodySchema = z.object({

@@ -6,10 +6,10 @@
  * Back → openInSurface('settings'). No routing.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Sliders, Check } from 'lucide-react';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import PositionIndicatorToggle from '@/app/settings/controls/dream.PositionIndicatorToggle';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { ArrowLeft, Check, Sliders } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'de-controls-settings';
 

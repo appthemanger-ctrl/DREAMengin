@@ -15,12 +15,17 @@
  * IDARI_CONTRACT.md — admin-only; never surfaced to regular users.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Sparkles, Play, Pause, RefreshCw, Shield, AlertCircle,
-  CheckCircle, Zap,
-} from 'lucide-react';
 import { emitIdariEvent } from '@/lib/agents/agentBus';
+import {
+    AlertCircle,
+    CheckCircle,
+    Pause,
+    Play,
+    RefreshCw, Shield,
+    Sparkles,
+    Zap,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface IdariLog {
   timestamp: Date;

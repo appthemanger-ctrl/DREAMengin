@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import type { PriorityWidget } from '@/lib/navigation/AnchorWidgetStorage';
 
 interface ShrunkModeProps {

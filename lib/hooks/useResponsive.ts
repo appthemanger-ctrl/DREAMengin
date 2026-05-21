@@ -10,14 +10,14 @@
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import {
-  BREAKPOINTS,
-  type Breakpoint,
-  fluid,
-  getBreakpoint,
-  isAtLeast,
-  isBelow,
-  pickByBreakpoint,
-  readViewportWidth,
+    BREAKPOINTS,
+    type Breakpoint,
+    fluid,
+    getBreakpoint,
+    isAtLeast,
+    isBelow,
+    pickByBreakpoint,
+    readViewportWidth,
 } from '../ui/responsive';
 
 type Listener = () => void;

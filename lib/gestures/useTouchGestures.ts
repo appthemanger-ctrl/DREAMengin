@@ -21,9 +21,9 @@
 
 import { useEffect, useRef, type RefObject } from 'react';
 import {
-  GestureRecogniser,
-  type GestureCallbacks,
-  type GestureConfig,
+    GestureRecogniser,
+    type GestureCallbacks,
+    type GestureConfig,
 } from './touchGestures';
 
 /**

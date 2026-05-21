@@ -11,8 +11,8 @@
 // • Offers "Add" and "Not now" only — no surprise auto-add (req 4, 12)
 // • Optionally offers "Add as Feed Slice" (req 51)
 
-import React, { useEffect, useRef, useState } from 'react';
 import type { WidgetTypeDef } from '@/lib/widgets/widgetRegistry';
+import { useEffect, useRef, useState } from 'react';
 
 const AUTO_DISMISS_MS = 8000;
 

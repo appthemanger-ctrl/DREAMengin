@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.EnginesLabExperiments  (framework-mandated basename: page.tsx)
+import ExperimentsPanel from '@/components/engines/lab/panels/dream.panel.ExperimentsPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import ExperimentsPanel from '@/components/engines/lab/panels/dream.panel.ExperimentsPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Experiments – LabEngin', description: 'Run physics & ML simulations.' };

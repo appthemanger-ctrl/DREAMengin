@@ -1,16 +1,14 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
-  type UserOverrides,
-  type StoredTheme,
-  DEFAULT_OVERRIDES,
-  THEME_PRESETS,
-  applyTheme,
-  loadStoredTheme,
-  saveTheme,
-  getPreset,
+    type UserOverrides,
+    DEFAULT_OVERRIDES,
+    applyTheme,
+    getPreset,
+    loadStoredTheme,
+    saveTheme,
 } from '@/lib/ui/theme-engine';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface ThemeContextValue {
   presetId: string;

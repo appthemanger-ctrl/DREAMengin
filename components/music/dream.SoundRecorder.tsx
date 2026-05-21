@@ -1,7 +1,7 @@
 'use client';
 
+import { Download, Mic, Pause, Play, Square, Trash2, Zap } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Mic, Square, Play, Pause, Trash2, Download, Zap } from 'lucide-react';
 
 type RecorderState = 'idle' | 'recording' | 'recorded';
 

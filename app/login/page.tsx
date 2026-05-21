@@ -1,14 +1,14 @@
 "use client";
 // SURFACE: dreamsurface.Login  (framework-mandated basename: page.tsx)
 
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import PasswordField from "@/components/auth/dream.PasswordField";
-import { createClient } from "@/lib/supabase/client";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
+import { createClient } from "@/lib/supabase/client";
 import { buildAuthCallbackUrl } from "@/lib/supabase/config";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 // Shared input style — matches the rest of the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {

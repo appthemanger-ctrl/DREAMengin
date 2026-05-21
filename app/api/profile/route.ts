@@ -1,7 +1,7 @@
-import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import type { Database } from '@/types/supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch profile
 export async function GET(req: NextRequest): Promise<NextResponse> {

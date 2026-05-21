@@ -9,11 +9,11 @@
  * filterable browser lives in `CartridgeBrowser.tsx`.
  */
 
-import Link from 'next/link';
 import {
-  CARTRIDGE_MANIFEST,
-  type CartridgeManifestEntry,
+    CARTRIDGE_MANIFEST,
+    type CartridgeManifestEntry,
 } from '@/lib/gameengin/cartridges/manifest';
+import Link from 'next/link';
 
 export interface FeaturedCartridgesProps {
   /** Explicit cartridge ids to feature, in order. Defaults to flagship tier. */

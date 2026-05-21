@@ -19,9 +19,9 @@
  * docs/dreamdm_messaging_phase2.md §4 — useMessagingCore
  */
 
-import { useCallback, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
+import { createClient } from '@/lib/supabase/client';
+import { useCallback, useState } from 'react';
 import type { DMMessage } from './useDreamDMMessages';
 
 // ── Types ─────────────────────────────────────────────────────────────────────

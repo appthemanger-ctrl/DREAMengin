@@ -12,7 +12,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const POLL_INTERVAL_MS = 60_000;
 // ── Improvement 85: adaptive polling ────────────────────────────────────────

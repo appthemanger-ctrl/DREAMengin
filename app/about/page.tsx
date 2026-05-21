@@ -1,23 +1,23 @@
 // SURFACE: dreamsurface.About  (framework-mandated basename: page.tsx)
-import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  Shield, 
-  Users, 
-  Music, 
-  Beaker,
-  MessageCircle,
-  ShoppingBag,
-  LayoutGrid,
-  Settings,
-  Lock,
-  Cpu,
-  Heart,
-  ArrowRight,
-  Twitter,
-  Sparkles
-} from 'lucide-react';
 import PlatformBadge from '@/components/ui/dream.PlatformBadge';
+import {
+    ArrowLeft,
+    ArrowRight,
+    Beaker,
+    Cpu,
+    Heart,
+    LayoutGrid,
+    Lock,
+    MessageCircle,
+    Music,
+    Settings,
+    Shield,
+    ShoppingBag,
+    Sparkles,
+    Twitter,
+    Users
+} from 'lucide-react';
+import Link from 'next/link';
 
 export default function AboutPage( ){
 

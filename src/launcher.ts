@@ -22,9 +22,9 @@
  *   module is executed in a browser environment with a #gameCanvas element.
  */
 
-import { GameEnginCore, GameEnginConfigError } from './core/GameEnginCore';
 import demoGameConfig from './configs/demoGameConfig';
 import type { GameConfig } from './core/GameEnginCore';
+import { GameEnginConfigError, GameEnginCore } from './core/GameEnginCore';
 
 // ─── launch() ────────────────────────────────────────────────────────────────
 

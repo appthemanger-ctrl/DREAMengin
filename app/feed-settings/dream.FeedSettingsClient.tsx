@@ -11,9 +11,9 @@
  * localStorage is used only as a write-through cache for instant UI responsiveness.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Check, Loader2, Plus, Rss, Sliders } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, Rss, Sliders, Plus, Check, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'de-feed-settings';
 

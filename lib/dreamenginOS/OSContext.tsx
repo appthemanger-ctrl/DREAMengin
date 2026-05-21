@@ -16,11 +16,11 @@
  */
 
 import React, { createContext, useContext, useMemo } from 'react';
-import { createLedger } from '../ledger';
-import { createEventBus } from '../eventBus';
-import { upgradeEngine } from './index';
-import type { Ledger } from '../ledger';
 import type { EventBus } from '../eventBus';
+import { createEventBus } from '../eventBus';
+import type { Ledger } from '../ledger';
+import { createLedger } from '../ledger';
+import { upgradeEngine } from './index';
 
 // ─── OS Instance shape ────────────────────────────────────────────────────────
 

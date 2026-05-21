@@ -6,9 +6,9 @@
  * Back → openInSurface('settings'). No routing.
  */
 
-import { ArrowLeft, Cpu } from 'lucide-react';
-import AlgorithmEngine    from '@/components/feed/dream.AlgorithmEngine';
+import AlgorithmEngine from '@/components/feed/dream.AlgorithmEngine';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { ArrowLeft, Cpu } from 'lucide-react';
 
 export default function AlgorithmPanel( ){
   const { openInSurface } = useDreamSystem();

@@ -4,9 +4,9 @@
 // Readable, versioned, accessible without login, linked from footer + Settings.
 // Source of truth: docs/BOOGIEMAN_POLICY.md — this page mirrors it.
 
-import Link from 'next/link';
-import { ArrowLeft, Shield, ChevronRight, BookOpen, AlertTriangle, Scale, Eye, Bell, ArrowUpRight, Info, FileText } from 'lucide-react';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
+import { AlertTriangle, ArrowLeft, ArrowUpRight, Bell, BookOpen, ChevronRight, Eye, FileText, Info, Scale, Shield } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Community + Safety Policy – Dreamengin',

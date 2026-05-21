@@ -50,16 +50,16 @@
  * where everyone gets their moment.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase/server';
-import { rankFeed, type ScoredPost } from '../algorithms/dreamrAlgorithm';
-import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import {
-  filterByCloseFriends,
-  loadVisibilityCircle,
+    filterByCloseFriends,
+    loadVisibilityCircle,
 } from '@/lib/dreamr/closeFriendsVisibility';
-import { parseFeedParams, deriveNextCursor } from '@/lib/dreamr/feedCursor';
+import { deriveNextCursor, parseFeedParams } from '@/lib/dreamr/feedCursor';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import { rankFeed, type ScoredPost } from '../algorithms/dreamrAlgorithm';
 
 /**
  * Core DreamR feed handler — shared between the live route and any future

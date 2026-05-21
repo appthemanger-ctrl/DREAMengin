@@ -18,10 +18,10 @@
 export * from './shared';
 
 // Engine apps
-export * from './games';
-export * from './music';
-export * from './code';
-export * from './lab';
 export * from './brand';
+export * from './code';
 export * from './create';
+export * from './games';
+export * from './lab';
+export * from './music';
 export * from './portfolio';

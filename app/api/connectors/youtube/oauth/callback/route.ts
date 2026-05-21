@@ -19,10 +19,10 @@
  * ARCHITECTURE.md §3 — All OAuth token exchange happens server-side.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 

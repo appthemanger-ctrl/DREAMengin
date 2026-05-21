@@ -1,6 +1,6 @@
 'use client';
+import { Loader2, Send } from 'lucide-react';
 import { useState } from 'react';
-import { Send, Loader2 } from 'lucide-react';
 
 export default function BoardComposer({ boardId, userId }: {boardId: string; userId: string}) {
   const [content, setContent] = useState('');

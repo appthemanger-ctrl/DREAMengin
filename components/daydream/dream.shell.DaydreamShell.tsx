@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import GameRemote from '@/components/games/dream.remote.GameRemote';
 import BrandLogo from '@/components/dream.BrandLogo';
-import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
-import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
+import GameRemote from '@/components/games/dream.remote.GameRemote';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
-import { useGsapFlip } from '@/lib/gsap/useGsapFlip';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { useGsapFlip } from '@/lib/gsap/useGsapFlip';
+import { hasJourneyDot, logJourneyDot } from '@/lib/journey/journeyDots';
+import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 export type DaydreamWidget = {
   id: string;
@@ -57,7 +57,7 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
   const searchParams = useSearchParams();
 
   // GSAP-powered A↔B flip transition (replaces CSS keyframe approach)
-  const { containerRef, flip: gsapFlip, busy } = useGsapFlip();
+  const { containerRef, flip: gsapFlip } = useGsapFlip();
 
   // Persist visit state to Supabase (Phase 6 pt 42 — no creative work silently discarded)
   useDaydreamState({

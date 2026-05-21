@@ -7,8 +7,8 @@
  * Uses inline styles for self-contained rendering with zero CSS class deps.
  */
 
-import { useState, createContext, useContext } from 'react';
-import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, Info, X, XCircle } from 'lucide-react';
+import { createContext, useContext, useState } from 'react';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 

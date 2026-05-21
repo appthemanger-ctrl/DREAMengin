@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useCallback } from 'react';
 import { useTheme } from '@/components/providers/dream.ThemeProvider';
-import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
+import { THEME_PRESETS } from '@/lib/ui/theme-engine';
+import { useCallback } from 'react';
 
 /* ── Slider ── */
 function Slider({

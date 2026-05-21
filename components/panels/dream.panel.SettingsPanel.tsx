@@ -5,13 +5,24 @@
  * Opens sub-panels via openPanel() — no routing whatsoever.
  */
 
-import type { Database } from '@/types/supabase';
-import { useEffect, useState }  from 'react';
-import { ChevronRight, Crown, User, Rss, LayoutGrid, Palette, Plug, Sliders,
-         Shield, Database as DatabaseIcon, HelpCircle, LogOut, Bot, Cpu }  from 'lucide-react';
-import { createClient }          from '@/lib/supabase/client';
-import { useDreamSystem }        from '@/lib/dreamdm/DreamSystemContext';
-import type { SystemPanelId }    from '@/lib/panels/panelTypes';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
+import { createClient } from '@/lib/supabase/client';
+import {
+    Bot,
+    ChevronRight,
+    Cpu,
+    Crown,
+    Database as DatabaseIcon, HelpCircle,
+    LayoutGrid,
+    LogOut,
+    Palette, Plug,
+    Rss,
+    Shield,
+    Sliders,
+    User
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const NAV_GROUPS: Array<{
   heading: string;

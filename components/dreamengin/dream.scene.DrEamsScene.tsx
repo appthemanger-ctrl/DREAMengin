@@ -1,33 +1,32 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import {
-  AbstractMesh,
-  ArcRotateCamera,
-  Color3,
-  DirectionalLight,
-  HemisphericLight,
-  Mesh,
-  MeshBuilder,
-  PBRMaterial,
-  PointerEventTypes,
-  Scene,
-  SceneLoader,
-  StandardMaterial,
-  TransformNode,
-  Vector3,
-} from '@babylonjs/core';
 import { createBabylonEngine } from '@/lib/babylon/createEngine';
-import '@babylonjs/loaders/glTF';
 import {
-  DreamEngineGodTierSystem,
-  applyGodTierToBabylon,
-  defaultDeviceSignals,
-  defaultRuntimeMetrics,
-  defaultUXSignals,
-  defaultRouteSignals,
-  type BabylonSceneLike,
+    DreamEngineGodTierSystem,
+    applyGodTierToBabylon,
+    defaultDeviceSignals,
+    defaultRouteSignals,
+    defaultRuntimeMetrics,
+    defaultUXSignals,
+    type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
+import {
+    AbstractMesh,
+    ArcRotateCamera,
+    Color3,
+    DirectionalLight,
+    HemisphericLight,
+    MeshBuilder,
+    PBRMaterial,
+    PointerEventTypes,
+    Scene,
+    SceneLoader,
+    StandardMaterial,
+    TransformNode,
+    Vector3,
+} from '@babylonjs/core';
+import '@babylonjs/loaders/glTF';
+import { useEffect, useRef } from 'react';
 
 type RuntimeState = {
   idleTime: number;

@@ -16,12 +16,12 @@
 //   OTEL_METRICS_EXPORTER          – 'prometheus' (default) | 'none'
 
 import { metrics, trace, type Meter, type Tracer } from '@opentelemetry/api';
-import { resourceFromAttributes } from '@opentelemetry/resources';
-import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { MeterProvider } from '@opentelemetry/sdk-metrics';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
-import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { MeterProvider } from '@opentelemetry/sdk-metrics';
+import { BatchSpanProcessor, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 // ── Singleton state ───────────────────────────────────────────────────────────

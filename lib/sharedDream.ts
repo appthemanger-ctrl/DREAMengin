@@ -7,22 +7,22 @@
 
 import type { SupabaseClient } from '@/engine/io';
 import {
-  createCollabSession,
-  broadcastCursor as collabBroadcastCursor,
-  broadcastEdit as collabBroadcastEdit,
-  broadcastStatePatch as collabBroadcastStatePatch,
-  broadcastDataPacket as collabBroadcastDataPacket,
-  broadcastMediaSync as collabBroadcastMediaSync,
-  broadcastControlSignal as collabBroadcastControlSignal,
-  broadcastModeChange as collabBroadcastModeChange,
-  broadcastPresenceUpdate as collabBroadcastPresenceUpdate,
-  type CollabSession,
-  type CollabPayload,
-  type CollabEventHandler,
-  type CollabEventType,
-  type SessionRole,
-  type CollabMode,
-  type PresenceUpdateData,
+    broadcastControlSignal as collabBroadcastControlSignal,
+    broadcastCursor as collabBroadcastCursor,
+    broadcastDataPacket as collabBroadcastDataPacket,
+    broadcastEdit as collabBroadcastEdit,
+    broadcastMediaSync as collabBroadcastMediaSync,
+    broadcastModeChange as collabBroadcastModeChange,
+    broadcastPresenceUpdate as collabBroadcastPresenceUpdate,
+    broadcastStatePatch as collabBroadcastStatePatch,
+    createCollabSession,
+    type CollabEventHandler,
+    type CollabEventType,
+    type CollabMode,
+    type CollabPayload,
+    type CollabSession,
+    type PresenceUpdateData,
+    type SessionRole,
 } from '@/lib/collaboration';
 
 export type SharedDreamSession = CollabSession;
@@ -135,9 +135,6 @@ export async function leaveSharedDreamSession(session: SharedDreamSession): Prom
 
 // ── Persistent session hook ───────────────────────────────────────────────────
 export {
-  useSharedDreamSession,
-  type UseSharedDreamSessionOptions,
-  type UseSharedDreamSessionResult,
-  type SharedDreamMember,
-  type SharedDreamActivityEntry,
+    useSharedDreamSession, type SharedDreamActivityEntry, type SharedDreamMember, type UseSharedDreamSessionOptions,
+    type UseSharedDreamSessionResult
 } from './sharedDream/useSharedDreamSession';

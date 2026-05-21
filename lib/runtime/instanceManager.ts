@@ -22,10 +22,10 @@
  * Architecture: docs/ARCHITECTURE.md §4 (Pass 4 — multi-instance Engin manager).
  */
 
-import { create } from 'zustand';
 import type { RuntimeChannel } from '@/lib/runtime/runtimeChannel';
 import { createLocalChannel, createRuntimeChannel } from '@/lib/runtime/runtimeChannel';
 import type { RuntimeId } from '@/types/module-manifest';
+import { create } from 'zustand';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

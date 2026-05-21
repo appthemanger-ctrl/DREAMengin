@@ -1,7 +1,7 @@
 'use client';
 
+import { AlertCircle, Loader2, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Trophy, Loader2, AlertCircle } from 'lucide-react';
 
 interface ScoreProfile {
   handle: string | null;

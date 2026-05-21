@@ -3,14 +3,14 @@
 // "Policy & Safety" settings page (req 11, 14, 90–91).
 // Shows the user's safety log, appeal options, and a link to the policy.
 
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Shield, AlertTriangle, Download, FileText, ChevronRight } from 'lucide-react';
-import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
-import { connection } from 'next/server';
+import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
+import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { AlertTriangle, ChevronRight, Download, FileText, Shield } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 export const metadata = { title: 'Policy & Safety – Dreamengin Settings' };
 

@@ -16,16 +16,16 @@
  *   vm:stats-update        — periodic telemetry
  */
 
-import { InterVMChannel, type VMEvent } from './inter-vm-messaging';
 import type {
-  VMBusEventMap,
-  VMBusEventName,
-  VMWorkloadSubmittedPayload,
-  VMComputeCompletePayload,
-  VMErrorPayload,
-  VMStatsUpdatePayload,
-  VMStatsPayload,
+    VMBusEventMap,
+    VMBusEventName,
+    VMComputeCompletePayload,
+    VMErrorPayload,
+    VMStatsPayload,
+    VMStatsUpdatePayload,
+    VMWorkloadSubmittedPayload,
 } from './bus-events';
+import { InterVMChannel, type VMEvent } from './inter-vm-messaging';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

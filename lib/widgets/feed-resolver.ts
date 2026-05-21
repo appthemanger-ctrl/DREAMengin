@@ -5,12 +5,12 @@
 
 import { createServerClient } from '@/lib/supabase/server';
 import {
-  FeedScope,
-  HostResolvedStatus,
-  HostKind,
-  type FeedHostConfig,
-  type HostResolved,
-  type FeedItemSummary,
+    FeedScope,
+    HostKind,
+    HostResolvedStatus,
+    type FeedHostConfig,
+    type FeedItemSummary,
+    type HostResolved,
 } from '@/types/widget-system-v2';
 
 // =====================================================

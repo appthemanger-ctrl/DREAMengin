@@ -11,157 +11,93 @@
 
 // slog transform
 export {
-  slog,
-  slogInv,
-  slogArray,
-  slogMean,
-  slogVariance,
-  slogEntropy,
+    slog, slogArray, slogEntropy, slogInv, slogMean,
+    slogVariance
 } from '../slog';
 
 // Torridity physics
 export {
-  TORRIDITY_N,
-  TORRIDITY_DP,
-  TORRIDITY_LAMBDA,
-  TORRIDITY_A0_PERCEPTION,
-  mu,
-  contentMass,
-  torridityRank,
-  throttledVisibility,
-  rankFeed,
+    TORRIDITY_A0_PERCEPTION, TORRIDITY_DP,
+    TORRIDITY_LAMBDA, TORRIDITY_N, contentMass, mu, rankFeed, throttledVisibility, torridityRank
 } from '../torridity';
 export type { ContentItem, RankedItem } from '../torridity';
 
 // Generation Law ι-Engine
 export {
-  DELTA_P,
-  LAMBDA,
-  IOTA_MAX,
-  THRESHOLD_FLOW,
-  THRESHOLD_SYNTHESIZE,
-  calculateInventionForce,
-  getPassProtocol,
-  runPrePassChecklist,
-  logResidual,
-  auditPostPass,
-  BUGS_LOG,
-  DOC_RELATIONSHIPS,
+    BUGS_LOG, DELTA_P, DOC_RELATIONSHIPS, IOTA_MAX, LAMBDA, THRESHOLD_FLOW,
+    THRESHOLD_SYNTHESIZE, auditPostPass, calculateInventionForce,
+    getPassProtocol, logResidual, runPrePassChecklist
 } from '../generationLaw';
 export type {
-  CreativePass,
-  Protocol,
-  InventionResult,
-  ResidualClass,
-  PrePassChecklist,
+    CreativePass, InventionResult, PrePassChecklist, Protocol, ResidualClass
 } from '../generationLaw';
 
 // Local Event Bus
 export {
-  createEventBus,
-  createDualRuntimeHub,
+    createDualRuntimeHub, createEventBus
 } from '../eventBus';
 export type { EventBus, EventHandler } from '../eventBus';
 
 // Ledger
 export {
-  createLedger,
-  getLedgerEntry,
-  getAllByKind,
-  storePeakMap,
-  storeFingerprint,
-  storeSampleMetadata,
-  storeTorridityRank,
-  storeAsset,
-  recordView,
+    createLedger, getAllByKind, getLedgerEntry, recordView, storeAsset, storeFingerprint, storePeakMap, storeSampleMetadata,
+    storeTorridityRank
 } from '../ledger';
 export type {
-  Ledger,
-  LedgerEntry,
-  PeakMapEntry,
-  FingerprintEntry,
-  SampleMetadataEntry,
-  TorridityEntry,
-  AssetEntry,
-  AssetType,
-  AssetManifest,
-  SampleMetadata,
+    AssetEntry, AssetManifest, AssetType, FingerprintEntry, Ledger,
+    LedgerEntry,
+    PeakMapEntry, SampleMetadata, SampleMetadataEntry,
+    TorridityEntry
 } from '../ledger';
 
 // Universal Editor
 export {
-  createLocalEventBus,
-  canTransfer,
-  transferModule,
+    canTransfer, createLocalEventBus, transferModule
 } from '../universalEditor';
 export type { ModuleManifest, RuntimeId } from '../universalEditor';
 
 // Bot Detection
 export {
-  analyzeSwipe,
-  tallyView,
-  isBotSession,
+    analyzeSwipe, isBotSession, tallyView
 } from '../botDetection';
 export type {
-  Point,
-  SwipeAnalysis,
-  ViewTally,
-  BotSessionResult,
-  SwipeRecord,
+    BotSessionResult, Point,
+    SwipeAnalysis, SwipeRecord, ViewTally
 } from '../botDetection';
 
 // Audio Fingerprint
 export {
-  buildPeakMap,
-  recordReferenceFingerprint,
-  matchFingerprint,
-  extractAudioChunks,
+    buildPeakMap, extractAudioChunks, matchFingerprint, recordReferenceFingerprint
 } from '../audioFingerprint';
 export type {
-  Peak,
-  PeakMap,
-  Fingerprint,
-  MatchResult,
+    Fingerprint,
+    MatchResult, Peak,
+    PeakMap
 } from '../audioFingerprint';
 
 // Component Inventory
 export {
-  COMPONENT_INVENTORY,
-  ALL_CATEGORIES,
-  getByCategory,
-  searchComponents,
+    ALL_CATEGORIES, COMPONENT_INVENTORY, getByCategory,
+    searchComponents
 } from '../componentInventory';
 export type { AtomicComponent, ComponentCategory } from '../componentInventory';
 
 // Forge
 export {
-  validateAssembly,
-  createAssembly,
-  runAssembly,
-  serializeAssembly,
-  deserializeAssembly,
-  atomicPieceFromComponent,
+    atomicPieceFromComponent, createAssembly, deserializeAssembly, runAssembly,
+    serializeAssembly, validateAssembly
 } from '../forge/engineForge';
 export type {
-  AtomicPiece,
-  EngineAssembly,
-  Wire,
-  Port,
-  AssemblySandbox,
-  ValidationResult,
+    AssemblySandbox, AtomicPiece,
+    EngineAssembly, Port, ValidationResult, Wire
 } from '../forge/engineForge';
 
 // GameEngin Runtime
 export {
-  loadDreamGame,
-  GameEnginRuntime,
+    GameEnginRuntime, loadDreamGame
 } from '../gameengin/gameEnginRuntime';
 export type {
-  DreamGameManifest,
-  DreamGameInstance,
-  InputType,
-  InputHandler,
-  GameEnginEvents,
+    DreamGameInstance, DreamGameManifest, GameEnginEvents, InputHandler, InputType
 } from '../gameengin/gameEnginRuntime';
 
 // ─── OS Feature Upgrade ───────────────────────────────────────────────────────

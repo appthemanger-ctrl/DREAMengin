@@ -27,18 +27,18 @@
  */
 
 import {
-  createEnginSAB,
-  buildWorkgroups,
-  int32DreamDMBarY,
-  int32DreamDMBarX,
-  int32LockedState,
-  int32AxisState,
-  BAR_Y_SCALE,
-  SNAP_THRESHOLD_RATIO,
-  f64Telemetry,
-  MAX_WORKERS,
-  SAB_BYTES,
-  type Workgroup,
+    BAR_Y_SCALE,
+    buildWorkgroups,
+    createEnginSAB,
+    f64Telemetry,
+    int32AxisState,
+    int32DreamDMBarX,
+    int32DreamDMBarY,
+    int32LockedState,
+    MAX_WORKERS,
+    SAB_BYTES,
+    SNAP_THRESHOLD_RATIO,
+    type Workgroup,
 } from './memory';
 
 // ─── Message protocol ─────────────────────────────────────────────────────────

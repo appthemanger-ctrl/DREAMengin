@@ -5,9 +5,9 @@
  * Admin-only server actions for creating, publishing, and managing DreamDocs.
  */
 
-import { createServerClient } from '@/lib/supabase/server';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { embedDocSection } from '@/lib/dream-docs/embed';
+import { createServerClient } from '@/lib/supabase/server';
 import type { Json } from '@/types/supabase';
 
 // ---------------------------------------------------------------------------

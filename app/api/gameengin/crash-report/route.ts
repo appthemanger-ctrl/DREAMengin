@@ -16,12 +16,12 @@
  *   - cartridge_id must be a slug; player_statement must be non-empty.
  */
 
-import { NextResponse, type NextRequest } from 'next/server';
 import {
-  CRASH_REPORT_MAX_BYTES,
-  recordCrashReport,
-  isActiveCartridge,
+    CRASH_REPORT_MAX_BYTES,
+    isActiveCartridge,
+    recordCrashReport,
 } from '@/lib/gameengin/brain-reader';
+import { NextResponse, type NextRequest } from 'next/server';
 
 const ALLOWED_KEYS = new Set([
   'cartridge_id',

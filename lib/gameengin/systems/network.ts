@@ -12,15 +12,11 @@
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  RollbackNetcode,
-  ClientSidePrediction,
+    ClientSidePrediction, RollbackNetcode
 } from '../power-systems';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  NetInput,
-  RollbackConfig,
-  PredictionState,
-  ServerSnapshot,
+    NetInput, PredictionState, RollbackConfig, ServerSnapshot
 } from '../power-systems';

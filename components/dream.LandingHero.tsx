@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { calibrateDevice, CalibrationSample } from '@/lib/dreamr/swipeCalibration';
+import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 
 // ── Gesture calibration state (mutable, never triggers re-renders) ────────────
 

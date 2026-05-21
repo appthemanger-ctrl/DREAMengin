@@ -12,8 +12,8 @@
 //   GET  /api/journey?limit=N       → cap results (default 100, max 200)
 //   POST /api/journey               → insert a new journey dot (owner-only via RLS)
 
-import type { Json } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
+import type { Json } from '@/types/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 

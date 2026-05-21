@@ -2,14 +2,14 @@
 // GET  — list sessions the current user is a member of
 // POST — create a new named session
 
-import { NextRequest, NextResponse, connection } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase/server';
 import { safeGetUser } from '@/lib/supabase/safeGetUser';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse, connection } from 'next/server';
 import { z } from 'zod';
 
 // Escape hatch for missing database types to prevent "Type instantiation is excessively deep"
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type AnyClient = SupabaseClient;
 
 const CreateSchema = z.object({

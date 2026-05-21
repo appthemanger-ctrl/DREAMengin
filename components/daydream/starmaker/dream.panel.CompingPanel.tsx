@@ -12,15 +12,15 @@
  *  - "Auto Comp" button that picks the highest-rated active takes
  */
 
-import { type CSSProperties, useState, useCallback } from 'react';
-import { Mic2, Star, Plus, Trash2, Wand2 } from 'lucide-react';
 import {
-  type AudioTake,
-  type CompingState,
-  type TakeRating,
-  TAKE_COLORS,
-  createDemoTake,
+    type AudioTake,
+    type CompingState,
+    type TakeRating,
+    TAKE_COLORS,
+    createDemoTake,
 } from '@/lib/music/starmakerDaw';
+import { Mic2, Plus, Star, Trash2, Wand2 } from 'lucide-react';
+import { type CSSProperties, useCallback, useState } from 'react';
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 

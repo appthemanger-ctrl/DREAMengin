@@ -17,9 +17,9 @@
  */
 
 import type {
-  AchievementDefinition,
-  AchievementState,
-  CartridgeAchievementsAPI,
+    AchievementDefinition,
+    AchievementState,
+    CartridgeAchievementsAPI,
 } from '../cartridge';
 
 const PREFIX = 'dreamge:ach';

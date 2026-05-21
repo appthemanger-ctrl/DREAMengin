@@ -23,15 +23,15 @@
  *   - docs/PRODUCT_DEFINITION.md — flagship engins surface on HomeDream.
  */
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Flame, Gamepad2, Activity, ChevronRight } from 'lucide-react';
 import {
-  computeMomentum,
-  getLevelColor,
-  getLevelEmoji,
-  type MomentumSnapshot,
+    computeMomentum,
+    getLevelColor,
+    getLevelEmoji,
+    type MomentumSnapshot,
 } from '@/lib/forge/forgeMomentum';
+import { Activity, ChevronRight, Flame, Gamepad2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface FlagshipEnginesStripProps {
   /** Compact viewport flag (mobile / narrow). */

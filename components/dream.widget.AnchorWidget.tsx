@@ -1,16 +1,15 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { AnchorStateBuffer, MODE_HOME, MODE_PROFILE, MODE_SHRUNK, HOLD_IDLE, HOLD_HOLDING, HOLD_FIRED } from '@/lib/navigation/AnchorStateBuffer';
-import { NavStateBuffer, LAYER_HOME, LAYER_PROFILE, PROFILE_DEPTH } from '@/lib/navigation/NavStateBuffer';
+import { AnchorStateBuffer, HOLD_FIRED, HOLD_HOLDING, HOLD_IDLE, MODE_HOME, MODE_PROFILE, MODE_SHRUNK } from '@/lib/navigation/AnchorStateBuffer';
+import { AnchorWidgetStorage } from '@/lib/navigation/AnchorWidgetStorage';
+import { LAYER_HOME, LAYER_PROFILE, NavStateBuffer, PROFILE_DEPTH } from '@/lib/navigation/NavStateBuffer';
 import { ReturnStack } from '@/lib/navigation/ReturnStack';
 import { WidgetInstanceMemory } from '@/lib/navigation/WidgetInstanceMemory';
-import { AnchorWidgetStorage } from '@/lib/navigation/AnchorWidgetStorage';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // Constants
 const TAP_SLOP = 10; // pixels
 const HOLD_THRESHOLD_MS = 420; // milliseconds
-const ANCHOR_WIDGET_ID = 'anchor_widget_singleton';
 
 interface AnchorWidgetProps {
   navStateBuffer: NavStateBuffer;
@@ -82,64 +81,7 @@ export function AnchorWidget({
     onRectUpdate?.(dropRectRef.current);
   }, [onRectUpdate]);
   
-  /**
-   * Flip HOME -> PROFILE (atomic transaction)
-   */
-  const flipToProfile = useCallback(() => {
-    // 1. Push current NavSnapshot to ReturnStack
-    returnStack.push(navStateBuffer.snapshot());
-    
-    // 2. Set prevMode to HOME
-    anchorState.prevMode = MODE_HOME;
-    
-    // 3. Set mode to PROFILE
-    anchorState.mode = MODE_PROFILE;
-    
-    // 4. Update NavState layer and depth
-    navStateBuffer.layer = LAYER_PROFILE;
-    navStateBuffer.depth = PROFILE_DEPTH;
-    
-    // 5. Swap ActiveWidgetIndices to Profile (O(1))
-    widgetMemory.switchToProfile();
-    
-    // 6. Foreground Profile
-    anchorState.isOpen = true;
-    
-    // Trigger UI update
-    triggerUpdate();
-  }, [anchorState, navStateBuffer, returnStack, widgetMemory, triggerUpdate]);
   
-  /**
-   * Flip PROFILE -> HOME (atomic transaction)
-   */
-  const flipToHome = useCallback(() => {
-    // 1. Optional: Push NavSnapshot for fast return (skipped for simplicity)
-    
-    // 2. Set prevMode to PROFILE
-    anchorState.prevMode = MODE_PROFILE;
-    
-    // 3. Set mode to HOME
-    anchorState.mode = MODE_HOME;
-    
-    // 4. Restore NavState to HOME-safe snapshot
-    const snapshot = returnStack.popUntilLayer(LAYER_HOME);
-    if (snapshot) {
-      navStateBuffer.restore(snapshot);
-    } else {
-      // Clamp to HOME depth
-      navStateBuffer.layer = LAYER_HOME;
-      navStateBuffer.depth = 0;
-    }
-    
-    // 5. Swap ActiveWidgetIndices to Home (O(1))
-    widgetMemory.switchToHome();
-    
-    // 6. Foreground Home
-    anchorState.isOpen = true;
-    
-    // Trigger UI update
-    triggerUpdate();
-  }, [anchorState, navStateBuffer, returnStack, widgetMemory, triggerUpdate]);
   
   /**
    * Handle tap behavior

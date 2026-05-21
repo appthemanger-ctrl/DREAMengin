@@ -2,10 +2,10 @@
 // Mobile-optimized: GPU-friendly transforms, single DOM write
 // Enhanced with quaternion rotations and manifold smoothing
 
+import { computeLambda, computeSlotPosition, projectCubicToSphere } from './manifold';
 import type { NavStateBuffer } from './NavStateBuffer';
 import type { Quaternion } from './quaternion';
 import { identityQuaternion, toRotationMatrix } from './quaternion';
-import { projectCubicToSphere, computeLambda, computeSlotPosition } from './manifold';
 
 export interface TransformOutput {
   tx: number;

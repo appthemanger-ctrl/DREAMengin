@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState, type CSSProperties } from 'react';
 
 export function useImmersiveGameLayout( ){
   const pathname = usePathname();

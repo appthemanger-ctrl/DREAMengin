@@ -12,22 +12,22 @@
 //   admin → diagnostics, feed config, system status, DIAG_SCHEMA_SNAPSHOT
 //   owner → all admin + RLS inspection, infrastructure checks, DIAG_RLS_SNAPSHOT
 
-import { NextRequest, NextResponse } from 'next/server';
+import {
+    assessGenerationLawScope,
+    formatGenerationLawLoadCheck,
+    type GenerationLawAssessment,
+} from '@/lib/agents/idari';
+import { writeAuditLog } from '@/lib/ai/audit';
+import { boogieEvaluate } from '@/lib/ai/boogieman';
+import { groqChat, type GroqMessage } from '@/lib/ai/groq';
+import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
+import { DrEamsRunBodySchema, type Intent } from '@/lib/ai/schemas';
+import { AI_MODELS, isOwnerEmail, validateWithIdari } from '@/lib/ai/triad';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { DrEamsRunBodySchema, type Intent } from '@/lib/ai/schemas';
-import { boogieEvaluate } from '@/lib/ai/boogieman';
-import { writeAuditLog } from '@/lib/ai/audit';
-import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
-import { isOwnerEmail, validateWithIdari, AI_MODELS } from '@/lib/ai/triad';
-import { groqChat, type GroqMessage } from '@/lib/ai/groq';
-import {
-  assessGenerationLawScope,
-  formatGenerationLawLoadCheck,
-  type GenerationLawAssessment,
-} from '@/lib/agents/idari';
 
 
 type ActorRole = 'admin' | 'owner';

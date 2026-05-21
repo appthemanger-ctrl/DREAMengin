@@ -4,10 +4,10 @@
 // Retrieves aggregated user metrics including AQS, Real Shit Rate, views.
 // Per ACTIVITY_FIRST_PROTOCOL.md §IV (Metrics & Measurement)
 
-import { NextRequest, NextResponse } from 'next/server';
+import { ActivityTier, isValidActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
 import { createServerClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/supabase';
-import { ActivityTier, isValidActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
+import { NextRequest, NextResponse } from 'next/server';
 
 function toNumber(value: number | string | null | undefined): number {
   const parsed = typeof value === 'string' ? Number(value) : value;

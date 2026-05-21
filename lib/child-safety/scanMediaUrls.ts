@@ -24,9 +24,9 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createHash } from 'crypto';
+import type { ChildSafetyResult } from './childSafetyDetector';
 import { scanContent } from './childSafetyDetector';
 import { classifyImage } from './imageClassifier';
-import type { ChildSafetyResult } from './childSafetyDetector';
 
 // ============================================================================
 // CONSTANTS

@@ -18,7 +18,7 @@ async function loadMadMaxiExports(): Promise<MadMaxiWasmExports | null> {
         ? await (await import(/* webpackIgnore: true */ 'fs/promises')).readFile(wasmPath)
         : new Uint8Array(await (await fetch(wasmPath)).arrayBuffer());
       const { instance } = await WebAssembly.instantiate(bytes as BufferSource, {});
-      return instance.exports as unknown as MadMaxiWasmExports;
+      return instance.exports as any as MadMaxiWasmExports;
     } catch {
       return null;
     }

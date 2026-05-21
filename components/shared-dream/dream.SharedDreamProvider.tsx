@@ -1,35 +1,35 @@
 'use client';
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
 import {
-  createCollabSession,
-  generateInviteLink,
-  parseInviteLink,
-  broadcastEdit,
-  broadcastCursor,
-  broadcastStatePatch,
-  broadcastDataPacket,
-  broadcastMediaSync,
-  broadcastControlSignal,
-  broadcastModeChange,
-  broadcastPresenceUpdate,
-  type CollabSession,
-  type CollabEventHandler,
-  type CollabPayload,
-  type PeerInfo,
-  type CollabSessionOptions,
-  type SessionRole,
-  type CollabMode,
-  type PresenceUpdateData,
+    broadcastControlSignal,
+    broadcastCursor,
+    broadcastDataPacket,
+    broadcastEdit,
+    broadcastMediaSync,
+    broadcastModeChange,
+    broadcastPresenceUpdate,
+    broadcastStatePatch,
+    createCollabSession,
+    generateInviteLink,
+    parseInviteLink,
+    type CollabEventHandler,
+    type CollabMode,
+    type CollabPayload,
+    type CollabSession,
+    type CollabSessionOptions,
+    type PeerInfo,
+    type PresenceUpdateData,
+    type SessionRole,
 } from '@/lib/collaboration';
 import { createClient } from '@/lib/supabase/client';
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 
 export interface CursorPosition {
   peerId: string;

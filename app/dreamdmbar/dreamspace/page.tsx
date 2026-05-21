@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { useEffect } from 'react';
 
 export default function DreamDMBarDreamSpacePage( ){
   const { setFocus } = useDreamSystem();

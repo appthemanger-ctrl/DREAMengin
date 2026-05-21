@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { n as MOND_N } from '@/lib/torridity/constants';
+import { useEffect, useRef } from 'react';
 
 const MIN_PARTICLES = 10001;
 const MAX_PARTICLES = 20001;
@@ -17,9 +17,6 @@ const LIGHT_PRESSURE_COEFF = 0.00000045;
 const a0 = 1.2e-10; // m/s^2 – critical acceleration
 const n = MOND_N;   // 2.1
 
-function mu_T(x: number): number {
-  return x / Math.pow(1 + Math.pow(x, n), 1 / n);
-}
 
 function nu_T(y: number): number {
   if (y <= 0) return 1;

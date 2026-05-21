@@ -23,8 +23,8 @@
  *   3. Exposes a stable `update` callback and reactive `level` / `state` values.
  */
 
+import { AIDirector, type DirectorState, type PlayerSignals } from '@/lib/gameengin/ai-director';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AIDirector, type PlayerSignals, type DirectorState } from '@/lib/gameengin/ai-director';
 
 const DEFAULT_STATE: DirectorState = {
   challengeLevel: 0.35,

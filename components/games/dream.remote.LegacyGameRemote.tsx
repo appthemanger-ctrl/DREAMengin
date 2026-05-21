@@ -23,12 +23,12 @@
  * Direction label appears above each stick while dragging past the dead zone.
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
+import { useGamepad } from '@/lib/games/useGamepad';
+import { broadcastGameInput } from '@/lib/games/useRemoteChannel';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useGamepad } from '@/lib/games/useGamepad';
-import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
-import { broadcastGameInput } from '@/lib/games/useRemoteChannel';
+import { useCallback, useRef, useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type GameInputAction =

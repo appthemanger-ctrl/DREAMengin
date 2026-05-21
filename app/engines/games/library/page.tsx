@@ -1,11 +1,11 @@
 // SURFACE: dreamsurface.EnginesGamesLibrary  (framework-mandated basename: page.tsx)
+import LibraryPanel from '@/components/engines/games/panels/dream.panel.LibraryPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import LibraryPanel from '@/components/engines/games/panels/dream.panel.LibraryPanel';
 import { connection } from 'next/server';
-import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
 
 export const metadata = { title: 'Game Library – GameEngin', description: 'Browse all available games.' };
 

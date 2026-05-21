@@ -13,12 +13,12 @@
  * do something real). No fake demo sessions shown.
  */
 
-import { useState, useCallback } from 'react';
-import Link from 'next/link';
-import { Lock, Smartphone, Key, Shield, AlertTriangle, Check, Loader2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import { createClient } from '@/lib/supabase/client';
 import { buildAuthCallbackUrl } from '@/lib/supabase/config';
+import { AlertTriangle, Check, Loader2, Lock, Shield, Smartphone } from 'lucide-react';
+import Link from 'next/link';
+import { useCallback, useState } from 'react';
 
 
 export default function SecuritySettingsPage( ){

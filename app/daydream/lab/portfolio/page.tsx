@@ -1,11 +1,11 @@
 // SURFACE: dreamsurface.DaydreamLabPortfolio  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import Link from 'next/link';
-import { ArrowLeft, TrendingUp } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import PortfolioEngin from '@/engins/portfolio/dream.PortfolioEngin';
+import { isDevBypassActive } from '@/lib/dev-bypass';
+import { createServerClient } from '@/lib/supabase/server';
+import { ArrowLeft, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = {

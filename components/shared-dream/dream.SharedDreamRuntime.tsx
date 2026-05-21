@@ -22,12 +22,12 @@
  *   - saveEnginState called when Engin publishes via useEnginCoopSync
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { SharedDreamProvider } from './dream.SharedDreamProvider';
-import { SharedDreamCanvas } from './dream.SharedDreamCanvas';
-import { InviteFlow } from './dream.InviteFlow';
-import { useSharedDreamSession } from '@/lib/sharedDream/useSharedDreamSession';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useSharedDreamSession } from '@/lib/sharedDream/useSharedDreamSession';
+import React, { useCallback, useEffect, useState } from 'react';
+import { InviteFlow } from './dream.InviteFlow';
+import { SharedDreamCanvas } from './dream.SharedDreamCanvas';
+import { SharedDreamProvider } from './dream.SharedDreamProvider';
 
 // ── Engin slot config ────────────────────────────────────────────────────────
 

@@ -10,8 +10,8 @@
  * Render: DOM (Tailwind), parchment palette, library candle gold.
  */
 
-import { useCallback, useEffect, useState } from 'react';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Card { letter: string; id: string; }
 type Phase = 'menu' | 'playing' | 'victory' | 'defeat';

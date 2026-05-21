@@ -153,7 +153,7 @@ async function tryLoadWasm(wasmUrl: string, memory: WebAssembly.Memory | null): 
       },
     });
 
-    wasmExports     = instance.exports as unknown as WasmExports;
+    wasmExports     = instance.exports as any as WasmExports;
     console.info('[EnginShaderWorker] Wasm SIMD engine loaded — near-native physics active.');
   } catch {
     // Wasm not available — JS stub will continue to be used.

@@ -1,14 +1,14 @@
 // lib/ai/tool-router.ts
 // Tool Router - Dispatch Intents to Typed Handlers
 
-import {
-  Intent,
-  ActorContext,
-  UIContext,
-  ToolResult,
-  IntentType,
-} from '@/types/ai-system';
 import type { SupabaseClient } from '@/engine/io';
+import {
+    ActorContext,
+    Intent,
+    IntentType,
+    ToolResult,
+    UIContext,
+} from '@/types/ai-system';
 import { writeAuditLog } from './audit';
 
 // ============================================================================

@@ -40,31 +40,31 @@
  * ARCHITECTURE.md §3 — Logic layer (lib/social) used here; no direct DB writes.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import {
-  parseRssFeed,
-  youtubeChannelRssUrl,
-  youtubePlaylistRssUrl,
-  redditSubredditRssUrl,
-  redditUserRssUrl,
-  mastodonUserRssUrl,
-  githubUserAtomUrl,
-  nostrGatewayRssUrl,
-  mediumUserRssUrl,
-  devtoUserRssUrl,
-  substackRssUrl,
-  hackerNewsRssUrl,
-  hackerNewsUserRssUrl,
-  podcastRssUrl,
-  twitterNitterRssUrl,
-  DEFAULT_NITTER_INSTANCE,
-  facebookPageRssUrl,
-  pinterestRssUrl,
-  tumblrRssUrl,
-  tiktokProfileRssUrl,
-  type RssProvider,
+    DEFAULT_NITTER_INSTANCE,
+    devtoUserRssUrl,
+    facebookPageRssUrl,
+    githubUserAtomUrl,
+    hackerNewsRssUrl,
+    hackerNewsUserRssUrl,
+    mastodonUserRssUrl,
+    mediumUserRssUrl,
+    nostrGatewayRssUrl,
+    parseRssFeed,
+    pinterestRssUrl,
+    podcastRssUrl,
+    redditSubredditRssUrl,
+    redditUserRssUrl,
+    substackRssUrl,
+    tiktokProfileRssUrl,
+    tumblrRssUrl,
+    twitterNitterRssUrl,
+    youtubeChannelRssUrl,
+    youtubePlaylistRssUrl,
+    type RssProvider,
 } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
+import { NextRequest, NextResponse } from 'next/server';
 
 // ── SSRF guard ────────────────────────────────────────────────────────────
 

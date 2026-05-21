@@ -1,16 +1,16 @@
-import {
-  EXTRA_POWERUP_EVERY_N_LEVELS,
-  LEVEL_SEED_KEY,
-  ZONES,
-  getBossForLevel,
-  getEnemyKindForIndex,
-  getMadmaxiEnemyCount,
-  getPowerUpForIndex,
-  getZoneIdx,
-  isBossLevel,
-  seededRng,
-} from './config';
 import { getAuthoredStarterLevel, isMadmaxiAuthoredLevel } from './authoredZonePacks';
+import {
+    EXTRA_POWERUP_EVERY_N_LEVELS,
+    LEVEL_SEED_KEY,
+    ZONES,
+    getBossForLevel,
+    getEnemyKindForIndex,
+    getMadmaxiEnemyCount,
+    getPowerUpForIndex,
+    getZoneIdx,
+    isBossLevel,
+    seededRng,
+} from './config';
 import type { EnemyDef, HazardDef, LevelDef, PlatDef, PowerUpDef } from './types';
 
 export function getMadmaxiLevelDefinition(level: number, sessionSeed: number): LevelDef {

@@ -28,90 +28,82 @@
  * Architecture: drag state lives here; messaging logic in lib/dreamdm/ hooks.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+    Bell,
+    Bot,
+    Code2,
+    Compass,
+    FileText,
+    Gamepad2,
+    Home,
+    ImageIcon,
+    Loader2,
+    Maximize2,
+    MessageCircle,
+    Music,
+    Paperclip,
+    PenLine,
+    Search,
+    Send,
+    Settings,
+    ShoppingBag,
+    Sparkles,
+    User,
+    X,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import {
-  Bell,
-  Bot,
-  Code2,
-  Compass,
-  FileText,
-  Flame,
-  Gamepad2,
-  Home,
-  Loader2,
-  MessageCircle,
-  Music,
-  Paperclip,
-  PenLine,
-  Search,
-  Send,
-  Settings,
-  ShoppingBag,
-  Sparkles,
-  User,
-  X,
-  ImageIcon,
-  Maximize2,
-} from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { formatRelativeTime }                    from '@/lib/utils';
-import { useDreamDMMessages }                    from '@/lib/dreamdm/useDreamDMMessages';
-import { useDreamDMDraft }                        from '@/lib/dreamdm/useDreamDMDraft';
-import { useDreamSearch, type SearchResult }      from '@/lib/dreamdm/useDreamSearch';
-import { useMessagingCore, type MediaType }       from '@/lib/dreamdm/useMessagingCore';
-import { uploadBlobToLedgerStorage }              from '@/lib/media/ledger';
-import { useNotifications }                       from '@/lib/dreamdm/useNotifications';
-import { useDreamDMConversations,
-  type DMConversation,
-} from '@/lib/dreamdm/useDreamDMConversations';
-import {
-  calculatePointerVelocity,
-  shouldCollapseGoldSwipe,
-  shouldCollapseTopExpandedDrag,
-  shouldTreatGoldReleaseAsTap,
-  decideBarRelease,
-  DEFAULT_SPLIT_RATIO,
-  snapSplitRatioOnRelease,
-  DIVIDER_H,
-  SPLIT_RATIO_MIN,
-  SPLIT_RATIO_MAX,
-  ORB_SIZE as ORB_SIZE_CONST,
-  ORB_TAP_SLOP as ORB_TAP_SLOP_CONST,
-  computeOrbDragPosition,
-  getMoodPeriod,
-  MOOD_AURA_GRADIENTS,
-  MOOD_EDGE_COLORS,
-  SURFACE_ACCENT_COLORS,
-  filterSlashCommands,
-  SLASH_COMMANDS,
-  computeTypingRhythm,
-  rhythmToHandleScale,
-  resolveStreak,
-  getStreakTier,
-  STREAK_STORAGE_KEY,
-  QUICK_REACTIONS,
-  GOLD_LONG_PRESS_MS,
-  generateParticles,
-  DRAG_TAP_THRESHOLD_PX,
-  DOUBLE_TAP_WINDOW_MS,
-  LIGHT_POSITION_CYCLE as _LIGHT_POSITION_CYCLE,
-  resolveGoldTapAction,
-  type SlashCommand,
-  type Particle,
-  type MoodPeriod,
-  type SurfaceAccent,
-  type StreakData,
-  type StreakTier,
-} from '@/lib/dreamdm/barInteractions';
-import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
-import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
-import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemContext';
 import DreamWord from '@/components/ui/dream.DreamWord';
-import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
-import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 import GlowingLight from '@/dreamdmbar/dream.GlowingLight';
+import {
+    calculatePointerVelocity,
+    computeTypingRhythm,
+    decideBarRelease,
+    DEFAULT_SPLIT_RATIO,
+    DIVIDER_H,
+    DOUBLE_TAP_WINDOW_MS,
+    DRAG_TAP_THRESHOLD_PX,
+    filterSlashCommands,
+    getMoodPeriod,
+    getStreakTier,
+    GOLD_LONG_PRESS_MS,
+    MOOD_AURA_GRADIENTS,
+    MOOD_EDGE_COLORS,
+    ORB_TAP_SLOP as ORB_TAP_SLOP_CONST,
+    QUICK_REACTIONS,
+    resolveGoldTapAction,
+    resolveStreak,
+    rhythmToHandleScale,
+    shouldCollapseTopExpandedDrag,
+    snapSplitRatioOnRelease,
+    SPLIT_RATIO_MAX,
+    SPLIT_RATIO_MIN,
+    STREAK_STORAGE_KEY,
+    SURFACE_ACCENT_COLORS,
+    type MoodPeriod,
+    type Particle,
+    type StreakData,
+    type StreakTier,
+    type SurfaceAccent
+} from '@/lib/dreamdm/barInteractions';
+import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemContext';
+import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
+import {
+    useDreamDMConversations,
+    type DMConversation,
+} from '@/lib/dreamdm/useDreamDMConversations';
+import { useDreamDMDraft } from '@/lib/dreamdm/useDreamDMDraft';
+import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
+import { useDreamDMMessages } from '@/lib/dreamdm/useDreamDMMessages';
+import { useDreamSearch, type SearchResult } from '@/lib/dreamdm/useDreamSearch';
+import { useMessagingCore, type MediaType } from '@/lib/dreamdm/useMessagingCore';
+import { useNotifications } from '@/lib/dreamdm/useNotifications';
+import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
+import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
+import { formatRelativeTime } from '@/lib/utils';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
@@ -122,9 +114,6 @@ const TOP_H        = 340;
 export const NAV_H = 52;
 /** Gold Particle diameter (full / revealed) */
 const GOLD_SZ      = 60;
-const GOLD_R       = GOLD_SZ / 2;
-/** Gold capsule size when in minimized / idle state */
-const GOLD_MIN_W   = 36;
 const GOLD_MIN_H   = 8;
 /** Snap to bottom when dragged down this many px from top */
 const SNAP_DOWN_PX = 88;
@@ -252,29 +241,6 @@ function StreakFlame({ count, tier }: {count: number; tier: StreakTier}) {
 // ─────────────────────────────────────────────────────────────────────────────
 // ParticleFountain — renders animated particles from Gold Particle long-press
 // ─────────────────────────────────────────────────────────────────────────────
-function ParticleFountain({ particles, centerX, centerY }: {particles: Particle[]; centerX: number; centerY: number}) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none' }} aria-hidden>
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="sicc-particle"
-          style={{
-            left: centerX,
-            top: centerY,
-            width: p.size,
-            height: p.size,
-            background: p.color,
-            '--particle-dx': `${p.vx * 40}px`,
-            '--particle-dy': `${p.vy * 40}px`,
-            animationDuration: `${0.8 + Math.random() * 0.6}s`,
-            boxShadow: `0 0 ${p.size}px ${p.color}`,
-          } as React.CSSProperties}
-        />
-      ))}
-    </div>
-  );
-}
 
 // ── Props
 // ─────────────────────────────────────────────────────────────────────────────
@@ -433,7 +399,6 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   /** Position of the minimized orb (CSS right/bottom offsets from viewport edges) */
   const [orbPos, setOrbPos] = useState<{ x: number; y: number }>({ x: 20, y: 20 });
   const orbDragRef = useRef({ active: false, startX: 0, startY: 0, startOrbX: 0, startOrbY: 0, moved: false });
-  const ORB_SIZE = ORB_SIZE_CONST;
   const ORB_TAP_SLOP = ORB_TAP_SLOP_CONST;
 
   // ── Touch-reveal transparency ─────────────────────────────────────────────
@@ -521,42 +486,8 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   const [particles, setParticles] = useState<Particle[]>([]);
 
   // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
-  const handleOrbPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    orbDragRef.current = {
-      active: true,
-      startX: e.clientX,
-      startY: e.clientY,
-      startOrbX: orbPos.x,
-      startOrbY: orbPos.y,
-      moved: false,
-    };
-  }, [orbPos]);
 
-  const handleOrbPointerMove = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!orbDragRef.current.active) return;
-    const dx = e.clientX - orbDragRef.current.startX;
-    const dy = e.clientY - orbDragRef.current.startY;
-    if (!orbDragRef.current.moved && Math.abs(dx) < ORB_TAP_SLOP && Math.abs(dy) < ORB_TAP_SLOP) return;
-    orbDragRef.current.moved = true;
-    setOrbPos(computeOrbDragPosition(orbDragRef.current.startOrbX, orbDragRef.current.startOrbY, dx, dy, screenW, screenH));
-  }, [screenW, screenH]);
 
-  const handleOrbPointerUp = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!orbDragRef.current.active) return;
-    const wasDrag = orbDragRef.current.moved;
-    orbDragRef.current.active = false;
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    }
-    if (!wasDrag) {
-      // Tap — restore bar at the bottom
-      setIsMinimized(false);
-      setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
-      revealBar();
-    }
-  }, [revealBar]);
 
   const dragRef = useRef({
     active: false, startY: 0,
@@ -1602,7 +1533,6 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   if (!mounted) return null;
 
   // ── Derived layout values ─────────────────────────────────────────────────
-  const transition = isDragging ? 'none' : SPRING;
 
   // ── Divider mode: bar is a fixed-height spatial seam driven by splitRatio ──
   const isDividerMode = dividerModeActive;
@@ -1640,7 +1570,6 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   const goldTopPx: number = isGoldOffScreen ? 10 : attachedGoldTop;
 
   // Track if button is in screen-locked mode (for styling/behavior)
-  const isScreenLocked: boolean = isGoldOffScreen;
   const isCompactViewport = isCompactRuntimeViewport(screenW);
 
   // ── Minimized-mode geometry ───────────────────────────────────────────────
@@ -1648,7 +1577,6 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   // but only GOLD_MIN_H tall and GOLD_MIN_W wide (a subtle gold pill indicator).
   // The "top" for the capsule should align its center with goldTopPx + goldR.
   const goldCenterY = goldTopPx + goldR;
-  const minCapsuleTop = goldCenterY - GOLD_MIN_H / 2;
 
   // ── Resting state: bar is fully transparent until touched ────────────────
   // Bar is "resting" when: at bottom (not top), not dragging, not composeFocused,

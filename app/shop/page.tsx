@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.Shop  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Store, PlusCircle, Package } from 'lucide-react';
 import DreamWord from '@/components/ui/dream.DreamWord';
+import { createServerClient } from '@/lib/supabase/server';
+import { ArrowLeft, Package, PlusCircle, Store } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'DreamShop – Dreamengin', description: 'Sell and discover digital products.' };

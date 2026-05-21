@@ -7,11 +7,11 @@
 //
 // Access: admin + owner only.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { isOwnerEmail } from '@/lib/ai/triad';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { isOwnerEmail } from '@/lib/ai/triad';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 

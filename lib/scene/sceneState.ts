@@ -18,18 +18,18 @@
  */
 
 import {
-  saveScene,
-  getScene,
-  deleteScene,
-  listScenes,
-  enqueueSyncAction,
-  type CachedScene,
-  type SceneSnapshot,
-  type SceneObject,
+    deleteScene,
+    enqueueSyncAction,
+    getScene,
+    listScenes,
+    saveScene,
+    type CachedScene,
+    type SceneObject,
+    type SceneSnapshot,
 } from '@/lib/offline/offlineCache';
 
 // Re-export types for consumers
-export type { SceneSnapshot, SceneObject, CachedScene };
+export type { CachedScene, SceneObject, SceneSnapshot };
 
 // ─── Scene snapshot helpers ───────────────────────────────────────────────────
 

@@ -8,9 +8,9 @@
 // • Respects scroll, does not steal gestures from feeds (req 39)
 // • Exits to LOCKED safe mode (req 40)
 
-import React, { useCallback, useEffect, useState } from 'react';
-import type { WidgetTypeDef } from '@/lib/widgets/widgetRegistry';
 import { handlePlacementCancel, handlePlacementDone } from '@/lib/connectors/installFlow';
+import type { WidgetTypeDef } from '@/lib/widgets/widgetRegistry';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface PlacedWidget {
   widgetId: string;

@@ -15,9 +15,9 @@
  *   />
  */
 
-import { useState, useCallback, useEffect } from 'react';
-import { X, Copy, Check, ExternalLink } from 'lucide-react';
 import { PROFILE_SHARE_PLATFORMS, type SocialPlatform } from '@/lib/social/platforms';
+import { Check, Copy, ExternalLink, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface SocialShareSheetProps {
   open: boolean;

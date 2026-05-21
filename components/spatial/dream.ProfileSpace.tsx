@@ -1,30 +1,30 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import Image from "next/image";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Settings,
-  Trash2,
-  Plus,
-  ExternalLink,
-  Square,
-  User,
-  X,
-  Link as LinkIcon,
-  Image as ImageIcon,
-  Music,
-  Video,
-  FileText,
-  Rss,
-  Globe,
-  Lock,
-  Users,
-} from "lucide-react";
-import { useWidgets, useContent } from "@/hooks/use-spatial";
-import type { Widget, WidgetType, WidgetVisibility, ContentObject } from "@/types/spatial";
+import { useContent, useWidgets } from "@/hooks/use-spatial";
 import { cn } from "@/lib/utils";
+import type { ContentObject, Widget, WidgetType, WidgetVisibility } from "@/types/spatial";
+import {
+    ChevronLeft,
+    ChevronRight,
+    ExternalLink,
+    FileText,
+    Globe,
+    Image as ImageIcon,
+    Link as LinkIcon,
+    Lock,
+    Music,
+    Plus,
+    Rss,
+    Settings,
+    Square,
+    Trash2,
+    User,
+    Users,
+    Video,
+    X,
+} from "lucide-react";
+import Image from "next/image";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ProfileSpaceProps {
   userId: string;
@@ -58,7 +58,6 @@ export default function ProfileSpace({
   handle,
   displayName,
   avatarUrl,
-  bio,
   isOwner,
   onSwitchToHome,
 }: ProfileSpaceProps) {
@@ -749,7 +748,6 @@ function WidgetSettingsModal({
 }
 
 function AddWidgetModal({
-  userId,
   onClose,
   onCreate,
 }: {

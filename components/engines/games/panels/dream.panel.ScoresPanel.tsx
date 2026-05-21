@@ -7,9 +7,9 @@
  * Lives at /engines/games/scores.
  */
 
-import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Trophy, RefreshCw, Share2, Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw, Share2, Trophy } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface GameScore {
   id: string;

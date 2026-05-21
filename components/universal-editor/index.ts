@@ -5,18 +5,15 @@
  */
 
 export {
-  useTapHoldMove,
-  type TapHoldMoveOptions,
-  type TapHoldMoveBindings,
-  type Position,
+    useTapHoldMove, type Position, type TapHoldMoveBindings, type TapHoldMoveOptions
 } from './useTapHoldMove';
 
 export {
-  UniversalEditorWrapper,
-  type UniversalEditorWrapperProps,
+    UniversalEditorWrapper,
+    type UniversalEditorWrapperProps
 } from './dream.UniversalEditorWrapper';
 
 export {
-  UniversalEditor,
-  type UniversalEditorProps,
+    UniversalEditor,
+    type UniversalEditorProps
 } from './dream.UniversalEditor';

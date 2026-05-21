@@ -17,11 +17,10 @@
  * Privacy: all windows filtered by visibility before rendering (Point 21).
  */
 
-import { useCallback, useMemo, useState } from 'react';
-import { useDreamWindowActions } from '@/lib/dream-window/useDreamWindowActions';
-import type { DreamWindowRecord } from '@/types/dream-window';
-import type { CreateDreamWindowBody } from '@/types/dream-window';
 import { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';
+import { useDreamWindowActions } from '@/lib/dream-window/useDreamWindowActions';
+import type { CreateDreamWindowBody, DreamWindowRecord } from '@/types/dream-window';
+import { useCallback, useMemo, useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Compatibility cluster definitions

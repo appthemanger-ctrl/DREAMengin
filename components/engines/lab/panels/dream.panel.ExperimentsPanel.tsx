@@ -7,8 +7,8 @@
  * Lives at /engines/lab/experiments.
  */
 
+import { Loader2, Play, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
-import { Play, RotateCcw, FlaskConical, ChevronRight, Loader2 } from 'lucide-react';
 
 type SimState = 'idle' | 'running' | 'complete';
 

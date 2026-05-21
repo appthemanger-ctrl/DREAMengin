@@ -5,11 +5,11 @@
 // and innovation bonus logic per ACTIVITY_FIRST_PROTOCOL.md §II
 
 import {
-  ActivityTier,
-  VerificationMethod,
-  TIER_MULTIPLIERS,
-  VERIFICATION_STRENGTH,
-  INNOVATION_BONUS,
+    ActivityTier,
+    INNOVATION_BONUS,
+    TIER_MULTIPLIERS,
+    VERIFICATION_STRENGTH,
+    VerificationMethod,
 } from './types';
 
 /**

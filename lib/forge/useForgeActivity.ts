@@ -12,7 +12,7 @@
  * telemetry only (no privacy impact).
  */
 
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { recordForgeActivity } from './forgeRegistry';
 
 export interface UseForgeActivityOptions {

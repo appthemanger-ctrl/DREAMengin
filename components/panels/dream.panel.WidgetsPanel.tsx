@@ -6,11 +6,11 @@
  * Back → openInSurface('settings'). No routing.
  */
 
+import DreamWord from '@/components/ui/dream.DreamWord';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { createClient } from '@/lib/supabase/client';
+import { ArrowLeft, Eye, EyeOff, LayoutGrid, Loader2, Pin } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, LayoutGrid, Pin, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { createClient }    from '@/lib/supabase/client';
-import { useDreamSystem }  from '@/lib/dreamdm/DreamSystemContext';
-import DreamWord           from '@/components/ui/dream.DreamWord';
 
 interface WidgetEntry { name: string; pinned: boolean; visible: boolean; }
 

@@ -7,22 +7,22 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
-  DreamEngineGodTierSystem,
-  applyGodTierToBabylon,
-  defaultDeviceSignals,
-  defaultRuntimeMetrics,
-  defaultUXSignals,
-  defaultRouteSignals,
+    DreamEngineGodTierSystem,
+    applyGodTierToBabylon,
+    defaultDeviceSignals,
+    defaultRouteSignals,
+    defaultRuntimeMetrics,
+    defaultUXSignals,
 } from '@/lib/god-tier/godTierEngine';
 import {
-  WebGPUDirector,
-  applyDirectorFrame,
-  buildSceneObjects,
-  defaultCameraSignals,
+    WebGPUDirector,
+    applyDirectorFrame,
+    buildSceneObjects,
+    defaultCameraSignals,
 } from '@/lib/webgpu/director';
+import { useEffect, useRef } from 'react';
 
 interface BabylonGameSceneProps {
   onGameSelect?: (gameId: string) => void;

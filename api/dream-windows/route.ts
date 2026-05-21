@@ -14,10 +14,10 @@
  * Privacy: visibility defaults to 'private' (docs/AXIOMS.md §product integrity)
  */
 
+import { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';
 
 // ---------------------------------------------------------------------------
 // The 10 required fields (Phase 8 §B Point 12)

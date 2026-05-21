@@ -30,7 +30,7 @@ const mockWebGPUEngine = {
 
 const MockEngine = vi.fn(function (this: typeof mockWebGLEngine) {
   Object.assign(this, mockWebGLEngine);
-}) as unknown as new (...args: unknown[]) => typeof mockWebGLEngine;
+}) as any as new (...args: unknown[]) => typeof mockWebGLEngine;
 const MockWebGPUEngine = {
   IsSupportedAsync: Promise.resolve(false),
   CreateAsync: vi.fn().mockResolvedValue(mockWebGPUEngine),

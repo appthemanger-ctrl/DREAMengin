@@ -22,20 +22,20 @@
  * After boot dismissal: game fills 100 vw × 100 dvh, GameHUD floats at bottom.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import GameHUD from '@/components/games/dream.hud.GameHUD';
 import GameRuntime from '@/lib/gameengin/GameRuntime';
+import type { GameCartridge, GravityPreset } from '@/lib/gameengin/cartridge';
 import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';
 import { CARTRIDGE_MANIFEST } from '@/lib/gameengin/cartridges/manifest';
-import type { GameCartridge, GravityPreset } from '@/lib/gameengin/cartridge';
+import { useGamePerformanceBaseline } from '@/lib/games/hooks';
 import type { MobileHudMode } from '@/lib/games/mobileControls';
 import {
-  buildGameLaunchHref,
-  DEFAULT_GAME_ID,
-  resolveGameLaunchId,
+    buildGameLaunchHref,
+    DEFAULT_GAME_ID,
+    resolveGameLaunchId,
 } from '@/lib/games/navigation';
-import { useGamePerformanceBaseline } from '@/lib/games/hooks';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ── Boot-sequence keyframe CSS ────────────────────────────────────────────────
 

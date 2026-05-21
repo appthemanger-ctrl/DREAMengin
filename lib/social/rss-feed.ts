@@ -31,8 +31,8 @@
  * ARCHITECTURE.md §3 — Logic layer (lib/)
  */
 
+import type { FeedItemMedia, UnifiedFeedItem } from '@/types/connector';
 import Parser from 'rss-parser';
-import type { UnifiedFeedItem, FeedItemMedia } from '@/types/connector';
 
 // ── Custom field map ──────────────────────────────────────────────────────
 

@@ -30,10 +30,10 @@
  *   const { predictions } = useSessionIntelligence('CodeEngin');
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { SessionPatternEngine, type PredictedNext, type PatternEngineState } from './sessionPatternEngine';
-import { SessionContinuity, type SessionSummary, type SessionDiff } from './sessionContinuity';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SessionContinuity, type SessionDiff, type SessionSummary } from './sessionContinuity';
+import { SessionPatternEngine, type PatternEngineState, type PredictedNext } from './sessionPatternEngine';
 
 /** localStorage key used to persist the bigram transition matrix across sessions. */
 export const PATTERN_MATRIX_LS_KEY = 'dreamengin-pattern-matrix';

@@ -26,33 +26,33 @@
  * router.push() instead of embedding them in dead-end iframes.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import UniversalWidget from '@/components/widgets/dream.widget.UniversalWidget';
 import DreamSpace from '@/app/dreamdmbar/_components/DreamSpaceRegion';
+import RuntimeMemoryHUD from '@/components/dreams/dream.panel.RuntimeMemoryHUD';
 import SpatialProfileSpace from '@/components/spatial/dream.ProfileSpace';
+import UniversalWidget from '@/components/widgets/dream.widget.UniversalWidget';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 import {
-  computeMomentum,
-  getLevelColor,
-  type MomentumLevel,
-  type MomentumSnapshot,
-} from '@/lib/forge/forgeMomentum';
-import {
-  generateSuggestions,
-  readForgeHistory,
-  type ForgeHistoryEntry,
-  type ForgeSuggestion,
+    generateSuggestions,
+    readForgeHistory,
+    type ForgeHistoryEntry,
+    type ForgeSuggestion,
 } from '@/lib/forge/forgeIntelligence';
 import {
-  readForgeActivity,
-  ENGIN_REGISTRY,
-  type ForgeActivityPulse,
+    computeMomentum,
+    getLevelColor,
+    type MomentumLevel,
+    type MomentumSnapshot,
+} from '@/lib/forge/forgeMomentum';
+import {
+    ENGIN_REGISTRY,
+    readForgeActivity,
+    type ForgeActivityPulse,
 } from '@/lib/forge/forgeRegistry';
-import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
 import { resolveResumeDest } from '@/lib/intelligence/continuityHelpers';
-import RuntimeMemoryHUD from '@/components/dreams/dream.panel.RuntimeMemoryHUD';
+import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /** Called to open a URL inside the runtime region (no full-page navigation). */
 type OpenUrlFn = (url: string, title?: string) => void;

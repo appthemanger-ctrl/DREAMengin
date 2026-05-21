@@ -7,10 +7,10 @@
  * Lives at /engines/code/projects.
  */
 
-import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Clock, ExternalLink, FolderOpen, Loader2, Plus, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import { FolderOpen, Plus, ExternalLink, Loader2, RefreshCw, GitBranch, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Project {
   id: string;

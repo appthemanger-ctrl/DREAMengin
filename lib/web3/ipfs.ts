@@ -12,7 +12,7 @@
  * read-only and doesn't require credentials.
  */
 
-import { IpfsUploadResult, IpfsContent, Web3Error } from './types';
+import { IpfsContent, IpfsUploadResult, Web3Error } from './types';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 

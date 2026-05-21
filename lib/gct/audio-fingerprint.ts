@@ -1,4 +1,3 @@
-import type { Database } from '@/types/supabase';
 import { GCTEngine, Template, type GCTMatch } from './gct-engine';
 
 export interface SongFingerprint {

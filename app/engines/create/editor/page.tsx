@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.EnginesCreateEditor  (framework-mandated basename: page.tsx)
+import EditorPanel from '@/components/engines/create/panels/dream.panel.EditorPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import EditorPanel from '@/components/engines/create/panels/dream.panel.EditorPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Editor – ContentEngin', description: 'Rich content editor.' };

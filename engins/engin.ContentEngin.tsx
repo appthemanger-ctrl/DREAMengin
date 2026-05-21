@@ -26,48 +26,75 @@
  *   - scheduled_at is passed to /api/drafts so schedule posts persist server-side.
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import NextImage from 'next/image';
-import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
-import { createClient } from '@/lib/supabase/client';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
-import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
-import {
-  ArrowLeft, FileText, Image as ImageIcon, Zap, BarChart2, Hash, Video, Calendar,
-  Wand2, Mic, RotateCcw, Shield, Flag, Dice5, Rocket,
-  Brain, ChevronDown, ChevronUp, CheckCircle, Search, Download, Trash2, Wrench,
-  Camera, Layers, Move, Film, Link2, Crosshair,
-} from 'lucide-react';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import { useContentEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { ActivityPostForm, type ActivityPostData } from '@/components/activity/dream.ActivityPostForm';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
-import { ArtifactSlot } from '@/lib/enginpipe';
-import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
-import { useContentEnginRuntime } from '@/lib/engins/content/useContentEnginRuntime';
+import type { CompGraph, NodeType } from '@/lib/composite/compositor';
 import {
-  parseSRT, parseVTT, computeCuts, applyEditsToSegments,
-  exportSRT, searchTranscript, annotateSearchMatches,
-} from '@/lib/content/transcriptEditor';
+    addNode, connectNodes,
+    createGraph, createNode,
+    topologicalSort,
+} from '@/lib/composite/compositor';
+import type { FxCategory, FxSimulation } from '@/lib/composite/fxSimulation';
+import { allCategories, createSimulation, presetsByCategory } from '@/lib/composite/fxSimulation';
+import type { CameraTrack } from '@/lib/composite/matchmover';
+import { addSample, addTrackPoint, createTrack, estimateCameraMotion, exportTrackCSV, trackSummary } from '@/lib/composite/matchmover';
+import type { MocapClip } from '@/lib/composite/motionCapture';
+import { clipSummary, exportBVH, parseBVH, retargetClip } from '@/lib/composite/motionCapture';
+import type { RotoProject } from '@/lib/composite/rotoscope';
+import { addLayer, createProject, exportFrameSVG, interpolateShape, keyframeList, setKeyframe } from '@/lib/composite/rotoscope';
 import { publishToDreamR, resolvePublishIntent } from '@/lib/content/publishIntent';
 import { scoreContent } from '@/lib/content/seoScorer';
-import { parseBVH, clipSummary, retargetClip, exportBVH } from '@/lib/composite/motionCapture';
 import {
-  createGraph, createNode, addNode, connectNodes, disconnectInput,
-  topologicalSort, graphSummary,
-} from '@/lib/composite/compositor';
-import { createProject, addLayer, setKeyframe, interpolateShape, exportFrameSVG, keyframeList } from '@/lib/composite/rotoscope';
-import { createTrack, addTrackPoint, addSample, estimateCameraMotion, exportTrackCSV, trackSummary } from '@/lib/composite/matchmover';
-import { FX_PRESETS, presetsByCategory, createSimulation, setSimParam, getSimParam, allCategories } from '@/lib/composite/fxSimulation';
-import type { MocapClip } from '@/lib/composite/motionCapture';
-import type { CompGraph, NodeType } from '@/lib/composite/compositor';
-import type { RotoProject } from '@/lib/composite/rotoscope';
-import type { CameraTrack } from '@/lib/composite/matchmover';
-import type { FxSimulation, FxCategory } from '@/lib/composite/fxSimulation';
-import { ActivityPostForm, type ActivityPostData } from '@/components/activity/dream.ActivityPostForm';
+    annotateSearchMatches,
+    applyEditsToSegments,
+    computeCuts,
+    exportSRT,
+    parseSRT, parseVTT,
+    searchTranscript,
+} from '@/lib/content/transcriptEditor';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import type { EngineBase, UpgradedEngine } from '@/lib/dreamenginOS';
+import { createEventBus, upgradeEngine } from '@/lib/dreamenginOS';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useContentEnginRuntime } from '@/lib/engins/content/useContentEnginRuntime';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useContentEnginBridge } from '@/lib/runtime/useEnginBridge';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
+import { createClient } from '@/lib/supabase/client';
+import {
+    ArrowLeft,
+    BarChart2,
+    Brain,
+    Calendar,
+    Camera,
+    CheckCircle,
+    ChevronDown, ChevronUp,
+    Crosshair,
+    Dice5,
+    Download,
+    FileText,
+    Film,
+    Flag,
+    Hash,
+    Image as ImageIcon,
+    Layers,
+    Link2,
+    Mic,
+    Rocket,
+    RotateCcw,
+    Search,
+    Shield,
+    Trash2,
+    Video,
+    Wand2,
+    Wrench,
+    Zap,
+} from 'lucide-react';
+import NextImage from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Props {
   onBack: () => void;
@@ -100,15 +127,6 @@ const ACCENT = '#f59e0b';
 // const ACCENT_GRADIENT_LEGACY = 'linear-gradient(135deg, #fb923c 0%, #f59e0b 100%)';
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
-const AiCaption        = 'content-feature';
-const ContentAnalytics = 'content-feature';
-const TemplateGallery  = 'content-feature';
-const ShortVideoEditor = 'content-feature';
-const HashtagOptimizer = 'content-feature';
-const CollabDraft      = 'content-feature';
-const MultiPlatform    = 'content-feature-2026'; // 2026: Multi-platform scheduler
-const AIOptimizer      = 'content-feature-2026'; // 2026: AI content optimizer
-const AdvancedAnalytics = 'content-feature-2026'; // 2026: Advanced analytics
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TYPE_EMOJI: Record<CalendarItem['type'], string> = {
@@ -193,7 +211,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useContentEnginRuntime();
 
   // ── Workflow (create:draft — default workflow) ──
-  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  const { loadWorkflow } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('create:draft'); }, [loadWorkflow]);
 
   // ── 3D Figure from Photos state ──
@@ -1165,10 +1183,6 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setNodeMsg(`✅ ${type} node added.`);
   }
 
-  function handleDisconnect(toId: string, inputName: any): void {
-    setNodeGraph((prev) => disconnectInput(prev, toId, inputName));
-    setNodeMsg(`✅ Input "${inputName}" disconnected.`);
-  }
 
   // Matchmover (Syntheyes / 3DEqualizer-inspired)
   const [cameraTrack, setCameraTrack] = useState<CameraTrack>(() =>
@@ -1453,54 +1467,9 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Auto Repurposer handler ───────────────────────────────────────────────────
-  async function handleRepurpose( ){
-    if (!repurposeInput.trim()) return;
-    setRepurposeLoading(true);
-    setRepurposeOutputs([]);
-    setRepurposeMsg('');
-    try {
-      const res = await fetch('/api/content/intelligence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'repurpose', content: repurposeInput.trim() }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? 'Repurpose failed');
-      setRepurposeOutputs(json.outputs ?? []);
-      setRepurposeMsg(json.draft?.id ? '✅ All formats saved to Drafts.' : '');
-    } catch (error: any) {
-      setRepurposeMsg(error instanceof Error ? error.message : 'Repurpose failed');
-    } finally {
-      setRepurposeLoading(false);
-    }
-  }
 
-  function copyRepurposeOutput(text: string, idx: any): void {
-    navigator.clipboard?.writeText(text).catch(() => {});
-    setRepurseCopied(idx);
-    setTimeout(() => setRepurseCopied(null), 1400);
-  }
 
   // ── Predictive Scheduling handler ─────────────────────────────────────────────
-  async function handlePredictSchedule( ){
-    setPredictLoading(true);
-    try {
-      const res = await fetch('/api/content/intelligence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'predict-schedule' }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? 'Prediction failed');
-      setPredictSuggestions(json.suggestions ?? []);
-      setPredictGaps(json.gaps ?? []);
-      setPredictLoaded(true);
-    } catch {
-      setPredictLoaded(true);
-    } finally {
-      setPredictLoading(false);
-    }
-  }
 
   // ── Creative Brief: save handler ─────────────────────────────────────────────
   async function handleSaveBrief( ){
@@ -1726,25 +1695,6 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Brand Voice Guard handler ─────────────────────────────────────────────────
-  async function handleBrandVoiceCheck( ){
-    if (!bvContent.trim() || !bvProfile.trim()) return;
-    setBvLoading(true);
-    setBvResult(null);
-    try {
-      const res = await fetch('/api/content/intelligence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'brand-voice', content: bvContent.trim(), voiceProfile: bvProfile.trim() }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error ?? 'Brand voice check failed');
-      setBvResult(json);
-    } catch {
-      /* silently surface no result */
-    } finally {
-      setBvLoading(false);
-    }
-  }
 
   return (
     <ArtifactSlot artifactId="engin:content">
@@ -4537,7 +4487,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {/* Track points list */}
             {cameraTrack.trackPoints.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10, maxHeight: 140, overflowY: 'auto' }}>
-                {cameraTrack.trackPoints.map((pt, i: number) => {
+                {cameraTrack.trackPoints.map((pt) => {
                   const motions = estimateCameraMotion(cameraTrack).filter((m) => m.pointId === pt.id);
                   const avgSpeed = motions.length > 0 ? motions.reduce((s, m) => s + m.speed, 0) / motions.length : 0;
                   return (

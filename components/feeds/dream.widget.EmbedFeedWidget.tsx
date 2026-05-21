@@ -26,9 +26,9 @@
  * ARCHITECTURE.md §3 — Component layer; no DB calls; fetches from /api/embed-feed.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, ExternalLink, Eye, Hash } from 'lucide-react';
 import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
+import { ExternalLink, Eye, Hash, RefreshCw } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

@@ -16,9 +16,9 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import type { RealtimePostgresInsertPayload } from '@/engine/io';
+import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface DMMessage {
   id: string;

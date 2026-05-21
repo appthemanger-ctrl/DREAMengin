@@ -1,12 +1,14 @@
 // SURFACE: dreamsurface.DaydreamMusic  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { Music, Sparkles } from 'lucide-react';
-import SoundRecorder from '@/components/music/dream.SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
+import SoundRecorder from '@/components/music/dream.SoundRecorder';
+import { isDevBypassActive } from '@/lib/dev-bypass';
+import { createServerClient } from '@/lib/supabase/server';
+import { Music, Sparkles } from 'lucide-react';
+import { redirect } from 'next/navigation';
 // Stream 8.3 — Bundle split: StarMakerEngin only loads when Side B mounts.
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import dynamic from 'next/dynamic';
+import { connection } from 'next/server';
 const StarMakerEngin = dynamic(() => import('@/engins/engin.StarMakerEngin'), {
   loading: () => (
     <div className="flex items-center justify-center h-64">
@@ -14,8 +16,6 @@ const StarMakerEngin = dynamic(() => import('@/engins/engin.StarMakerEngin'), {
     </div>
   ),
 });
-import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
-import { connection } from 'next/server';
 
 export const metadata = {
   title: 'Artist Hub – DREAMengin',

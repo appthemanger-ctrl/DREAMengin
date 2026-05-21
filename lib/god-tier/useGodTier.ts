@@ -11,20 +11,20 @@
  *   const { state, uiTokens } = useGodTier({ route: '/showcase', activeTask: 'hero_showcase' });
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  DreamEngineGodTierSystem,
-  getGodTierUiTokens,
-  defaultDeviceSignals,
-  defaultRuntimeMetrics,
-  defaultUXSignals,
-  type GodTierState,
-  type DeviceSignals,
-  type RuntimeMetrics,
-  type UXSignals,
-  type RouteSignals,
-  type MeshSnapshot,
-  type UIElementSnapshot,
+    defaultDeviceSignals,
+    defaultRuntimeMetrics,
+    defaultUXSignals,
+    DreamEngineGodTierSystem,
+    getGodTierUiTokens,
+    type DeviceSignals,
+    type GodTierState,
+    type MeshSnapshot,
+    type RouteSignals,
+    type RuntimeMetrics,
+    type UIElementSnapshot,
+    type UXSignals,
 } from './godTierEngine';
 
 export interface UseGodTierOptions {

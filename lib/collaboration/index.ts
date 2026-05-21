@@ -742,7 +742,7 @@ export async function createCollabSession(channelId: string, options: CollabSess
     mode = 'shared_dream',
     modeRuleSet,
   } = options;
-  const hasSupabaseClient = supabaseClient && typeof (supabaseClient as unknown as { channel?: unknown }).channel === 'function';
+  const hasSupabaseClient = supabaseClient && typeof (supabaseClient as any as { channel?: unknown }).channel === 'function';
   if (transport === 'local') return createLocalCollabSession(channelId, { role, mode, modeRuleSet });
   if (transport === 'supabase') {
     if (hasSupabaseClient) return createSupabaseCollabSession(channelId, supabaseClient, [], { role, mode, modeRuleSet });

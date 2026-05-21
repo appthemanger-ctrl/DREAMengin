@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import type { LedgerData } from '@/lib/ledger-data';
+import { useEffect, useRef } from 'react';
 
 type Props = {
   data: LedgerData;

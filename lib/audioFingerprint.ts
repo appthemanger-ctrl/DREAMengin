@@ -9,7 +9,7 @@
  * peaks below a dynamic threshold.
  */
 
-import { TORRIDITY_N, TORRIDITY_DP } from './torridity';
+import { TORRIDITY_DP, TORRIDITY_N } from './torridity';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

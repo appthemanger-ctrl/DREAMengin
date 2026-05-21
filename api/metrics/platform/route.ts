@@ -4,9 +4,9 @@
 // Retrieves platform-wide health metrics for IDARi dashboard.
 // Per ACTIVITY_FIRST_PROTOCOL.md §IV (Platform Health Metrics)
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient, createServiceClient } from '@/lib/supabase/server';
 import type { GetPlatformMetricsResponse } from '@/lib/activity/types';
+import { createServerClient, createServiceClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 type UserMetricAggregateRow = {
   user_id: string | null;

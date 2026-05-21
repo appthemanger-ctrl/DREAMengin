@@ -15,22 +15,17 @@
 
 import { BufferManager } from './bufferManager';
 import { PipelineCache } from './pipelineCache';
-import { DEFAULT_VM_CONFIG } from './types';
 import type {
-  VMConfig,
-  VMState,
-  VMErrorCode,
-  VMSyscalls,
-  BufferHandle,
-  PipelineHandle,
-  BindGroupHandle,
-  VMPerformanceCounters,
-  WasmLinearMemory,
-  ComputePipelineDescriptor,
-  BindGroupDescriptor,
-  CommandBufferState,
-  VMSnapshot,
+    BindGroupHandle,
+    BufferHandle,
+    ComputePipelineDescriptor,
+    PipelineHandle,
+    VMConfig,
+    VMPerformanceCounters,
+    VMState,
+    VMSyscalls,
 } from './types';
+import { DEFAULT_VM_CONFIG } from './types';
 
 export class WasmGpuVM {
   private readonly state: VMState;

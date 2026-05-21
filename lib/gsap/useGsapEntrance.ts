@@ -15,8 +15,8 @@
  *   </div>
  */
 
-import { useEffect, useRef } from 'react';
 import { getGsap } from '@/lib/gsap/gsap';
+import { useEffect, useRef } from 'react';
 
 /**
  * Plays a staggered from-below fade-in on every direct child of `containerRef`.

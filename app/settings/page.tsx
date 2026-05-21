@@ -1,14 +1,25 @@
 // SURFACE: dreamsurface.Settings  (framework-mandated basename: page.tsx)
-import type { Database } from '@/types/supabase';
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import {
-  ArrowLeft, User, Rss, LayoutGrid, Palette, Plug, Sliders,
-  Shield, Database as DatabaseIcon, Bot, Crown, ChevronRight, HelpCircle, LogOut, Cpu
-} from 'lucide-react';
-import { connection } from 'next/server';
 import { isOwnerEmail } from '@/lib/ai/triad';
+import { createServerClient } from '@/lib/supabase/server';
+import {
+    ArrowLeft,
+    Bot,
+    ChevronRight,
+    Cpu,
+    Crown,
+    Database as DatabaseIcon,
+    HelpCircle,
+    LayoutGrid,
+    LogOut,
+    Palette, Plug,
+    Rss,
+    Shield,
+    Sliders,
+    User
+} from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 export const metadata = { title: 'Settings – Dreamengin' };
 

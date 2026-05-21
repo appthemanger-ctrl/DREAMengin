@@ -14,12 +14,11 @@
  * Privacy: visibility defaults to 'private' (docs/AXIOMS.md §product integrity)
  */
 
-import { createServerClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';
-import { validateDreamWindowLayers } from '@/lib/dream-window/DreamWindowLifecycle';
 import type { DreamWindowInstance } from '@/lib/dream-window/DreamWindowLifecycle';
+import { DREAM_WINDOW_STATES, validateDreamWindowLayers } from '@/lib/dream-window/DreamWindowLifecycle';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 // ---------------------------------------------------------------------------
 // GET — fetch single Dream Window

@@ -9,25 +9,13 @@
 // Re-export all constants from the core policy file so callers can import
 // from either location without duplication.
 export {
-  BOOGIE_POLICY_VERSION,
-  ENFORCEMENT_ACTIONS,
-  ENFORCEMENT_SCOPES,
-  STRIKE_WEIGHTS,
-  STRIKE_EXPIRY_DAYS,
-  DEFAULT_DURATIONS_SECONDS,
-  THRESHOLDS,
-  RULE_CODES,
-  CATEGORY_SEVERITY,
-  USER_REASON_MESSAGES,
-  RECOVER_STEPS,
+    BOOGIE_POLICY_VERSION, CATEGORY_SEVERITY, DEFAULT_DURATIONS_SECONDS, ENFORCEMENT_ACTIONS,
+    ENFORCEMENT_SCOPES, RECOVER_STEPS, RULE_CODES, STRIKE_EXPIRY_DAYS, STRIKE_WEIGHTS, THRESHOLDS, USER_REASON_MESSAGES
 } from '@/lib/ai/boogie-policy';
 
 export type {
-  StrikeSeverityLevel,
-  EnforcementAction,
-  EnforcementScope,
-  BoogiePolicyVersion,
-  RuleCode,
+    BoogiePolicyVersion, EnforcementAction,
+    EnforcementScope, RuleCode, StrikeSeverityLevel
 } from '@/lib/ai/boogie-policy';
 
 // ============================================================================

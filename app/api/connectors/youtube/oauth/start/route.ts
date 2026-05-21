@@ -18,8 +18,8 @@
  * ARCHITECTURE.md §3 — Auth flow lives in API routes, not the component layer.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 

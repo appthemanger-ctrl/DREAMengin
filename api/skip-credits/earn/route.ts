@@ -4,13 +4,13 @@
 // Awards skip credits for watching ads.
 // Per ACTIVITY_FIRST_PROTOCOL.md §V (Skip Reward System)
 
-import { NextRequest, NextResponse } from 'next/server';
+import type {
+    EarnSkipCreditsRequest,
+    EarnSkipCreditsResponse,
+} from '@/lib/activity/types';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type {
-  EarnSkipCreditsRequest,
-  EarnSkipCreditsResponse,
-} from '@/lib/activity/types';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest ): Promise<Response> {
   const supabase = await createServerClient();

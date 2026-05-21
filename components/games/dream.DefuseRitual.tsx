@@ -8,8 +8,8 @@
  * AND the brand on your hand grows. Clear all safe tiles before time burns out.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const N = 6;
 const TOTAL_TILES = N * N;

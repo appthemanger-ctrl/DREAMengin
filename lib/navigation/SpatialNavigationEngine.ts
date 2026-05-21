@@ -1,11 +1,11 @@
 // SpatialNavigationEngine - Main engine coordinating all subsystems
 // Mobile-optimized: 60fps target, zero allocations per frame
 
-import { NavStateBuffer, LAYER_HOME } from './NavStateBuffer';
-import { ReturnStack } from './ReturnStack';
-import { PointerEventCapture } from './PointerEventCapture';
 import { GestureFrameComputer } from './GestureFrameComputer';
-import { GestureIntentResolver, GestureIntent } from './GestureIntentResolver';
+import { GestureIntent, GestureIntentResolver } from './GestureIntentResolver';
+import { LAYER_HOME, NavStateBuffer } from './NavStateBuffer';
+import { PointerEventCapture } from './PointerEventCapture';
+import { ReturnStack } from './ReturnStack';
 import { TransformSolver, type ViewportMetrics } from './TransformSolver';
 import { WidgetInstanceMemory } from './WidgetInstanceMemory';
 

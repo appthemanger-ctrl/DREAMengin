@@ -16,9 +16,9 @@
  * iPhone-optimised: safe-area insets, DPR clamped to 2, GPU-composited layers
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { getRendererBackend, isWebGPUAvailable } from '@/lib/webgpu';
 import Link from 'next/link';
-import { isWebGPUAvailable, getRendererBackend } from '@/lib/webgpu';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { WebGPURenderer } from './renderer';
 
 // ── Constants ────────────────────────────────────────────────────────────────

@@ -7,16 +7,10 @@
  */
 
 export {
-  CARTRIDGE_MANIFEST,
-  getCartridgeManifest,
-  getCartridgeCategories,
-  type CartridgeManifestEntry,
-  type CartridgeRenderMode,
+    CARTRIDGE_MANIFEST, getCartridgeCategories, getCartridgeManifest, type CartridgeManifestEntry,
+    type CartridgeRenderMode
 } from './manifest';
 
 export {
-  CARTRIDGE_LOADERS,
-  loadCartridge,
-  getCartridgeIds,
-  type CartridgeLoader,
+    CARTRIDGE_LOADERS, getCartridgeIds, loadCartridge, type CartridgeLoader
 } from './loaders';

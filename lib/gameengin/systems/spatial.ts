@@ -12,15 +12,13 @@
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  OctreeBVH,
-  SpatialAudioDSP,
+    OctreeBVH,
+    SpatialAudioDSP
 } from '../power-systems';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  AABB,
-  SpatialEntry,
-  AudioSourceDef,
-  ListenerState,
+    AABB, AudioSourceDef,
+    ListenerState, SpatialEntry
 } from '../power-systems';

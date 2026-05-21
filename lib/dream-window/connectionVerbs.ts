@@ -13,11 +13,11 @@
  */
 
 import {
-  CONNECTION_VERBS,
-  REJECTED_CONNECTION_VERBS,
-  type ConnectionVerb,
-  isValidConnectionVerb,
-  isRejectedConnectionVerb,
+    CONNECTION_VERBS,
+    isRejectedConnectionVerb,
+    isValidConnectionVerb,
+    REJECTED_CONNECTION_VERBS,
+    type ConnectionVerb,
 } from '@/lib/identity/canonical-names';
 
 // ---------------------------------------------------------------------------
@@ -231,5 +231,5 @@ export function createConnectAcrossAction(
 }
 
 // Re-export canonical constants for consumers who import only from this module.
-export { CONNECTION_VERBS, REJECTED_CONNECTION_VERBS, isValidConnectionVerb };
+export { CONNECTION_VERBS, isValidConnectionVerb, REJECTED_CONNECTION_VERBS };
 export type { ConnectionVerb };

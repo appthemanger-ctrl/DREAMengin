@@ -14,64 +14,82 @@
  * Receives an `onBack` callback to flip back to Side A.
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
-import {
-  ArrowLeft, Flame, Zap, Activity, Layers,
-  ExternalLink, Clock, BarChart3, Workflow, ChevronRight,
-  Brain, ArrowRightLeft, Sparkles, Plus, Trash2, AlertTriangle,
-  CheckCircle2, XCircle, SkipForward, RefreshCw, Wand2,
-  Save, X, ChevronDown,
-} from 'lucide-react';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import BrandLogo from '@/components/dream.BrandLogo';
 import AIBuilderPanel from '@/components/forge/dream.panel.AIBuilderPanel';
-import { bridge, type DualRuntimeChannel } from '@/lib/runtime/dualRuntimeBridge';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import { ArtifactSlot } from '@/lib/enginpipe';
 import {
-  CREATIVE_ENGINES,
-  ENGIN_REGISTRY,
-  FORGE_WORKFLOWS,
-  readForgeActivity,
-  formatRelativeTime,
-  type ForgeActivityPulse,
-  type EnginEntry,
-  type ForgeWorkflow,
-} from '@/lib/forge/forgeRegistry';
-import {
-  generateSuggestions,
-  readForgeHistory,
-  readForgeTransfers,
-  readCustomWorkflows,
-  saveCustomWorkflow,
-  deleteCustomWorkflow,
-  parseGoalToWorkflow,
-  getActiveWorkflowRun,
-  startWorkflowRun,
-  updateWorkflowStep,
-  clearWorkflowRun,
-  getFailureRecovery,
-  type ForgeSuggestion,
-  type ForgeHistoryEntry,
-  type ForgeTransferEntry,
-  type WorkflowRunState,
+    clearWorkflowRun,
+    deleteCustomWorkflow,
+    generateSuggestions,
+    getActiveWorkflowRun,
+    getFailureRecovery,
+    parseGoalToWorkflow,
+    readCustomWorkflows,
+    readForgeHistory,
+    readForgeTransfers,
+    saveCustomWorkflow,
+    startWorkflowRun,
+    updateWorkflowStep,
+    type ForgeHistoryEntry,
+    type ForgeSuggestion,
+    type ForgeTransferEntry,
+    type WorkflowRunState,
 } from '@/lib/forge/forgeIntelligence';
 import {
-  computeMomentum,
-  getLevelColor,
-  getLevelEmoji,
-  type MomentumSnapshot,
+    computeMomentum,
+    getLevelColor,
+    getLevelEmoji,
+    type MomentumSnapshot,
 } from '@/lib/forge/forgeMomentum';
 import {
-  computeNexus,
-  type NexusSnapshot,
+    computeNexus,
+    type NexusSnapshot,
 } from '@/lib/forge/forgeNexus';
 import {
-  computeRituals,
-  type RitualSnapshot,
+    CREATIVE_ENGINES,
+    ENGIN_REGISTRY,
+    FORGE_WORKFLOWS,
+    formatRelativeTime,
+    readForgeActivity,
+    type EnginEntry,
+    type ForgeActivityPulse,
+    type ForgeWorkflow,
+} from '@/lib/forge/forgeRegistry';
+import {
+    computeRituals,
+    type RitualSnapshot,
 } from '@/lib/forge/forgeRituals';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { bridge, type DualRuntimeChannel } from '@/lib/runtime/dualRuntimeBridge';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    Activity,
+    AlertTriangle,
+    ArrowLeft,
+    ArrowRightLeft,
+    BarChart3,
+    Brain,
+    CheckCircle2,
+    ChevronDown,
+    ChevronRight,
+    Clock,
+    ExternalLink,
+    Flame,
+    Layers,
+    Plus,
+    RefreshCw,
+    Save,
+    Sparkles,
+    Trash2,
+    Wand2,
+    Workflow,
+    X,
+    XCircle,
+    Zap,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const FORGE = {
@@ -86,10 +104,6 @@ const FORGE = {
 } as const;
 
 // ── Pulse Monitor — channel color-coding for cross-engine event feed ──────────
-const CHANNEL_COLORS: Record<string, string> = {
-  music: '#ec4899', games: '#22c55e', lab: '#8b5cf6',
-  code: '#38bdf8', brand: '#f59e0b', create: '#6366f1',
-};
 
 // All typed events per channel — used for exhaustive bridge subscription.
 // ForgeEngin is the meta-layer; it watches every event on every channel.

@@ -7,8 +7,8 @@
  * and loading recordings into the DAW. Lives at /engines/music/studio.
  */
 
+import { AlertCircle, Mic, Play, Square, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Square, Play, Upload, Loader2, AlertCircle } from 'lucide-react';
 
 type RecordState = 'idle' | 'recording' | 'stopped';
 
