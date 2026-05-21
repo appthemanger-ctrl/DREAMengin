@@ -1,4 +1,3 @@
-\
 const fs = require("fs");
 const path = require("path");
 const { Project } = require("ts-morph");
@@ -13,15 +12,22 @@ function walk(dir, files = []) {
     if (
       item === "node_modules" ||
       item === ".next" ||
-      item === ".git"
-    ) continue;
+      item === ".git" ||
+      item === "dist"
+    ) {
+      continue;
+    }
 
     const full = path.join(dir, item);
     const stat = fs.statSync(full);
 
-    if (stat.isDirectory()) walk(full, files);
-    else if (/\.(ts|tsx)$/.test(full)) files.push(full);
+    if (stat.isDirectory()) {
+      walk(full, files);
+    } else if (/\.(ts|tsx)$/.test(full)) {
+      files.push(full);
+    }
   }
+
   return files;
 }
 
@@ -30,56 +36,58 @@ const files = walk(process.cwd());
 for (const filePath of files) {
   let text = fs.readFileSync(filePath, "utf8");
 
-  // Fix duplicate Database imports
+  // Remove duplicate Database imports
+  const seen = new Set();
+
   text = text.replace(
     /import\s+type\s+\{\s*Database\s*\}\s+from\s+['"][^'"]+['"];?\n/g,
-    (match, offset, full) => {
-      const before = full.slice(0, offset);
-      return before.includes(match.trim()) ? "" : match;
+    (match) => {
+      const trimmed = match.trim();
+
+      if (seen.has(trimmed)) {
+        return "";
+      }
+
+      seen.add(trimmed);
+      return match;
     }
   );
 
-  // Replace unknown catch types
+  // Fix catch typing
   text = text.replace(
     /catch\s*\(\s*([a-zA-Z0-9_]+)\s*\)\s*\{/g,
     "catch ($1: any) {"
   );
 
-  // Fix NextResponse typing
+  // Fix invalid NextResponse typing
   text = text.replace(
     /:\s*NextResponse<unknown>/g,
     ": Response"
   );
 
-  // Add any fallback for unknown
+  // Fix unknown casting spam
   text = text.replace(
-    /Object is of type 'unknown'/g,
-    "any"
+    /as unknown as/g,
+    "as any as"
   );
 
-  // Fix common Supabase insert typing failures
+  // Remove empty exports
   text = text.replace(
-    /\.insert\(\s*\{/g,
-    ".insert({\n      // @ts-ignore"
+    /export\s+\{\s*\};/g,
+    ""
   );
-
-  // Missing icon imports
-  if (
-    text.includes("DatabaseIcon") &&
-    !text.includes("DatabaseIcon")
-  ) {
-    text = `import { DatabaseIcon } from "lucide-react";\n${text}`;
-  }
 
   fs.writeFileSync(filePath, text, "utf8");
 }
 
-project.getSourceFiles().forEach((sourceFile) => {
+for (const sourceFile of project.getSourceFiles()) {
   try {
     sourceFile.fixUnusedIdentifiers();
     sourceFile.organizeImports();
-  } catch (err) {}
-});
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 project.saveSync();
 
