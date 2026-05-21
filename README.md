@@ -1937,7 +1937,7 @@ Auto-synced from `backend/**`, `core/**`, `coresurfaces/**`, `system/**`, `app/a
 
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **133**
+- Files tracked: **134**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -1964,6 +1964,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │   │   ├── validate_game_sandbox.py
 │   │   └── validate_report_agent_spec.py
 │   └── workflows
+│       ├── autofixaudit.yml
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
@@ -2062,10 +2063,9 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     │   ├── package-cartridge.ts
     │   ├── prophet-run.ts
     │   ├── upgrader-run.ts
-    │   └── writer-run.ts
-… (13 more files)
+… (14 more files)
 ```
-<details><summary>Agents & Workflow file index (133 files)</summary>
+<details><summary>Agents & Workflow file index (134 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2085,6 +2085,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/scripts/scan_gameengin_context.py` — project file (py).
 - `.github/scripts/validate_game_sandbox.py` — project file (py).
 - `.github/scripts/validate_report_agent_spec.py` — project file (py).
+- `.github/workflows/autofixaudit.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -2285,7 +2286,7 @@ Auto-synced from `research/**`, `research-and-development/**`, `experiments/**`,
 
 ## Infra & Ops
 Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflows/**`, `vercel.json`, `docker-compose.yml` using repository introspection.
-- Files tracked: **66**
+- Files tracked: **67**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2293,6 +2294,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 ```text
 ├── .github
 │   └── workflows
+│       ├── autofixaudit.yml
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
@@ -2365,8 +2367,9 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │   └── main.tf
 └── vercel.json
 ```
-<details><summary>Infra & Ops file index (66 files)</summary>
+<details><summary>Infra & Ops file index (67 files)</summary>
 
+- `.github/workflows/autofixaudit.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -3045,7 +3048,7 @@ Auto-synced from `.env.example`, `.env.local.example`, `app/api/**` using reposi
 
 ## Contributing
 Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
-- Files tracked: **274**
+- Files tracked: **275**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -3171,9 +3174,9 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
-… (154 more files)
+… (155 more files)
 ```
-<details><summary>Contributing file index (274 files)</summary>
+<details><summary>Contributing file index (275 files)</summary>
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
 - `.github/actions/resilient-engine/action.yml` — project file (yml).
@@ -3292,6 +3295,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/scripts/scan_gameengin_context.py` — project file (py).
 - `.github/scripts/validate_game_sandbox.py` — project file (py).
 - `.github/scripts/validate_report_agent_spec.py` — project file (py).
+- `.github/workflows/autofixaudit.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
