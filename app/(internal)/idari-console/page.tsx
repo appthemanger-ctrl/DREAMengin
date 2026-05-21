@@ -1,3 +1,4 @@
+import { DatabaseIcon } from "lucide-react";
 // SURFACE: dreamsurface.Admin  (framework-mandated basename: page.tsx)
 import ChildSafetyPanel from '@/components/dream.panel.ChildSafetyPanel';
 import IDariPanel from '@/components/dream.panel.IDariPanel';

@@ -85,6 +85,7 @@
     "assemblyscript": "^0.28.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.3",
+    "glob": "^13.0.6",
     "pixi-viewport": "^6.0.3",
     "pixi.js": "^8.17.0",
     "react-dnd": "^16.0.1",

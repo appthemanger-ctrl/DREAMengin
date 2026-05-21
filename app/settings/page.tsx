@@ -1,3 +1,4 @@
+import { DatabaseIcon } from "lucide-react";
 // SURFACE: dreamsurface.Settings  (framework-mandated basename: page.tsx)
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { createServerClient } from '@/lib/supabase/server';

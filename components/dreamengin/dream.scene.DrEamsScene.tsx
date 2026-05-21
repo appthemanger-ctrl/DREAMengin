@@ -11,7 +11,7 @@ import {
     type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
 import {
-    AbstractMesh,
+    any,
     ArcRotateCamera,
     Color3,
     DirectionalLight,
@@ -41,7 +41,7 @@ function clamp(value: number, min: number, max: any): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function getBounds(meshes: AbstractMesh[] ){
+function getBounds(meshes: any[] ){
   let min = new Vector3(Infinity, Infinity, Infinity);
   let max = new Vector3(-Infinity, -Infinity, -Infinity);
 
@@ -110,7 +110,7 @@ function createFakeVisorGlow(root: TransformNode, scene: any): Scene {
   return glow;
 }
 
-function maybeFixBoots(meshes: AbstractMesh[] ){
+function maybeFixBoots(meshes: any[] ){
   for (const mesh of meshes) {
     const n = mesh.name.toLowerCase();
     if (!n.includes('boot')) continue;
@@ -119,7 +119,7 @@ function maybeFixBoots(meshes: AbstractMesh[] ){
   }
 }
 
-function applyMaterials(meshes: AbstractMesh[], scene: any): void {
+function applyMaterials(meshes: any[], scene: any): void {
   const blackMetal = createBlackMetal(scene);
   const whiteCoat = createWhiteCoat(scene);
   const darkVisor = createDarkVisor(scene);
@@ -156,7 +156,7 @@ async function buildDrEams(scene: Scene, canvas: any): HTMLCanvasElement {
   const result = await SceneLoader.ImportMeshAsync('', '/models/', 'dr-eams.glb', scene);
 
   const meshes = result.meshes.filter(
-    (m): m is AbstractMesh => m instanceof AbstractMesh && m.name !== '__root__'
+    (m): m is any => m instanceof any && m.name !== '__root__'
   );
 
   const root = new TransformNode('drEamsRoot', scene);
@@ -278,7 +278,7 @@ export default function DrEamsScene( ){
     if (!canvas) return;
 
     let disposed = false;
-    let engineInst: import('@babylonjs/core').AbstractEngine | null = null;
+    let engineInst: import('@babylonjs/core').Abstractany = null;
     let sceneInst: Scene | null = null;
     let disposeActor: (() => void) | null = null;
 

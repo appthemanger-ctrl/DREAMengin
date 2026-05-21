@@ -20,7 +20,7 @@ type Props = {
     avatar_url?: string | null;
   } | null;
    
-  posts?: unknown[];
+  posts?: Post[];
 };
 
 /* ── Recent activity agent definitions ── */
@@ -63,7 +63,7 @@ const RECENT_AGENTS = [
 /* ── Key Metrics cards ── */
 
 /* ── Home face — delegates to HomeDreamSurface ── */
-function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: { onOpenDrEams: () => void; onOpenDreamSpace?: () => void; profile: Props['profile']; isAdmin?: boolean; posts?: unknown[] }) {
+function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: { onOpenDrEams: () => void; onOpenDreamSpace?: () => void; profile: Props['profile']; isAdmin?: boolean; posts?: Post[] }) {
   return (
     <HomeDreamSurface
       profile={profile}
