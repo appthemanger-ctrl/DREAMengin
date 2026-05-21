@@ -1,0 +1,59 @@
+name: Audit Auto Fix
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - completedream
+      - dev
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install -D \
+            eslint \
+            typescript \
+            ts-morph \
+            ts-prune \
+            @typescript-eslint/parser \
+            @typescript-eslint/eslint-plugin
+
+      - name: Run audit autofix script
+        run: node scripts/fix-audit.js
+
+      - name: ESLint autofix
+        run: |
+          npx eslint . \
+            --ext .ts,.tsx \
+            --fix || true
+
+      - name: Organize imports
+        run: |
+          npx ts-prune || true
+
+      - name: TypeScript verification
+        run: |
+          npx tsc --noEmit || true
+
+      - name: Commit fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: automated audit fixes"
