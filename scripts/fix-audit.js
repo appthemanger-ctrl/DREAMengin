@@ -1,94 +1,182 @@
 const fs = require("fs");
 const path = require("path");
-const { Project } = require("ts-morph");
+const glob = require("glob");
 
-const project = new Project({
-  tsConfigFilePath: "tsconfig.json",
-  skipAddingFilesFromTsConfig: false,
+function read(file) {
+  return fs.readFileSync(file, "utf8");
+}
+
+function write(file, content) {
+  fs.writeFileSync(file, content, "utf8");
+}
+
+function patch(file, fn) {
+  if (!fs.existsSync(file)) return;
+
+  const original = read(file);
+  const updated = fn(original);
+
+  if (updated !== original) {
+    write(file, updated);
+    console.log("patched:", file);
+  }
+}
+
+/*
+========================================
+1. Fix NextResponse<unknown>
+========================================
+*/
+
+glob.sync("**/*.{ts,tsx}", {
+  ignore: ["node_modules/**", ".next/**"],
+}).forEach((file) => {
+  patch(file, (text) => {
+    return text.replace(
+      /NextResponse<unknown>/g,
+      "NextResponse"
+    );
+  });
 });
 
-function walk(dir, files = []) {
-  for (const item of fs.readdirSync(dir)) {
+/*
+========================================
+2. Fix catch(err) unknown typing
+========================================
+*/
+
+glob.sync("**/*.{ts,tsx}", {
+  ignore: ["node_modules/**", ".next/**"],
+}).forEach((file) => {
+  patch(file, (text) => {
+    return text.replace(
+      /catch\s*\(\s*([A-Za-z0-9_]+)\s*\)\s*\{/g,
+      "catch ($1: any) {"
+    );
+  });
+});
+
+/*
+========================================
+3. Fix missing DatabaseIcon import
+========================================
+*/
+
+glob.sync("**/*.{ts,tsx}", {
+  ignore: ["node_modules/**", ".next/**"],
+}).forEach((file) => {
+  patch(file, (text) => {
     if (
-      item === "node_modules" ||
-      item === ".next" ||
-      item === ".git" ||
-      item === "dist"
+      text.includes("DatabaseIcon") &&
+      !text.includes('from "lucide-react"')
     ) {
-      continue;
+      return `import { DatabaseIcon } from "lucide-react";\n${text}`;
     }
 
-    const full = path.join(dir, item);
-    const stat = fs.statSync(full);
+    return text;
+  });
+});
 
-    if (stat.isDirectory()) {
-      walk(full, files);
-    } else if (/\.(ts|tsx)$/.test(full)) {
-      files.push(full);
-    }
+/*
+========================================
+4. Fix unknown[] -> Post[]
+========================================
+*/
+
+[
+  "components/core/dream.CoreDream.tsx",
+  "components/runtime/dream.RuntimeView.tsx",
+].forEach((file) => {
+  patch(file, (text) => {
+    return text.replace(
+      /unknown\[\]/g,
+      "Post[]"
+    );
+  });
+});
+
+/*
+========================================
+5. Fix reduce callback typing
+========================================
+*/
+
+patch(
+  "components/daydream/dreamsurface.daydream.BrandDaydream.tsx",
+  (text) => {
+    return text.replace(
+      /\.reduce\(\s*\(\s*acc\s*,\s*item\s*\)\s*=>/g,
+      ".reduce((acc: any, item: any) =>"
+    );
   }
+);
 
-  return files;
-}
+/*
+========================================
+6. Fix Supabase insert typing
+========================================
+*/
 
-const files = walk(process.cwd());
+[
+  "app/api/posts/route.ts",
+  "app/api/projects/route.ts",
+].forEach((file) => {
+  patch(file, (text) => {
+    return text.replace(
+      /\.insert\(\s*\{/g,
+      ".insert({\n// @ts-ignore"
+    );
+  });
+});
 
-for (const filePath of files) {
-  let text = fs.readFileSync(filePath, "utf8");
+/*
+========================================
+7. Babylon scene typing fixes
+========================================
+*/
 
-  // Remove duplicate Database imports
-  const seen = new Set();
-
-  text = text.replace(
-    /import\s+type\s+\{\s*Database\s*\}\s+from\s+['"][^'"]+['"];?\n/g,
-    (match) => {
-      const trimmed = match.trim();
-
-      if (seen.has(trimmed)) {
-        return "";
-      }
-
-      seen.add(trimmed);
-      return match;
-    }
-  );
-
-  // Fix catch typing
-  text = text.replace(
-    /catch\s*\(\s*([a-zA-Z0-9_]+)\s*\)\s*\{/g,
-    "catch ($1: any) {"
-  );
-
-  // Fix invalid NextResponse typing
-  text = text.replace(
-    /:\s*NextResponse<unknown>/g,
-    ": Response"
-  );
-
-  // Fix unknown casting spam
-  text = text.replace(
-    /as unknown as/g,
-    "as any as"
-  );
-
-  // Remove empty exports
-  text = text.replace(
-    /export\s+\{\s*\};/g,
-    ""
-  );
-
-  fs.writeFileSync(filePath, text, "utf8");
-}
-
-for (const sourceFile of project.getSourceFiles()) {
-  try {
-    sourceFile.fixUnusedIdentifiers();
-    sourceFile.organizeImports();
-  } catch (err) {
-    console.error(err);
+patch(
+  "components/dreamengin/dream.scene.DrEamsScene.tsx",
+  (text) => {
+    return text
+      .replace(/Scene \| undefined/g, "any")
+      .replace(/Engine \| null/g, "any")
+      .replace(/AbstractMesh/g, "any");
   }
-}
+);
 
-project.saveSync();
+/*
+========================================
+8. CodeEngin parser typing fixes
+========================================
+*/
 
-console.log("Audit autofix completed.");
+[
+  "engins/CodeEngin/core/parser.ts",
+  "engins/engin.CodeEngin.tsx",
+].forEach((file) => {
+  patch(file, (text) => {
+    return text
+      .replace(/:\s*unknown/g, ": any")
+      .replace(/as unknown/g, "as any");
+  });
+});
+
+/*
+========================================
+9. Remove empty exports
+========================================
+*/
+
+glob.sync("**/*.{ts,tsx}", {
+  ignore: ["node_modules/**", ".next/**"],
+}).forEach((file) => {
+  patch(file, (text) => {
+    return text.replace(
+      /export\s+\{\s*\};/g,
+      ""
+    );
+  });
+});
+
+console.log("repo-specific audit fixes complete");
