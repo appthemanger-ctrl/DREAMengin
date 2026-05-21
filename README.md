@@ -1937,7 +1937,7 @@ Auto-synced from `backend/**`, `core/**`, `coresurfaces/**`, `system/**`, `app/a
 
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **134**
+- Files tracked: **135**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2053,6 +2053,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     ├── export-full-code.mjs
     ├── feature-build
     │   └── generate-features.mjs
+    ├── fix-audit.js
     ├── gameengin
     │   ├── architect-run.ts
     │   ├── artisan-run.ts
@@ -2062,10 +2063,9 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     │   ├── mechanic-run.ts
     │   ├── package-cartridge.ts
     │   ├── prophet-run.ts
-    │   ├── upgrader-run.ts
-… (14 more files)
+… (15 more files)
 ```
-<details><summary>Agents & Workflow file index (134 files)</summary>
+<details><summary>Agents & Workflow file index (135 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2168,6 +2168,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `scripts/deploy.sh` — project file (sh).
 - `scripts/export-full-code.mjs` — TypeScript/JavaScript runtime module.
 - `scripts/feature-build/generate-features.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/fix-audit.js` — TypeScript/JavaScript runtime module.
 - `scripts/gameengin/architect-run.ts` — TypeScript/JavaScript runtime module.
 - `scripts/gameengin/artisan-run.ts` — TypeScript/JavaScript runtime module.
 - `scripts/gameengin/lib/tar.ts` — TypeScript/JavaScript runtime module.
