@@ -1,5 +1,12 @@
 'use client';
 
+interface Post {
+  id: string;
+  content?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
+
 import HomeDreamSurface from '@/app/dreamdmbar/_components/HomeDreamRegion';
 import Link from 'next/link';
 import React, { useRef, useState } from 'react';

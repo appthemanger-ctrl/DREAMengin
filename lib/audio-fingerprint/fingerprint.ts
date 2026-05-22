@@ -28,7 +28,7 @@ export function matchFingerprint(fingerprint: Fingerprint, peakMap: PeakMap): Ti
   for (let t = 0; t + windowSec <= peakMap.duration; t += step) {
     const windowPeaks = peakMap.peaks.filter((p) => p.timeSec >= t && p.timeSec < t + windowSec);
     const sig = buildSignature(windowPeaks, totalBins);
-    const similarity = sig.reduce((s: string, v: number, i: number ) => s + v * (fingerprint.signature[i] ?? 0), 0);
+    const similarity = sig.reduce((s: number, v: number, i: number) => s + v * (fingerprint.signature[i] ?? 0), 0);
     if (similarity > 0.6) results.push({ startTimeSec: t, endTimeSec: t + windowSec, similarityScore: similarity });
   }
   return results;

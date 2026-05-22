@@ -278,7 +278,7 @@ export const STANDARD_UI_HARD_CHECKS: HardFailCheck[] = [
 
   // Check for severe performance regression
   (candidate) => {
-    if (candidate.metadata?.performanceDegradation && candidate.metadata.performanceDegradation > 0.5) {
+    if (candidate.metadata?.performanceDegradation && (candidate.metadata.performanceDegradation as number) > 0.5) {
       return 'severe performance regression';
     }
     return null;

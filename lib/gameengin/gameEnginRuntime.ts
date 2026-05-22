@@ -149,8 +149,9 @@ export class GameEnginRuntime {
       return;
     }
 
-    this.device = await adapter.requestDevice();
-    this.device.lost.then((info: { reason: string }) => {
+    const gpuDevice = await adapter.requestDevice();
+    this.device = gpuDevice;
+    gpuDevice.lost.then((info: { reason: string }) => {
       this.bus.emit('error', { message: `WebGPU device lost: ${info.reason}` });
     });
   }

@@ -134,9 +134,19 @@ export async function GET(req: NextRequest ): Promise<Response> {
     const SCORE_PER_CREATOR_CAP = 5;
     const scoredCount = new Map<string, number>();
 
-    for (const row of visible as Record<string, unknown>[]) {
+    interface SuggRow {
+      user_id: string;
+      profiles: { id: string; handle: string; display_name: string | null; avatar_url: string | null; bio: string | null } | null;
+      created_at: string;
+      id: string;
+      content: string;
+      view_count: number;
+      likes_count: number;
+      comments_count: number;
+    }
+    for (const row of visible as SuggRow[]) {
       const uid = row.user_id;
-      const p   = row.profiles ?? {};
+      const p   = row.profiles ?? { id: uid, handle: '', display_name: null, avatar_url: null, bio: null };
 
       let entry = creatorMap.get(uid);
       if (!entry) {

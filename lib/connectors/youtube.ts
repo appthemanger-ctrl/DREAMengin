@@ -3,7 +3,7 @@ import 'server-only';
 
 import { createServiceClient } from '@/lib/supabase/server';
 
-export async function pollYouTube(userId: string, accessToken: string): Promise<string> {
+export async function pollYouTube(userId: string, accessToken: string): Promise<void> {
   try {
     // Fetch user's subscriptions
     const response = await fetch(
@@ -32,7 +32,7 @@ export async function pollYouTube(userId: string, accessToken: string): Promise<
   }
 }
 
-async function fetchChannelVideos(userId: string, accessToken: string, channelId): string {
+async function fetchChannelVideos(userId: string, accessToken: string, channelId: string): Promise<void> {
   try {
     const supabase = (await createServiceClient()) as SupabaseClient
     const response = await fetch(
