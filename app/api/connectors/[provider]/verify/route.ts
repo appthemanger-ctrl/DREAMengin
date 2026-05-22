@@ -73,7 +73,7 @@ export async function GET(
     }
   }
 
-  const creds = account.token_blob as any;
+  const creds = account.token_blob as Record<string, unknown>;
   let newStatus: ConnectorVerifyResponse['status'] = 'error';
   let lastError: string | null = null;
   let verifiedAt: string | null = null;

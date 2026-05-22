@@ -43,7 +43,7 @@ export async function GET( ): Promise<Response> {
   }
 
    
-  const appearance = (data?.data as any)?.appearance ?? null;
+  const appearance = (data?.data as Record<string, unknown>)?.appearance ?? null;
   return NextResponse.json({ ok: true, appearance });
 }
 
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     .maybeSingle();
 
    
-  const existingData = (existing?.data as any) ?? {};
+  const existingData = (existing?.data as Record<string, unknown>) ?? {};
   const merged = { ...existingData, appearance: body };
 
   const { error: upsertError } = await db

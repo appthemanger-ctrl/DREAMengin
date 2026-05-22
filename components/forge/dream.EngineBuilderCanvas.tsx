@@ -148,7 +148,9 @@ export default function EngineBuilderCanvas({
           x: 200 + (i % 4) * 180,
           y: 100 + Math.floor(i / 4) * 140,
         }));
-      } catch {}
+      } catch (err) {
+        console.warn('[EngineBuilderCanvas] Failed to deserialize initial assembly (pieces):', err);
+      }
     }
     return [];
   });
@@ -156,7 +158,9 @@ export default function EngineBuilderCanvas({
   const [wires, setWires]       = useState<Wire[]>(() => {
     if (initialJson) {
       try { return deserializeAssembly(initialJson).wires; }
-      catch {}
+      catch (err) {
+        console.warn('[EngineBuilderCanvas] Failed to deserialize initial assembly (wires):', err);
+      }
     }
     return [];
   });

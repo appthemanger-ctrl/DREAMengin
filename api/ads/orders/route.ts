@@ -50,7 +50,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     return NextResponse.json({ error: 'Request body must be a JSON object.' }, { status: 400 });
   }
 
-  const { listingId, grossAmount } = body as any;
+  const { listingId, grossAmount } = body as Record<string, unknown>;
 
   if (!listingId || typeof listingId !== 'string') {
     return NextResponse.json({ error: 'listingId is required.' }, { status: 400 });

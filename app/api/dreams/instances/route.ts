@@ -85,7 +85,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         *,
         dream_definitions!inner(*)
       `
-      ) as any)
+      ) as unknown as ReturnType<typeof supabase.from>)
       .eq('owner_id', user.id)
       .eq('surface', surface)
       .eq('surface_key', surfaceKey)

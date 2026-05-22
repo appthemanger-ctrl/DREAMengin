@@ -152,7 +152,7 @@ async function idariPlanner(
         requires_confirmation: Boolean(x?.requires_confirmation),
         rationale: typeof x?.rationale === 'string' ? x.rationale : 'IDARi request',
         idempotency_key: typeof x?.idempotency_key === 'string' ? x.idempotency_key : `idari-${Date.now()}`,
-        payload: (x?.payload && typeof x.payload === 'object') ? x.payload as any : {},
+        payload: (x?.payload && typeof x.payload === 'object') ? x.payload as Record<string, unknown> : {},
       }));
     return {
       response_text,

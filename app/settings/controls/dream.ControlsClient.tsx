@@ -7,8 +7,10 @@
 
 import { ArrowLeft, Check, Sliders } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PositionIndicatorToggle from './dream.PositionIndicatorToggle';
+
+type TimeoutHandle = ReturnType<typeof setTimeout>;
 
 const STORAGE_KEY = 'de-controls-settings';
 
@@ -55,19 +57,31 @@ export default function ControlsClient( ){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return { ...DEFAULT, ...JSON.parse(raw) };
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.warn('[ControlsClient] Failed to load settings from localStorage:', err);
+    }
     return DEFAULT;
   });
   const [saved, setSaved] = useState(false);
+  const savedTimerRef = useRef<TimeoutHandle | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current !== null) clearTimeout(savedTimerRef.current);
+    };
+  }, []);
 
   const toggle = useCallback((key: keyof ControlsSettings) => {
     setSettings((prev) => {
       const next = { ...prev, [key]: !prev[key] };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch (err) {
+        console.warn('[ControlsClient] Failed to persist settings:', err);
+      }
       return next;
     });
     setSaved(true);
-    setTimeout(() => setSaved(false), 1800);
+    if (savedTimerRef.current !== null) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => setSaved(false), 1800);
   }, []);
 
   const rows: Array<{ key: keyof ControlsSettings; label: string; desc: string }> = [

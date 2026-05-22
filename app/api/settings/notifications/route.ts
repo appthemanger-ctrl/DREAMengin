@@ -38,7 +38,7 @@ export async function GET( ): Promise<NextResponse> {
   }
 
    
-  const notifications = (data?.data as any)?.notifications ?? null;
+  const notifications = (data?.data as Record<string, unknown>)?.notifications ?? null;
   return NextResponse.json({ ok: true, notifications });
 }
 
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     .maybeSingle();
 
    
-  const currentData = (existing?.data ?? {}) as any;
+  const currentData = (existing?.data as Record<string, unknown>) ?? {};
   const merged = { ...currentData, notifications: body };
 
   const { error: upsertError } = await db2

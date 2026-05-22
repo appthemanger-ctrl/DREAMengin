@@ -54,7 +54,7 @@ export async function PUT(req: NextRequest ): Promise<Response> {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as any;
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { notification_ids, mark_all } = body;
 
   if (mark_all) {

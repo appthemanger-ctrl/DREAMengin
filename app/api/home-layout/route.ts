@@ -37,7 +37,7 @@ interface HomeLayout {
 
 function isValidSlot(s: unknown): s is LayoutSlot {
   if (!s || typeof s !== 'object') return false;
-  const obj = s as any;
+  const obj = s as Record<string, unknown>;
   return typeof obj.id === 'string' && typeof obj.type === 'string' && typeof obj.position === 'number';
 }
 
@@ -59,7 +59,7 @@ export async function GET( ): Promise<NextResponse> {
   }
 
    
-  const layout = ((data as any)?.home_layout as HomeLayout | null) ?? { slots: [] };
+  const layout = ((data as Record<string, unknown>)?.home_layout as HomeLayout | null) ?? { slots: [] };
   return NextResponse.json({ ok: true, layout });
 }
 
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const b = body as any | null;
+  const b = body as Record<string, unknown> | null;
   if (!b || !Array.isArray(b.slots)) {
     return NextResponse.json({ ok: false, error: 'layout.slots must be an array' }, { status: 400 });
   }

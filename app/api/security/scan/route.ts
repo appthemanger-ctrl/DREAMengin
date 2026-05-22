@@ -25,7 +25,9 @@ export async function POST(request: Request ): Promise<NextResponse> {
             patched_versions: data.data.advisory.patched_versions,
           });
         }
-      } catch {}
+      } catch {
+          // Non-JSON line in pnpm audit output — skip silently
+        }
     }
     const summary = {
       total: advisories.length,
@@ -35,7 +37,7 @@ export async function POST(request: Request ): Promise<NextResponse> {
     };
     return NextResponse.json({ summary, advisories });
   } catch (_err: any) {
-    const error = _err as any;
+    const error = _err as Record<string, unknown> & { message?: string };
     if (error.stdout) {
       // pnpm audit exits with non‑zero when vulnerabilities found, but stdout still contains JSON
       const advisories = [];
@@ -51,7 +53,9 @@ export async function POST(request: Request ): Promise<NextResponse> {
               patched_versions: data.data.advisory.patched_versions,
             });
           }
-        } catch {}
+        } catch {
+          // Non-JSON line in pnpm audit output — skip silently
+        }
       }
       const summary = {
         total: advisories.length,

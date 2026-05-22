@@ -66,7 +66,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => ({})) as any;
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { target_type, target_id } = body;
 
   if (!target_type || !target_id) {

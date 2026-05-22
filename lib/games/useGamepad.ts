@@ -279,11 +279,11 @@ export function useGamepad(): GamepadStatus {
       if (typeof navigator !== 'undefined' && navigator.getGamepads) {
         const remaining = Array.from(navigator.getGamepads()).filter(Boolean);
         if (remaining.length > 0 && remaining[0]) {
-          gamepadIndexRef.current = remaining[0]!.index;
-          const isDualSense = checkIsDualSense(remaining[0]!.id);
+          gamepadIndexRef.current = remaining[0].index;
+          const isDualSense = checkIsDualSense(remaining[0].id);
           setStatus({
             connected: true,
-            gamepadName: remaining[0]!.id,
+            gamepadName: remaining[0].id,
             isDualSense,
             rumble,
           });
@@ -306,11 +306,11 @@ export function useGamepad(): GamepadStatus {
     if (navigator.getGamepads) {
       const initial = Array.from(navigator.getGamepads()).filter(Boolean);
       if (initial.length > 0 && initial[0]) {
-        gamepadIndexRef.current = initial[0]!.index;
-        const isDualSense = checkIsDualSense(initial[0]!.id);
+        gamepadIndexRef.current = initial[0].index;
+        const isDualSense = checkIsDualSense(initial[0].id);
         setStatus({
           connected: true,
-          gamepadName: initial[0]!.id,
+          gamepadName: initial[0].id,
           isDualSense,
           rumble,
         });
