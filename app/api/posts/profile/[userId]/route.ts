@@ -54,11 +54,13 @@ export async function GET(
   const savedPosts: unknown[] = [];
 
   for (const row of savedRows ?? []) {
-    const post = row.app_posts as Record<string, unknown> | null;
+    interface PostJoin { id: string; content?: string; created_at?: string; post_visibility?: string; [key: string]: unknown; }
+    const postRaw = row.app_posts;
+    const post = (Array.isArray(postRaw) ? postRaw[0] : postRaw) as PostJoin | null;
     if (!post) continue;
     // Apply visibility filter
     if (post.post_visibility === 'close_friends' && !isOwner && !isCloseFriend) continue;
-    savedSet.add(post.id);
+    savedSet.add(String(post.id));
     savedPosts.push({ ...post, is_saved: true });
   }
 

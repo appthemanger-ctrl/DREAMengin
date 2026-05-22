@@ -134,11 +134,23 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const { data: posts } = await q;
 
+    interface AppPostRow {
+      id: string;
+      content?: string;
+      created_at: string;
+      likes_count?: number;
+      comments_count?: number;
+      profiles?: {
+        handle?: string;
+        display_name?: string | null;
+        avatar_url?: string | null;
+      } | null;
+    }
     if (posts) {
       for (const post of posts) {
 
-        const p = post as Record<string, unknown>;
-        const profile = (p.profiles ?? {}) as Record<string, unknown>;
+        const p = post as AppPostRow;
+        const profile = p.profiles ?? {};
 
         // Phase 9: Get view count for this post
         const { count: viewCount } = await (supabase as SupabaseClient)
@@ -155,7 +167,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           author_name:   profile.display_name ?? profile.handle,
           author_avatar: profile.avatar_url ?? null,
           content_text:  p.content,
-          media:         getPrimaryPostMediaUrl(p) ? [{ url: getPrimaryPostMediaUrl(p)!, type: 'image' }] : [],
+          media:         getPrimaryPostMediaUrl(p as Record<string, unknown>) ? [{ url: getPrimaryPostMediaUrl(p as Record<string, unknown>)!, type: 'image' as const }] : [],
           published_at:  p.created_at,
           created_at:    p.created_at,
           likes_count:   p.likes_count ?? 0,

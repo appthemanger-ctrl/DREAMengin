@@ -1,3 +1,13 @@
+interface FeedItemRow {
+  id: string;
+  user_id: string;
+  ts: string;
+  summary?: string;
+  title?: string;
+  media_json?: Record<string, unknown>;
+  visibility: string;
+  item_id?: string;
+}
 // =====================================================
 // Feed Host Resolver
 // Resolves feed data for widgets with SELF/FOLLOW scopes

@@ -378,7 +378,7 @@ export function normaliseRssItem(
 ): UnifiedFeedItem {
   const externalId = (item as Record<string, unknown>).guid ?? (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).link ?? String(Math.random());
   const pubDate: string =
-    item.isoDate ?? (item as Record<string, unknown>).pubDate ?? new Date().toISOString();
+    (item.isoDate as string | undefined) ?? (item.pubDate as string | undefined) ?? new Date().toISOString();
 
   const rawAuthor: string =
     (item as Record<string, unknown>).author ?? item['dc:creator'] ?? item.creator ?? channelTitle;
@@ -426,10 +426,11 @@ export function normaliseRssItem(
  *  5. <img src> inside content:encoded / description HTML
  */
  
-export function extractFirstImage(item: unknown): string | null {
+export function extractFirstImage(item: Record<string, unknown>): string | null {
   // 1) enclosure
-  if (item.enclosure?.url && isImageLike(item.enclosure.url)) {
-    return item.enclosure.url;
+  const enclosure = item.enclosure as { url?: string } | undefined;
+  if (enclosure?.url && isImageLike(enclosure.url)) {
+    return enclosure!.url!;
   }
 
   // 2) media:content (array)

@@ -237,7 +237,7 @@ export class BabylonOptimizeroScorers {
     }
 
     // Too many particles could cause performance issues
-    if (element.type === 'particle-system' && element.metadata?.particleCount > 1000) {
+    if (element.type === 'particle-system' && (element.metadata?.particleCount as number) > 1000) {
       risk += 0.3;
     }
 

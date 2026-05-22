@@ -613,7 +613,7 @@ export default function BrandDaydream( ){
         <div className="de-widget-header">
           <span className="de-widget-title">💰 Revenue Tracker</span>
           <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 800, color: '#22c55e' }}>
-            ${REVENUE_SOURCES.reduce((s, r: number) => s + r.val, 0).toLocaleString()}
+            ${REVENUE_SOURCES.reduce((s, r) => s + r.val, 0).toLocaleString()}
           </span>
         </div>
         <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>

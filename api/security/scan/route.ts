@@ -41,7 +41,7 @@ export async function POST(request: Request ): Promise<Response> {
     if (error.stdout) {
       // pnpm audit exits with non‑zero when vulnerabilities found, but stdout still contains JSON
       const advisories = [];
-      for (const line of error.stdout.split('\n').filter((l: string) => l.trim())) {
+      for (const line of (error.stdout as string).split('\n').filter((l: string) => l.trim())) {
         try {
           const data = JSON.parse(line);
           if (data.type === 'auditAdvisory') {

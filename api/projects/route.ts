@@ -94,13 +94,13 @@ export async function POST(req: NextRequest ): Promise<Response> {
   const { data: project, error } = await supabase
     .from('projects')
     .insert({
-      user_id: user.id,
-      title: title.trim(),
-      description: description?.trim() || null,
-      visibility,
-      template: template || null,
-      tags,
-      data: {}, // Empty project data to start
+      user_id: user.id as string,
+      title: title.trim() as string,
+      description: (description?.trim() || null) as string | null,
+      visibility: visibility as string,
+      template: (template || null) as string | null,
+      tags: tags as string[],
+      data: {} as Record<string, unknown>, // Empty project data to start
     })
     .select(`
       *,

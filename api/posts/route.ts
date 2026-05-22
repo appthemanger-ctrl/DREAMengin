@@ -214,9 +214,9 @@ export async function POST(req: NextRequest ): Promise<Response> {
     .insert({
       user_id: user.id,
       content: content.trim(),
-      visibility,
+      visibility: visibility as string,
       media_urls,
-      post_visibility,
+      post_visibility: post_visibility as string,
       ...(original_post_id ? { original_post_id } : {}),
     })
     .select(`

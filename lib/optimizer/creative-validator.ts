@@ -83,7 +83,7 @@ export function validateCreativeOption(
 
   return {
     valid: failures.length === 0,
-    failures: failures.length > 0 ? failures : undefined,
+    failures: (failures.length as number) > 0 ? failures : undefined,
   };
 }
 
@@ -256,7 +256,7 @@ function checkPerformanceRegression(option: CreativeOption): boolean {
   }
 
   // Check for excessive complexity indicators
-  if (option.metadata?.complexity && option.metadata.complexity > 100) {
+  if (option.metadata?.complexity && (option.metadata.complexity as number) > 100) {
     return true;
   }
 

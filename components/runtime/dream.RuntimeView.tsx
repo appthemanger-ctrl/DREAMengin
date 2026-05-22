@@ -1,5 +1,12 @@
 'use client';
 
+interface Post {
+  id: string;
+  content?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
+
 /**
  * RuntimeView
  *

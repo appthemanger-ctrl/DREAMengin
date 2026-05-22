@@ -107,7 +107,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
 
     // Achievements — real implementation when capability is declared
     const achievementsAPI = capabilities.has('achievements')
-      ? createAchievementsAPI((cartridgeId: string, achievementDefs: AchievementDefinition[], def: AchievementDefinition) => {
+      ? createAchievementsAPI(cartridgeId, [], (def: AchievementDefinition) => {
           // Emit to dreamOSBus so the shell can show a pop-up
           dreamOSBus.emit('game:achievement-unlocked' as Parameters<typeof dreamOSBus.emit>[0], {
             cartridgeId,
