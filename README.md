@@ -236,6 +236,23 @@ Auto-synced from `engins/dream.panel.AnalyticsEngin.tsx` using repository intros
 
 </details>
 
+### BrandingEngin
+Auto-synced from `engins/engin.BrandingEngin.tsx` using repository introspection.
+- Files tracked: **1**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: `BrandingEngin`
+#### BrandingEngin file structure
+```text
+└── engins
+    └── engin.BrandingEngin.tsx
+```
+<details><summary>BrandingEngin file index (1 files)</summary>
+
+- `engins/engin.BrandingEngin.tsx` — React UI module for BrandingEngin.
+
+</details>
+
 ### CodeEngin
 Auto-synced from `engins/engin.CodeEngin.tsx`, `engins/CodeEngin/**` using repository introspection.
 - Files tracked: **6**
@@ -1050,10 +1067,10 @@ Auto-synced from `app/daydream/**`, `components/daydream/**`, `lib/daydream/**` 
 
 ## Dreams (Widgets / Windows / Surfaces)
 Auto-synced from `components/dream.**`, `components/runtime/**`, `lib/widgets/**`, `lib/windows/**` using repository introspection.
-- Files tracked: **51**
+- Files tracked: **52**
 - API routes discovered: none
 - App pages discovered: none
-- Components/modules discovered: `AIAssistant`, `AudioVisualizer3D`, `BoogieWarningBanner`, `BrandLogo`, `CommandPalette`, `CreatePostModal`, `DrEamsModeToggle`, `DrEamsVoiceAssistant`, +34 more
+- Components/modules discovered: `AIAssistant`, `AudioVisualizer3D`, `BoogieWarningBanner`, `BrandLogo`, `CommandPalette`, `CreatePostModal`, `DrEamsModeToggle`, `DrEamsVoiceAssistant`, +35 more
 #### Dreams (Widgets / Windows / Surfaces) file structure
 ```text
 ├── components
@@ -1074,6 +1091,7 @@ Auto-synced from `components/dream.**`, `components/runtime/**`, `lib/widgets/**
 │   ├── dream.IconSelector.tsx
 │   ├── dream.InnerDreamsButton.tsx
 │   ├── dream.KonamiDream.tsx
+│   ├── dream.LandingHero.tsx
 │   ├── dream.LedgerChart.tsx
 │   ├── dream.MessagesClient.tsx
 │   ├── dream.NotificationCenter.tsx
@@ -1112,7 +1130,7 @@ Auto-synced from `components/dream.**`, `components/runtime/**`, `lib/widgets/**
         ├── useWidget.ts
         └── widgetRegistry.ts
 ```
-<details><summary>Dreams (Widgets / Windows / Surfaces) file index (51 files)</summary>
+<details><summary>Dreams (Widgets / Windows / Surfaces) file index (52 files)</summary>
 
 - `components/dream.AIAssistant.tsx` — React UI module for AIAssistant.
 - `components/dream.AudioVisualizer3D.tsx` — React UI module for AudioVisualizer3D.
@@ -1131,6 +1149,7 @@ Auto-synced from `components/dream.**`, `components/runtime/**`, `lib/widgets/**
 - `components/dream.IconSelector.tsx` — React UI module for IconSelector.
 - `components/dream.InnerDreamsButton.tsx` — React UI module for InnerDreamsButton.
 - `components/dream.KonamiDream.tsx` — React UI module for KonamiDream.
+- `components/dream.LandingHero.tsx` — React UI module for LandingHero.
 - `components/dream.LedgerChart.tsx` — React UI module for LedgerChart.
 - `components/dream.MessagesClient.tsx` — React UI module for MessagesClient.
 - `components/dream.NotificationCenter.tsx` — React UI module for NotificationCenter.
@@ -1170,10 +1189,10 @@ Auto-synced from `components/dream.**`, `components/runtime/**`, `lib/widgets/**
 
 ## User-Facing Modularity
 Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using repository introspection.
-- Files tracked: **317**
+- Files tracked: **318**
 - API routes discovered: none
 - App pages discovered: none
-- Components/modules discovered: `AIAssistant`, `ActiveModuleSurface`, `ActivityPostForm`, `ActivityProfile`, `AdUnit`, `AddDreamCTA`, `AddSliceSheet`, `AlgorithmEngine`, +254 more
+- Components/modules discovered: `AIAssistant`, `ActiveModuleSurface`, `ActivityPostForm`, `ActivityProfile`, `AdUnit`, `AddDreamCTA`, `AddSliceSheet`, `AlgorithmEngine`, +255 more
 #### User-Facing Modularity file structure
 ```text
 ├── components
@@ -1241,6 +1260,7 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 │   ├── dream.IconSelector.tsx
 │   ├── dream.InnerDreamsButton.tsx
 │   ├── dream.KonamiDream.tsx
+│   ├── dream.LandingHero.tsx
 │   ├── dream.LedgerChart.tsx
 │   ├── dream.MessagesClient.tsx
 │   ├── dream.NotificationCenter.tsx
@@ -1295,10 +1315,9 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 │   │   ├── dream.PlatformErrorReporter.tsx
 │   │   ├── dream.SlideOverPanel.tsx
 │   │   ├── dream.connectorlayer.tsx
-│   │   ├── dream.featurelayer.tsx
-… (197 more files)
+… (198 more files)
 ```
-<details><summary>User-Facing Modularity file index (317 files)</summary>
+<details><summary>User-Facing Modularity file index (318 files)</summary>
 
 - `components/activity/dream.ActivityPostForm.tsx` — React UI module for ActivityPostForm.
 - `components/activity/dream.ActivityProfile.tsx` — React UI module for ActivityProfile.
@@ -1354,6 +1373,7 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 - `components/dream.IconSelector.tsx` — React UI module for IconSelector.
 - `components/dream.InnerDreamsButton.tsx` — React UI module for InnerDreamsButton.
 - `components/dream.KonamiDream.tsx` — React UI module for KonamiDream.
+- `components/dream.LandingHero.tsx` — React UI module for LandingHero.
 - `components/dream.LedgerChart.tsx` — React UI module for LedgerChart.
 - `components/dream.MessagesClient.tsx` — React UI module for MessagesClient.
 - `components/dream.NotificationCenter.tsx` — React UI module for NotificationCenter.
@@ -2123,7 +2143,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │   │   ├── validate_game_sandbox.py
 │   │   └── validate_report_agent_spec.py
 │   └── workflows
-│       ├── autofixaudit.yml
+│       ├── Repo Audit Auto Fix.yml
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
@@ -2244,7 +2264,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/scripts/scan_gameengin_context.py` — project file (py).
 - `.github/scripts/validate_game_sandbox.py` — project file (py).
 - `.github/scripts/validate_report_agent_spec.py` — project file (py).
-- `.github/workflows/autofixaudit.yml` — project file (yml).
+- `.github/workflows/Repo Audit Auto Fix.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -2454,7 +2474,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 ```text
 ├── .github
 │   └── workflows
-│       ├── autofixaudit.yml
+│       ├── Repo Audit Auto Fix.yml
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
@@ -2529,7 +2549,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 ```
 <details><summary>Infra & Ops file index (67 files)</summary>
 
-- `.github/workflows/autofixaudit.yml` — project file (yml).
+- `.github/workflows/Repo Audit Auto Fix.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -3461,7 +3481,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/scripts/scan_gameengin_context.py` — project file (py).
 - `.github/scripts/validate_game_sandbox.py` — project file (py).
 - `.github/scripts/validate_report_agent_spec.py` — project file (py).
-- `.github/workflows/autofixaudit.yml` — project file (yml).
+- `.github/workflows/Repo Audit Auto Fix.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -4126,5 +4146,148 @@ Auto-synced from `types/**` using repository introspection.
 - `types/widget-system-v2.ts` — TypeScript/JavaScript runtime module.
 - `types/widgetConfigs.ts` — TypeScript/JavaScript runtime module.
 - `types/widgets.ts` — TypeScript/JavaScript runtime module.
+
+</details>
+
+## Dreamr
+Auto-synced from `dreamr/**` using repository introspection.
+- Files tracked: **1**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: `PanelDreamRChannelPanel`
+#### Dreamr file structure
+```text
+└── dreamr
+    └── dream.panel.DreamRChannelPanel.tsx
+```
+<details><summary>Dreamr file index (1 files)</summary>
+
+- `dreamr/dream.panel.DreamRChannelPanel.tsx` — React UI module for PanelDreamRChannelPanel.
+
+</details>
+
+## Engine
+Auto-synced from `engine/**` using repository introspection.
+- Files tracked: **1**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Engine file structure
+```text
+└── engine
+    └── io.ts
+```
+<details><summary>Engine file index (1 files)</summary>
+
+- `engine/io.ts` — TypeScript/JavaScript runtime module.
+
+</details>
+
+## Public
+Auto-synced from `public/**` using repository introspection.
+- Files tracked: **34**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Public file structure
+```text
+└── public
+    ├── arm1_transparent.png
+    ├── arm2_transparent.png
+    ├── cartridges
+    │   └── mad-maxi
+    │       ├── MANIFEST.json
+    │       ├── logic
+    │       │   └── main.wasm
+    │       └── tuning.json
+    ├── coat_transparent.png
+    ├── dr-eams-pbr.html
+    ├── favicon.ico
+    ├── feeds
+    │   └── embed-feed.json
+    ├── file.svg
+    ├── globe.svg
+    ├── head_transparent.png
+    ├── images
+    │   ├── iconslist.png
+    │   ├── logo1.PNG
+    │   ├── logo2.PNG
+    │   └── logo3.PNG
+    ├── logo-icon.png
+    ├── logo_DREAM_transparent.png
+    ├── logo_ENGIN_transparent.png
+    ├── manifest.json
+    ├── manifest.webmanifest
+    ├── models
+    │   └── madmaxi.glb
+    ├── module-loader.html
+    ├── next.svg
+    ├── shoe1_transparent.png
+    ├── shoe2_transparent.png
+    ├── sprite_2x_transparent.png
+    ├── sprite_transparent.png
+    ├── vercel.svg
+    ├── videos
+    │   └── signup-bg.mp4
+    ├── window.svg
+    └── workers
+        ├── asset-optimizer.worker.js
+        ├── engin-shader.wasm
+        └── engin-shader.worker.ts
+```
+<details><summary>Public file index (34 files)</summary>
+
+- `public/arm1_transparent.png` — project file (png).
+- `public/arm2_transparent.png` — project file (png).
+- `public/cartridges/mad-maxi/MANIFEST.json` — project file (json).
+- `public/cartridges/mad-maxi/logic/main.wasm` — project file (wasm).
+- `public/cartridges/mad-maxi/tuning.json` — project file (json).
+- `public/coat_transparent.png` — project file (png).
+- `public/dr-eams-pbr.html` — project file (html).
+- `public/favicon.ico` — project file (ico).
+- `public/feeds/embed-feed.json` — project file (json).
+- `public/file.svg` — project file (svg).
+- `public/globe.svg` — project file (svg).
+- `public/head_transparent.png` — project file (png).
+- `public/images/iconslist.png` — project file (png).
+- `public/images/logo1.PNG` — project file (png).
+- `public/images/logo2.PNG` — project file (png).
+- `public/images/logo3.PNG` — project file (png).
+- `public/logo-icon.png` — project file (png).
+- `public/logo_DREAM_transparent.png` — project file (png).
+- `public/logo_ENGIN_transparent.png` — project file (png).
+- `public/manifest.json` — project file (json).
+- `public/manifest.webmanifest` — project file (webmanifest).
+- `public/models/madmaxi.glb` — project file (glb).
+- `public/module-loader.html` — project file (html).
+- `public/next.svg` — project file (svg).
+- `public/shoe1_transparent.png` — project file (png).
+- `public/shoe2_transparent.png` — project file (png).
+- `public/sprite_2x_transparent.png` — project file (png).
+- `public/sprite_transparent.png` — project file (png).
+- `public/vercel.svg` — project file (svg).
+- `public/videos/signup-bg.mp4` — project file (mp4).
+- `public/window.svg` — project file (svg).
+- `public/workers/asset-optimizer.worker.js` — TypeScript/JavaScript runtime module.
+- `public/workers/engin-shader.wasm` — project file (wasm).
+- `public/workers/engin-shader.worker.ts` — TypeScript/JavaScript runtime module.
+
+</details>
+
+## Utils
+Auto-synced from `utils/**` using repository introspection.
+- Files tracked: **1**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Utils file structure
+```text
+└── utils
+    └── supabase
+        └── server.ts
+```
+<details><summary>Utils file index (1 files)</summary>
+
+- `utils/supabase/server.ts` — TypeScript/JavaScript runtime module.
 
 </details>
