@@ -482,7 +482,7 @@ class LocalCollabSession extends BaseSession implements CollabSession {
     }
     for (const handlers of this._bus.handlers.values()) {
       for (const handler of handlers) {
-        try { handler(canonical); } catch {}
+        try { handler(canonical); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("[collab] handler error:", e); }
       }
     }
   }
@@ -536,7 +536,7 @@ class SupabaseCollabSession extends BaseSession implements CollabSession {
         if (modeValue) this._mode = modeValue;
       }
       for (const handler of this._handlers) {
-        try { handler(canonical); } catch {}
+        try { handler(canonical); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("[collab] handler error:", e); }
       }
     });
   }
@@ -638,7 +638,7 @@ export class WebRTCCollabSession extends BaseSession implements CollabSession {
       if (channel.readyState === 'open') channel.send(json);
     }
     for (const handler of this._handlers) {
-      try { handler(canonical); } catch {}
+      try { handler(canonical); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("[collab] handler error:", e); }
     }
   }
   async setMode(mode: CollabMode, changedByRole: SessionRole = this.role): Promise<void> {
@@ -666,7 +666,7 @@ export class WebRTCCollabSession extends BaseSession implements CollabSession {
         sequence: this._sequence,
       });
       applyIncomingPeerState(this._peers, payload);
-      for (const h of this._handlers) { try { h(payload); } catch {} }
+      for (const h of this._handlers) { try { h(payload); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("[collab] handler error:", e); } }
     };
     dc.onmessage = ({ data }) => {
       try {
@@ -683,7 +683,7 @@ export class WebRTCCollabSession extends BaseSession implements CollabSession {
           const modeValue = (payload.data as { mode?: CollabMode } | undefined)?.mode;
           if (modeValue) this._mode = modeValue;
         }
-        for (const h of this._handlers) { try { h(payload); } catch {} }
+        for (const h of this._handlers) { try { h(payload); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("[collab] handler error:", e); } }
       } catch {}
     };
     dc.onclose = () => {
@@ -696,7 +696,7 @@ export class WebRTCCollabSession extends BaseSession implements CollabSession {
         sequence: this._sequence,
       });
       applyIncomingPeerState(this._peers, payload);
-      for (const h of this._handlers) { try { h(payload); } catch {} }
+      for (const h of this._handlers) { try { h(payload); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("[collab] handler error:", e); } }
     };
   }
 }

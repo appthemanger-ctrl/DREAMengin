@@ -365,8 +365,7 @@ function PolicyTable({ rows }: {rows: [string, string, string][]}) {
                 {code}
               </span>
             </td>
-            <td style={{ padding: '5px 6px', color: 'var(--de-text)', lineHeight: 1.5, verticalAlign: 'top' }}
-              dangerouslySetInnerHTML={{ __html: desc }} />
+            <td style={{ padding: '5px 6px', color: 'var(--de-text)', lineHeight: 1.5, verticalAlign: 'top' }}>{desc}</td>
           </tr>
         ))}
       </tbody>

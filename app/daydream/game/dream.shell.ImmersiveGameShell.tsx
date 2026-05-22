@@ -207,6 +207,8 @@ export default function ImmersiveGameShell( ){
   }, [game.id]);
 
   // ── Dismiss helpers ──────────────────────────────────────────────────────
+  const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const dismissBoot = useCallback(async () => {
     if (fadingOut || bootDone) return;
     setFadingOut(true);
@@ -216,8 +218,10 @@ export default function ImmersiveGameShell( ){
         await target.requestFullscreen();
       }
     } catch { /* fullscreen denied — continue */ }
-    window.setTimeout(() => setBootDone(true), 500);
+    dismissTimer.current = window.setTimeout(() => setBootDone(true), 500);
   }, [fadingOut, bootDone]);
+
+  useEffect(() => () => { if (dismissTimer.current) window.clearTimeout(dismissTimer.current); }, []);
 
   const handleExit = useCallback(() => {
     router.push('/daydream/games');
