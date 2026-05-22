@@ -9,7 +9,7 @@
  * are permanently disabled and cannot be tapped.
  */
 
-import type { WidgetType } from '@/components/profile/dream.widget.ProfileWidgetGrid';
+import type { WidgetType } from '@/types/widgets';
 import { ArrowRight, Check, Plug, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';

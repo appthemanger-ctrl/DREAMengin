@@ -18,7 +18,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "tsBuildInfoFile": ".next/tsbuildinfo",
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "types": ["@webgpu/types"],
     "plugins": [
