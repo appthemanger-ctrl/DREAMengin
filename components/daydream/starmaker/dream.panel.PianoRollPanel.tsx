@@ -58,7 +58,7 @@ interface PianoRollPanelProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function sectionHeader(label: string, extra?: React.ReactNode): React.ReactNode: React.ReactNode {
+function sectionHeader(label: string, extra?: React.ReactNode): React.ReactNode {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
