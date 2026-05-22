@@ -32,6 +32,7 @@ export async function GET( ): Promise<Response> {
     .from('profiles')
     .select('feed_preferences')
     .eq('id', user.id)
+    .returns<{ feed_preferences: Record<string, unknown> | null }[]>()
     .single();
 
   if (error) {

@@ -52,6 +52,7 @@ export async function GET( ): Promise<NextResponse> {
     .from('profiles')
     .select('home_layout')
     .eq('id', user.id)
+    .returns<{ home_layout: HomeLayout | null }[]>()
     .single();
 
   if (error) {

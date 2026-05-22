@@ -11,7 +11,7 @@ import {
     type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
 import {
-    any,
+    Mesh,
     ArcRotateCamera,
     Color3,
     DirectionalLight,
@@ -37,7 +37,7 @@ type RuntimeState = {
 
 const DR_EAMS_HEIGHT = 0.9144; // 3 feet
 
-function clamp(value: number, min: number, max: any): number {
+function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
@@ -90,7 +90,7 @@ function createDarkVisor(scene: Scene ){
   return mat;
 }
 
-function createFakeVisorGlow(root: TransformNode, scene: any): Scene {
+function createFakeVisorGlow(root: TransformNode, scene: Scene): Mesh {
   const glow = MeshBuilder.CreatePlane(
     'drEamsFakeGlow',
     { width: 0.22, height: 0.11 },
@@ -152,11 +152,11 @@ function applyMaterials(meshes: any[], scene: any): void {
   }
 }
 
-async function buildDrEams(scene: Scene, canvas: any): HTMLCanvasElement {
+async function buildDrEams(scene: Scene, canvas: HTMLCanvasElement): Promise<{ dispose: () => void; triggerReaction: () => void }> {
   const result = await SceneLoader.ImportMeshAsync('', '/models/', 'dr-eams.glb', scene);
 
   const meshes = result.meshes.filter(
-    (m): m is any => m instanceof any && m.name !== '__root__'
+    (m): m is Mesh => m instanceof Mesh && m.name !== '__root__'
   );
 
   const root = new TransformNode('drEamsRoot', scene);
@@ -278,7 +278,7 @@ export default function DrEamsScene( ){
     if (!canvas) return;
 
     let disposed = false;
-    let engineInst: import('@babylonjs/core').Abstractany = null;
+    let engineInst: import('@babylonjs/core').AbstractMesh = null;
     let sceneInst: Scene | null = null;
     let disposeActor: (() => void) | null = null;
 

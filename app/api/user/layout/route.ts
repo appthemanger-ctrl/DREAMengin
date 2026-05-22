@@ -7,8 +7,8 @@ const DEFAULT_LAYOUT = { home: { dreams: [] }, dreamspace: { dreams: [] }, hidde
 function normalizeLayout(input: unknown ){
   const obj = input && typeof input === 'object' ? input as Record<string, unknown> : {};
   return {
-    home: { dreams: Array.isArray(obj.home?.dreams) ? obj.home.dreams.filter((id: any) => typeof id === 'string') : [] },
-    dreamspace: { dreams: Array.isArray(obj.dreamspace?.dreams) ? obj.dreamspace.dreams.filter((id: any) => typeof id === 'string') : [] },
+    home: { dreams: Array.isArray((obj.home as {dreams?: unknown[]})?.dreams) ? ((obj.home as {dreams: unknown[]}).dreams).filter((id): id is string => typeof id === 'string') : [] },
+    dreamspace: { dreams: Array.isArray((obj.dreamspace as {dreams?: unknown[]})?.dreams) ? ((obj.dreamspace as {dreams: unknown[]}).dreams).filter((id): id is string => typeof id === 'string') : [] },
     hidden: Array.isArray(obj.hidden) ? obj.hidden.filter((id: any) => typeof id === 'string') : [],
   };
 }
@@ -24,6 +24,7 @@ export async function GET( ): Promise<NextResponse> {
     .from('profiles')
     .select('user_layout')
     .eq('id', user.id)
+    .returns<{ user_layout: Record<string, unknown> | null }[]>()
     .single();
 
   if (error) {

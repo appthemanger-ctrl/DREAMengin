@@ -112,7 +112,7 @@ const DEFAULT_POLICY: PolicyVersion = {
 // SIGNAL DETECTION
 // ============================================================================
 
-function detectJailbreak(message: string, payload): boolean {
+function detectJailbreak(message: string, payload: Record<string, unknown>): boolean {
   const patterns = [
     /ignore\s+(previous\s+)?instructions?/i,
     /act\s+as\s+(a\s+)?(system|admin|root)/i,
@@ -127,7 +127,7 @@ function detectJailbreak(message: string, payload): boolean {
   return patterns.some((pattern) => pattern.test(textToCheck));
 }
 
-function detectToolOverride(message: string, payload): boolean {
+function detectToolOverride(message: string, payload: Record<string, unknown>): boolean {
   const patterns = [
     /run\s+(sql|query|command)/i,
     /execute\s+(code|script|function)/i,
@@ -141,13 +141,13 @@ function detectToolOverride(message: string, payload): boolean {
   return patterns.some((pattern) => pattern.test(textToCheck));
 }
 
-function detectSchemaPoisoning(payload): boolean {
+function detectSchemaPoisoning(payload: Record<string, unknown>): boolean {
   const payloadStr = JSON.stringify(payload).toLowerCase();
   const patterns = ['alter table', 'drop table', 'create table', 'grant ', 'revoke '];
   return patterns.some((p) => payloadStr.includes(p));
 }
 
-function detectSecretLike(payload): boolean {
+function detectSecretLike(payload: Record<string, unknown>): boolean {
   const payloadStr = JSON.stringify(payload);
   const patterns = [
     /sk-[a-zA-Z0-9]{32,}/i, // OpenAI-style keys
@@ -161,7 +161,7 @@ function detectSecretLike(payload): boolean {
   return patterns.some((pattern) => pattern.test(payloadStr));
 }
 
-function detectPII(payload): boolean {
+function detectPII(payload: Record<string, unknown>): boolean {
   const payloadStr = JSON.stringify(payload);
   const patterns = [
     /\b\d{3}-\d{2}-\d{4}\b/, // SSN
@@ -471,7 +471,7 @@ export async function verifyIntents(
 // REDACTION HELPERS
 // ============================================================================
 
-export function redactSecrets(payload): Record<string, unknown> {
+export function redactSecrets(payload: Record<string, unknown>): Record<string, unknown> {
   const redacted = { ...payload };
 
   function redactValue(val: unknown): unknown {

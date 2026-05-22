@@ -189,7 +189,7 @@ function checkBracketBalance(content: string, lang: string): ParseError[] {
 
     if (ch === '/' && nxt === '/') { inLineComment  = true;  col += 2; i++; continue; }
     if (ch === '/' && nxt === '*') { inBlockComment = true;  col += 2; i++; continue; }
-    if (ch === '"' || ch === "'" || ch === '`') { inStr = ch as string; col++; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') { inStr = ch as '"' | "'" | '`'; col++; continue; }
 
     if (ch in PAIRS) {
       stack.push({ ch, line, col });

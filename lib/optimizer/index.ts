@@ -299,7 +299,7 @@ export class DreamOptimizer {
       };
     }
 
-    const rejected: Array<{ option: CreativeOption; reasons: unknown[] }> = [];
+    const rejected: Array<{ option: CreativeOption; reasons: HardFailureReason[] }> = [];
     const validCandidates: Array<{
       option: CreativeOption;
       scores: CreativeScore;

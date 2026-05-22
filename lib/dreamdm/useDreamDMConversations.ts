@@ -58,11 +58,19 @@ export function useDreamDMConversations(userId: string, initial: DMConversation[
       if (error || !data) return;
 
        
-      const formatted: DMConversation[] = (data as Record<string, unknown>[]).map((conv) => {
+      interface ConvRow {
+        id: string;
+        updated_at: string;
+        participant1_id: string;
+        participant2_id: string;
+        participant1: DMConversation['otherUser'];
+        participant2: DMConversation['otherUser'];
+      }
+      const formatted: DMConversation[] = (data as ConvRow[]).map((conv) => {
         const other = conv.participant1_id === userId ? conv.participant2 : conv.participant1;
         return {
           id: conv.id,
-          otherUser: other as DMConversation['otherUser'],
+          otherUser: other,
           updatedAt: conv.updated_at,
         };
       });
