@@ -5,20 +5,20 @@ import '@/styles/view-transitions.css';
 // Stream 5.2 — CSS Container Queries for Dream Windows
 import '@/styles/dream-shell.css';
 // HomeDream surface styles: gold-button, dream-widget-card, dream-widget-empty
-import '@/styles/home-dream.css';
-import type { Metadata, Viewport } from 'next';
-import { Suspense } from 'react';
-import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
-import ThemeProvider from '@/components/providers/dream.ThemeProvider';
-import ThemeApplicator from '@/components/dream.ThemeApplicator';
-import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
-import DualRuntimeContainer from '@/components/runtime/dream.DualRuntimeContainer';
-import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
-import GodTierProvider from '@/components/providers/dream.GodTierProvider';
 import CommandPalette from '@/components/dream.CommandPalette';
 import GlobalOverlays from '@/components/dream.GlobalOverlays';
-import { OSProvider } from '@/lib/dreamenginOS/OSContext';
+import ThemeApplicator from '@/components/dream.ThemeApplicator';
 import CartridgeRegistryBootstrap from '@/components/gameengin/dream.CartridgeRegistryBootstrap';
+import GodTierProvider from '@/components/providers/dream.GodTierProvider';
+import ThemeProvider from '@/components/providers/dream.ThemeProvider';
+import DualRuntimeContainer from '@/components/runtime/dream.DualRuntimeContainer';
+import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
+import { OSProvider } from '@/lib/dreamenginOS/OSContext';
+import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
+import '@/styles/home-dream.css';
+import type { Metadata, Viewport } from 'next';
+import { Cormorant_Garamond, Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
+import { Suspense } from 'react';
 
 // DreamSystemProvider and DualRuntimeContainer remain mounted at root so every
 // surface has shared runtime context. DMBar mounts under app/dreamdmbar/layout.

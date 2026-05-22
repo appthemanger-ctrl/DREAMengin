@@ -10,10 +10,10 @@
  *   const renderer = createRenderer('canvas2d', canvasEl);
  */
 
-export type { IRenderer, TextStyle } from './IRenderer';
 export { Canvas2DRenderer } from './Canvas2DRenderer';
 export { FrustumCuller } from './FrustumCuller';
 export type { Rect } from './FrustumCuller';
+export type { IRenderer, TextStyle } from './IRenderer';
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
 

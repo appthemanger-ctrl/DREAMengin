@@ -5,7 +5,7 @@
  * Spec source: directive "DIRECTIVE TO MAESTRO & MECHANIC — FINAL COMPLETE COMBO SYSTEM".
  */
 
+export * from './comboMachine';
 export * from './layout';
 export * from './moves';
 export * from './sprintDetector';
-export * from './comboMachine';

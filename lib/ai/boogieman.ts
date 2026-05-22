@@ -12,29 +12,22 @@
 // UI banners without actually restricting accounts (req 61, 62).
 
 import { v4 as uuidv4 } from 'uuid';
-import type { Intent } from './schemas';
-import type {
-  BoogieResult,
-  BoogieOutput,
-  BoogieEnforceOutput,
-  EnforcementAction,
-  EnforcementScope,
-  StrikeSeverity,
-} from './schemas';
 import {
-  BOOGIE_POLICY_VERSION,
-  ENFORCEMENT_ACTIONS,
-  STRIKE_WEIGHTS,
-  STRIKE_EXPIRY_DAYS,
-  DEFAULT_DURATIONS_SECONDS,
-  THRESHOLDS,
-  RULE_CODES,
-  CATEGORY_SEVERITY,
-  USER_REASON_MESSAGES,
-  RECOVER_STEPS,
-  type StrikeSeverityLevel,
-  type EnforcementScope as PolicyScope,
+    BOOGIE_POLICY_VERSION,
+    DEFAULT_DURATIONS_SECONDS,
+    RECOVER_STEPS,
+    RULE_CODES,
+    STRIKE_EXPIRY_DAYS,
+    STRIKE_WEIGHTS,
+    THRESHOLDS,
+    USER_REASON_MESSAGES,
+    type EnforcementScope as PolicyScope,
+    type StrikeSeverityLevel,
 } from './boogie-policy';
+import type {
+    BoogieEnforceOutput, BoogieOutput, BoogieResult, EnforcementAction,
+    EnforcementScope, Intent
+} from './schemas';
 
 export { BOOGIE_POLICY_VERSION };
 

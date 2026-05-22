@@ -2,8 +2,8 @@
 // Two-Phase Commit - Confirm Token Service
 
 import { createServerClient } from '@/lib/supabase/server';
-import { createHmac } from 'crypto';
 import { UIContext } from '@/types/ai-system';
+import { createHmac } from 'crypto';
 
 // ============================================================================
 // GENERATE CONFIRM TOKEN

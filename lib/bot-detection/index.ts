@@ -23,14 +23,8 @@
 // ── Re-export core API ────────────────────────────────────────────────────────
 
 export {
-  analyzeSwipe,
-  tallyView,
-  isBotSession,
-  type Point,
-  type SwipeAnalysis,
-  type ViewTally,
-  type BotSessionResult,
-  type SwipeRecord,
+    analyzeSwipe, isBotSession, tallyView, type BotSessionResult, type Point,
+    type SwipeAnalysis, type SwipeRecord, type ViewTally
 } from '@/lib/botDetection';
 
 // ── Detection thresholds (§36.1) ──────────────────────────────────────────────
@@ -165,7 +159,7 @@ export class PerfectLineTrap {
 
 // ── §36 BotSessionTracker ─────────────────────────────────────────────────────
 
-import { isBotSession, type SwipeRecord, type BotSessionResult } from '@/lib/botDetection';
+import { isBotSession, type BotSessionResult, type SwipeRecord } from '@/lib/botDetection';
 
 /**
  * BotSessionTracker

@@ -20,9 +20,9 @@
  *     The drop overlay uses the canonical gold accent.
  */
 
+import { cacheAsset, enqueueSyncAction } from '@/lib/offline/offlineCache';
 import { useCallback, useState, type ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
-import { cacheAsset, enqueueSyncAction } from '@/lib/offline/offlineCache';
 
 // ─── File classification ──────────────────────────────────────────────────────
 

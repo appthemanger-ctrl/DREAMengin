@@ -34,29 +34,44 @@
  * Visual: DreamR neomorphism, Handcrafted Expresso Beans, pearl-sky base.
  */
 
+import DreamRChannelPanel from '@/components/dreamr/dream.panel.DreamRChannelPanel';
+import DreamRCreatorPanel from '@/components/dreamr/dream.panel.DreamRCreatorPanel';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import {
-  useCallback, useEffect, useMemo, useRef, useState,
-} from 'react';
-import Image from 'next/image';
-import {
-  Heart, MessageCircle, Share2, Bookmark,
-  Eye, ChevronDown, Wifi, ArrowUp, Music2,
-  UserPlus, UserCheck, Sparkles, ChevronUp, Loader2,
-  Youtube, Play, Maximize2, X, RefreshCw,
-} from 'lucide-react';
+    canRecordDreamRView,
+    contentTypePreferenceKey,
+    emptyDreamRSwipePreferences,
+    nextSwipePreferences,
+    personalizeFeedOrder,
+} from '@/lib/dreamr/swipePersonalization';
+import { resolveSwipeRelease } from '@/lib/dreamr/torridityLedger';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
-import { resolveSwipeRelease } from '@/lib/dreamr/torridityLedger';
 import {
-  contentTypePreferenceKey,
-  canRecordDreamRView,
-  emptyDreamRSwipePreferences,
-  nextSwipePreferences,
-  personalizeFeedOrder,
-} from '@/lib/dreamr/swipePersonalization';
-import DreamRCreatorPanel from '@/components/dreamr/dream.panel.DreamRCreatorPanel';
-import DreamRChannelPanel from '@/components/dreamr/dream.panel.DreamRChannelPanel';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+    ArrowUp,
+    Bookmark,
+    ChevronDown,
+    ChevronUp,
+    Eye,
+    Heart,
+    Loader2,
+    Maximize2,
+    MessageCircle,
+    Music2,
+    Play,
+    RefreshCw,
+    Share2,
+    Sparkles,
+    UserCheck,
+    UserPlus,
+    Wifi,
+    X,
+    Youtube,
+} from 'lucide-react';
+import Image from 'next/image';
+import {
+    useCallback, useEffect, useMemo, useRef, useState,
+} from 'react';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 

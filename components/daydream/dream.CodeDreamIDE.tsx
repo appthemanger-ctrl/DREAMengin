@@ -14,10 +14,10 @@
  * with code_context so that the backend AI can respond in code-assist mode.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Play, StopCircle, Loader2, CheckCircle, Bot, Monitor, Database, Gamepad2, FlaskConical, Box, BarChart2, RefreshCw, ArrowLeftRight, Zap, MousePointerClick } from 'lucide-react';
-import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
+import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
+import { ArrowLeftRight, Bot, Box, CheckCircle, Database, FlaskConical, Gamepad2, Loader2, Monitor, MousePointerClick, Play, RefreshCw, StopCircle, Zap } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

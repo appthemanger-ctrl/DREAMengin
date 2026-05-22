@@ -1,6 +1,6 @@
 /**
  * lib/audio-fingerprint/index.ts — §40 Audio Fingerprint
  */
-export { buildPeakMap, type PeakMap, type FrequencyPeak } from './peak-map';
-export { recordFingerprint, matchFingerprint, type Fingerprint, type TimeSlice } from './fingerprint';
+export { matchFingerprint, recordFingerprint, type Fingerprint, type TimeSlice } from './fingerprint';
+export { buildPeakMap, type FrequencyPeak, type PeakMap } from './peak-map';
 export { extractStem } from './stem-extractor';

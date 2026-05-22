@@ -1,12 +1,12 @@
 // SURFACE: dreamsurface.DaydreamBrand  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { Palette } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import BrandingEngin from '@/engins/engin.BrandingEngin';
 import BrandDaydream from '@/components/daydream/dreamsurface.daydream.BrandDaydream';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import BrandingEngin from '@/engins/engin.BrandingEngin';
+import { isDevBypassActive } from '@/lib/dev-bypass';
+import { createServerClient } from '@/lib/supabase/server';
+import { Palette } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Brand Daydream – Dreamengin', description: 'Build and manage your personal brand identity.' };

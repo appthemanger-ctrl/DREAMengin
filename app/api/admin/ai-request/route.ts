@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request ): Promise<NextResponse> {
   const supabase = await createServerClient();

@@ -4,7 +4,6 @@
 
 'use client';
 
-import React from 'react';
 import InfinityIcon from '@/components/ui/dream.InfinityIcon';
 
 interface HomeControlsProps {

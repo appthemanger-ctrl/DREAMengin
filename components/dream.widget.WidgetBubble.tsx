@@ -1,16 +1,16 @@
 'use client';
 
-import { useDrag } from 'react-dnd';
-import { useCallback } from 'react';
 import {
-  Bell,
-  Megaphone,
-  Video,
-  Play,
-  MessageSquare,
-  FlaskConical,
-  Cpu
+    Bell,
+    Cpu,
+    FlaskConical,
+    Megaphone,
+    MessageSquare,
+    Play,
+    Video
 } from 'lucide-react';
+import { useCallback } from 'react';
+import { useDrag } from 'react-dnd';
 
 interface WidgetBubbleProps {
   widget: {

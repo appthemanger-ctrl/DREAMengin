@@ -21,8 +21,8 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { gzipSync } from 'node:zlib';
 
-import { packTar, type TarFile } from './lib/tar.js';
 import { CARTRIDGE_MAGIC, validateManifest } from '../../lib/gameengin/cartridge-manifest.js';
+import { packTar, type TarFile } from './lib/tar.js';
 
 function walk(dir: string, base = dir): string[] {
   const out: string[] = [];

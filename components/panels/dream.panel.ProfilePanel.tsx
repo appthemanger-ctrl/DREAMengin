@@ -6,11 +6,11 @@
  * No page chrome (no min-h-screen, no sticky header with back Links).
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { createClient }   from '@/lib/supabase/client';
-import { Eye, Loader2, Share2 } from 'lucide-react';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
-import DreamWord          from '@/components/ui/dream.DreamWord';
+import DreamWord from '@/components/ui/dream.DreamWord';
+import { createClient } from '@/lib/supabase/client';
+import { Eye, Loader2, Share2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Profile = {
   display_name: string;
@@ -140,7 +140,7 @@ export default function ProfilePanel( ){
       const file = input.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (e: unknown ) => setProfile((p) => ({ ...p, avatar_url: e.target?.result as string }));
+      reader.onload = (e: ProgressEvent<FileReader>) => setProfile((p) => ({ ...p, avatar_url: e.target?.result as string }));
       reader.readAsDataURL(file);
       input.removeEventListener('change', handler);
     };

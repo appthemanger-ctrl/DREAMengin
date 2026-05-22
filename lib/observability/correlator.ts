@@ -6,7 +6,7 @@
 // Three detectors run independently; their results are merged and sorted by
 // severity before being returned as a CorrelationResult.
 
-import type { LogEntry, MetricPoint, TraceSpan, TelemetrySnapshot } from './collector';
+import type { LogEntry, MetricPoint, TelemetrySnapshot, TraceSpan } from './collector';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

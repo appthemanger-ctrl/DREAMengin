@@ -6,8 +6,8 @@
  * Allows users to switch between different icon options (file, globe, window)
  */
 
-import { useState } from 'react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 type IconOption = {
   name: string;

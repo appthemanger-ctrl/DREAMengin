@@ -11,12 +11,12 @@
  *   dispatch({ type: 'brand:metrics-refresh', payload: { metrics: [...] } });
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
 import { MemoryAdapter } from '@/lib/engin-runtime/EnginIOAdapter';
-import { BRAND_ENGIN_RULE_SET } from './brandEnginRuleSet';
-import type { BrandEnginAction, BrandEnginDerivedState } from './brandEnginRuleSet';
 import type { EnginRuntimeOptions } from '@/lib/engin-runtime/EnginRuntime';
+import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { BrandEnginAction, BrandEnginDerivedState } from './brandEnginRuleSet';
+import { BRAND_ENGIN_RULE_SET } from './brandEnginRuleSet';
 
 export interface UseBrandEnginRuntimeOptions
   extends Omit<EnginRuntimeOptions, 'ioAdapter'> {
@@ -70,7 +70,7 @@ export function useBrandEnginRuntime(
       rt.bus.off('engin:state', handleState);
       if (!rt.bus.destroyed) rt.stop();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const dispatch = useCallback((action: BrandEnginAction): boolean => {

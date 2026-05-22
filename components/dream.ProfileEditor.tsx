@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import Image from 'next/image';
-import { Camera, Upload, X, Check, User, Image as ImageIcon, Link as LinkIcon, Palette, Save } from 'lucide-react';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
+import { SOCIAL_PLATFORMS, detectPlatform } from '@/lib/social/platforms';
 import { createClient } from '@/lib/supabase/client';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
-import { SOCIAL_PLATFORMS, detectPlatform } from '@/lib/social/platforms';
-import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
+import { Camera, Check, Image as ImageIcon, Link as LinkIcon, Palette, User, X } from 'lucide-react';
+import Image from 'next/image';
+import { useCallback, useRef, useState } from 'react';
 
 interface ProfileData {
   id: string;

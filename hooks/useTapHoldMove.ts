@@ -14,7 +14,7 @@
  *   bottom edge → Engin
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { ModuleManifest, RuntimeId } from '../lib/universalEditor';
 import { canTransfer } from '../lib/universalEditor';
 

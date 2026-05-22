@@ -1,8 +1,8 @@
 'use client';
 
+import { getRandomLogo, LOGO_PATHS } from '@/lib/branding/logos';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { getRandomLogo, LOGO_PATHS } from '@/lib/branding/logos';
 
 type Props = {
   width?: number;

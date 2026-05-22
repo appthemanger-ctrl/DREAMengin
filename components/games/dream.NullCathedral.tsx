@@ -12,8 +12,8 @@
  * on near-black, dithered shadows. Real menu → play → victory/defeat states.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ParticlePool, ScreenShake, drawDitherFog, prefersReducedMotion } from './_fx/canvasFx';
 
 type PieceKind = 'P' | 'N' | 'B' | 'R' | 'Q' | 'K';
@@ -232,7 +232,6 @@ export default function NullCathedral( ){
       // Parallax nave — three receding arch layers (slow drift)
       const drift = reduced ? 0 : t / 4000;
       for (let layer = 0; layer < 3; layer++) {
-        const depth = 0.4 + layer * 0.25;
         const y = SIZE * (0.18 + layer * 0.22);
         const archW = SIZE * (0.55 - layer * 0.12);
         const cx = SIZE / 2 + Math.sin(drift + layer) * 6;

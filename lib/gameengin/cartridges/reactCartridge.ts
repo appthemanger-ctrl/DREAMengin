@@ -14,9 +14,9 @@
  *  - Any render/lifecycle errors are caught by CartridgeErrorBoundary (outer).
  */
 
+import type { GameCartridge, GameEngineAPI } from '@/lib/gameengin/cartridge';
 import { createContext, createElement, useContext, type ComponentType } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { GameCartridge, GameEngineAPI } from '@/lib/gameengin/cartridge';
 
 // ── GameEngineAPI context ─────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
 import { useDreamLogoScene, type DreamLogoSceneOptions } from "@/lib/babylon/useDreamLogoScene";
+import { useRef } from "react";
 
 interface DreamEnginLogoProps extends DreamLogoSceneOptions {
   /** Canvas width in CSS pixels (default 320) */

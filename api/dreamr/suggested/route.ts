@@ -22,19 +22,19 @@
  *   feed route, so suggested-content can never leak past the poster's CF wall.
  */
 
+import {
+    rankFeed,
+    scoreDreamRPost,
+    type ScoredPost,
+} from '@/app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm';
+import {
+    filterByCloseFriends,
+    loadVisibilityCircle,
+} from '@/lib/dreamr/closeFriendsVisibility';
+import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  rankFeed,
-  scoreDreamRPost,
-  type ScoredPost,
-} from '@/app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm';
-import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
-import {
-  filterByCloseFriends,
-  loadVisibilityCircle,
-} from '@/lib/dreamr/closeFriendsVisibility';
 
 export async function GET(req: NextRequest ): Promise<Response> {
   const supabase = await createServerClient();

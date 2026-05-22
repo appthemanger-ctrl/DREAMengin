@@ -13,19 +13,12 @@
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  AdvancedPhysicsWorld,
-  PhysicsMaterialSystem,
+    AdvancedPhysicsWorld,
+    PhysicsMaterialSystem
 } from '../power-systems';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  PhysicsBodyDef,
-  PhysicsBody,
-  PhysicsConstraint,
-  PhysicsBodyType,
-  ShapeType,
-  RaycastResult,
-  PhysicsMaterial,
-  MaterialPair,
+    MaterialPair, PhysicsBody, PhysicsBodyDef, PhysicsBodyType, PhysicsConstraint, PhysicsMaterial, RaycastResult, ShapeType
 } from '../power-systems';

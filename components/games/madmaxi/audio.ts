@@ -54,7 +54,6 @@ export class MadmaxiAudioController {
   private theme = 'meadow pulse choir';
   private ctx: AudioContext | null = null;
   private bgmGain: GainNode | null = null;
-  private bgmInterval: ReturnType<typeof setInterval> | null = null;
   private bgmTimer: ReturnType<typeof setInterval> | null = null;
   private bgmActive = false;
 

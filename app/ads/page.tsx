@@ -1,12 +1,12 @@
 // SURFACE: dreamsurface.Ads  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, DollarSign, ShoppingCart, BarChart3, Plus, LayoutGrid, Sparkles } from 'lucide-react';
-import type { AdSlot, AdListing, AdOrder } from '@/types/ads';
 import DreamWord from '@/components/ui/dream.DreamWord';
-import { connection } from 'next/server';
+import { createServerClient } from '@/lib/supabase/server';
+import type { AdListing, AdOrder, AdSlot } from '@/types/ads';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { ArrowLeft, BarChart3, DollarSign, LayoutGrid, Plus, ShoppingCart, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 
 export default async function AdsPage( ){

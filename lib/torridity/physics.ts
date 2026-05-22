@@ -11,7 +11,7 @@
  *   throttlingGate(mass, feedSlots) — low-mass content visibility cap
  */
 
-import { n, deltaP, a0Perception } from './constants';
+import { a0Perception, deltaP, n } from './constants';
 
 // ─── MOND Interpolation ───────────────────────────────────────────────────────
 

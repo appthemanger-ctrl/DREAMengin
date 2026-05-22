@@ -1,6 +1,6 @@
+import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createServerClient } from '@/lib/supabase/server';
 
 const MaskSchema = z.object({
   x: z.number().min(0).max(1),

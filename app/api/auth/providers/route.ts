@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { SUPABASE_CONFIG } from "@/lib/supabase/config";
+import { NextResponse } from "next/server";
 
 /**
  * GET /api/auth/providers

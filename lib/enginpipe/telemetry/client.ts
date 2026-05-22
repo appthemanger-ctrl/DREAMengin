@@ -11,10 +11,9 @@
  * result object so callers can decide whether to log or retry.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
 import {
-  parseTelemetryEvent,
-  type TelemetryEvent,
+    parseTelemetryEvent,
+    type TelemetryEvent,
 } from './events';
 
 /** Minimal Supabase client shape we depend on. */

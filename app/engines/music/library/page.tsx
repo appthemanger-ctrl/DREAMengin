@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.EnginesMusicLibrary  (framework-mandated basename: page.tsx)
+import MusicLibraryPanel from '@/components/engines/music/panels/dream.panel.MusicLibraryPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import MusicLibraryPanel from '@/components/engines/music/panels/dream.panel.MusicLibraryPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Preset Library – StarMakerEngin', description: 'Browse presets and templates.' };

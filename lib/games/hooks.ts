@@ -12,15 +12,15 @@
  * game-specific state on top of these shared primitives.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { isWebGPUAvailable } from '@/lib/webgpu';
 import {
-  createPerformanceBaselineSampler,
-  DE_GAME_PERFORMANCE_BASELINE,
-  resolveRendererBackend,
-  type GamePerformanceBaseline,
-  type GameRenderMode,
+    createPerformanceBaselineSampler,
+    DE_GAME_PERFORMANCE_BASELINE,
+    resolveRendererBackend,
+    type GamePerformanceBaseline,
+    type GameRenderMode,
 } from '@/lib/games/performance-baseline';
+import { isWebGPUAvailable } from '@/lib/webgpu';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * Listens for the global `de-game-start` CustomEvent and calls `startFn`

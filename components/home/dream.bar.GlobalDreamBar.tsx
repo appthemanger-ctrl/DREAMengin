@@ -13,13 +13,13 @@
  * system menus.
  */
 
-import { useCallback }                              from 'react';
-import { usePathname, useRouter }                   from 'next/navigation';
-import DualBottomMenu, { type SystemMenuAction }    from '@/components/menus/dream.menu.DualBottomMenu';
-import DrEamsPanel                                  from '@/components/dreamengin/dream.panel.DrEamsPanel';
-import { useDreamSystem }                           from '@/lib/dreamdm/DreamSystemContext';
-import { runHomeAction }                            from '@/lib/home-buttons/contextual-home';
-import { isPublicSurfacePath }                      from '@/lib/routing/surfaces';
+import DrEamsPanel from '@/components/dreamengin/dream.panel.DrEamsPanel';
+import DualBottomMenu, { type SystemMenuAction } from '@/components/menus/dream.menu.DualBottomMenu';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { runHomeAction } from '@/lib/home-buttons/contextual-home';
+import { isPublicSurfacePath } from '@/lib/routing/surfaces';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 export default function GlobalDreamBar( ){
   const pathname = usePathname();

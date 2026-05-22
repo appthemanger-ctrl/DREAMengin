@@ -7,7 +7,6 @@
 // Per ACTIVITY_FIRST_PROTOCOL.md §III (Algorithm & Visibility)
 
 import { createClient } from '@/lib/supabase/client';
-import { getAQS } from './aqs';
 import type { ActivityTier } from './types';
 
 /**
@@ -122,7 +121,7 @@ export async function getVisibilityRankedFeed(
   } = {},
 ): Promise<unknown[]> {
   const supabase = createClient();
-  const { limit = 30, before, provider } = options;
+  const { limit = 30, before } = options;
 
   try {
     // Get followed user IDs

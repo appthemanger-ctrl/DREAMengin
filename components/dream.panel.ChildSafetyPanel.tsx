@@ -18,13 +18,21 @@
  * Architecture: AXIOM 4 Security by Default — no end-user access; admin only.
  */
 
-import { useState, useEffect, useCallback } from 'react';
 import {
-  Shield, AlertTriangle, CheckCircle, XCircle, Clock,
-  RefreshCw, Upload, Trash2, Eye, Hash, ChevronRight,
-  AlertCircle, ShieldCheck, Activity,
+    Activity,
+    AlertCircle,
+    AlertTriangle, CheckCircle,
+    ChevronRight,
+    Clock,
+    Eye, Hash,
+    RefreshCw,
+    Shield,
+    ShieldCheck,
+    Trash2,
+    Upload,
+    XCircle,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 // ============================================================================
 // TYPES (mirroring the DB schema — no raw content fields)
@@ -291,7 +299,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
         {([
           { id: 'queue',  label: 'Incident Queue', icon: Activity },
           { id: 'hashes', label: 'Hash Registry',  icon: Hash },
-        ] as const).map(({ id, label, icon}) => (
+        ] as const).map(({ id, label, icon: Icon}) => (
           <button
             key={id}
             type="button"

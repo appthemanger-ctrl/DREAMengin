@@ -63,7 +63,6 @@ async function fetchInstagramJson<T>(path: string, accessToken: string): Promise
 
 function normaliseInstagramMedia(item: InstagramMedia): UnifiedFeedItem {
   const caption = item.caption ?? '';
-  const tags = (caption.match(/#\w+/g) ?? []).map((t) => t.slice(1).toLowerCase());
   const thumbnail = item.thumbnail_url ?? item.media_url ?? '';
 
   return {

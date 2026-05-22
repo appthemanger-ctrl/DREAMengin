@@ -14,10 +14,10 @@
  * docs/AXIOMS.md Axiom 3 — every visible element does real work.
  */
 
-import Link from 'next/link';
-import { BarChart2, TrendingUp, Eye, Zap, Star, ChevronRight } from 'lucide-react';
 import { ActivityProfile } from '@/components/activity/dream.ActivityProfile';
 import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
+import { BarChart2, ChevronRight, Eye, Star, TrendingUp, Zap } from 'lucide-react';
+import Link from 'next/link';
 
 const ACCENT = '#6366f1';
 

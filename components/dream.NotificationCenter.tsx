@@ -18,23 +18,23 @@
  * Performance: render-on-demand; no render loops. The hook polls every 30 s.
  */
 
+import type { UiNotification, UiNotificationType } from '@/lib/notifications/notificationHelpers';
+import { useNotifications } from '@/lib/notifications/useNotifications';
 import {
-  Bell,
-  Check,
-  DollarSign,
-  GitBranch,
-  Heart,
-  Loader2,
-  MessageCircle,
-  MessageSquare,
-  TrendingUp,
-  UserPlus,
-  X,
+    Bell,
+    Check,
+    DollarSign,
+    GitBranch,
+    Heart,
+    Loader2,
+    MessageCircle,
+    MessageSquare,
+    TrendingUp,
+    UserPlus,
+    X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { useNotifications } from '@/lib/notifications/useNotifications';
-import type { UiNotification, UiNotificationType } from '@/lib/notifications/notificationHelpers';
 
 // ---------------------------------------------------------------------------
 // Icon map

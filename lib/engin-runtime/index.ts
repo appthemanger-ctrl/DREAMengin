@@ -8,65 +8,58 @@
  */
 
 export {
-  createBaseState,
-  patchBaseState,
+    createBaseState,
+    patchBaseState
 } from './EnginBaseState';
 export type {
-  EnginBaseState,
-  EnginLifecycle,
+    EnginBaseState,
+    EnginLifecycle
 } from './EnginBaseState';
 
 export {
-  createEnginEventBus,
+    createEnginEventBus
 } from './EnginEventBus';
 export type {
-  EnginEventBus,
-  EnginEventMap,
-  EnginLifecycleEvents,
+    EnginEventBus,
+    EnginEventMap,
+    EnginLifecycleEvents
 } from './EnginEventBus';
 
 export {
-  LocalStorageAdapter,
-  MemoryAdapter,
-  enginStorageKey,
+    enginStorageKey, LocalStorageAdapter,
+    MemoryAdapter
 } from './EnginIOAdapter';
 export type {
-  EnginIOAdapter,
+    EnginIOAdapter
 } from './EnginIOAdapter';
 
 export {
-  DEFAULT_USER_CAPABILITIES,
-  DENY_ALL,
-  gateCapability,
-  mergeCapabilities,
+    DEFAULT_USER_CAPABILITIES,
+    DENY_ALL,
+    gateCapability,
+    mergeCapabilities
 } from './EnginCapabilities';
 export type {
-  EnginCapability,
-  EnginCapabilityMap,
-  CapabilityGateResult,
+    CapabilityGateResult, EnginCapability,
+    EnginCapabilityMap
 } from './EnginCapabilities';
 
 export type {
-  EnginAction,
-  EnginRuleSetParams,
-  EnginRuleSetContract,
-  EnginConstraint,
-  EnginTransform,
-  ConstraintResult,
+    ConstraintResult, EnginAction, EnginConstraint, EnginRuleSetContract, EnginRuleSetParams, EnginTransform
 } from './EnginRuleSetContract';
 
 export {
-  EnginRuntime,
+    EnginRuntime
 } from './EnginRuntime';
 export type {
-  EnginRuntimeOptions,
+    EnginRuntimeOptions
 } from './EnginRuntime';
 
 // ─── Factory helper ───────────────────────────────────────────────────────────
 
-import { EnginRuntime } from './EnginRuntime';
 import type { EnginAction, EnginRuleSetContract } from './EnginRuleSetContract';
 import type { EnginRuntimeOptions } from './EnginRuntime';
+import { EnginRuntime } from './EnginRuntime';
 
 /**
  * createEnginRuntime(ruleSet, options?)

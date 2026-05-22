@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.DaydreamConstellation  (framework-mandated basename: page.tsx)
-import { redirect } from 'next/navigation';
-import { createServerClient } from '@/lib/supabase/server';
 import { isDevBypassActive } from '@/lib/dev-bypass';
-import ConstellationClient from './dream.ConstellationClient';
+import { createServerClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
+import ConstellationClient from './dream.ConstellationClient';
 
 export const metadata = {
   title: 'Dream Constellation — DREAMengin',

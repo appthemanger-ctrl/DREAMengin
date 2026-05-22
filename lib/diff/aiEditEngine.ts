@@ -450,7 +450,6 @@ export function parseAiInstruction(instruction: string): AiSuggestion {
   // ── Word in backtick/quote extractor ────────────────────────────────────────
   // Matches a word that may be wrapped in backticks, single-, or double-quotes.
   const Q = "[`'\"]?";  // optional opening quote
-  const W = "([`'\"]?(\\w+)[`'\"]?)"; // word possibly wrapped in quotes (capture inner \w+)
 
   // ── High-confidence: rename ──────────────────────────────────────────────────
   const renameRx = new RegExp(`rename\\s+${Q}(\\w+)${Q}\\s+to\\s+${Q}(\\w+)${Q}`, 'i');

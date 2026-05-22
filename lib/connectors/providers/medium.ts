@@ -13,7 +13,7 @@
  */
 
 import { normaliseMedium } from '@/lib/connectors/normalise';
-import { parseRssFeed, mediumUserRssUrl } from '@/lib/social/rss-feed';
+import { mediumUserRssUrl, parseRssFeed } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
 export interface MediumCredentials {

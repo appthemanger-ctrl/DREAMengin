@@ -10,11 +10,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, DollarSign, Loader2, ShoppingBag, Tag } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, ShoppingBag, Loader2, DollarSign, Tag } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 
 const CATEGORIES = [
@@ -250,13 +250,13 @@ export default function MarketplaceSellPage( ){
               <ol style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
                   'Use a clear, descriptive title that explains exactly what you are selling.',
-                  'Add a detailed description — features, compatible versions, what&apos;s included.',
+                  'Add a detailed description — features, compatible versions, what\u2019s included.',
                   'Tags help buyers discover your listing — choose relevant keywords.',
                   'Set price to 0 to make it free and build reputation first.',
                 ].map((tip, i: number) => (
                   <li key={i} className="de-row" style={{ borderBottom: 'none', paddingBlock: 4 }}>
                     <span style={{ color: 'var(--de-gold)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{i + 1}.</span>
-                    <span style={{ fontSize: 13, color: 'var(--de-text)' }} dangerouslySetInnerHTML={{ __html: tip }} />
+                    <span style={{ fontSize: 13, color: 'var(--de-text)' }}>{tip}</span>
                   </li>
                 ))}
               </ol>

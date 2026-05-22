@@ -19,14 +19,14 @@
 //
 // Access: all authenticated users (the event describes THEIR own content).
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { jsonApiError } from '@/lib/api/route';
-import { createServerClient } from '@/lib/supabase/server';
-import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
 import { writeAuditLog } from '@/lib/ai/audit';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogieman';
+import { jsonApiError } from '@/lib/api/route';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
+import { z } from 'zod';
 
 
 // ── Request schema ───────────────────────────────────────────────────────────

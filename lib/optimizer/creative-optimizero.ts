@@ -146,7 +146,6 @@ export class CreativeOptimizero<T = any> {
    * Run the Creative Optimizero algorithm
    */
   optimize(candidates: CreativeCandidate<T>[]): OptimizeroResult<T> {
-    const startTime = Date.now();
     const scored: ScoredCandidate<T>[] = [];
     const rejected: ScoredCandidate<T>[] = [];
     const rejectionReasons: Record<string, string[]> = {};

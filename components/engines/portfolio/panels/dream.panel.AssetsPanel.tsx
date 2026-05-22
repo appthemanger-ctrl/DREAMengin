@@ -8,8 +8,8 @@
  * Lives at /engines/portfolio/assets.
  */
 
+import { CheckCircle2, Circle, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import { TrendingUp, TrendingDown, RefreshCw, CheckCircle2, Circle } from 'lucide-react';
 
 const ACCENT = '#2a8ab8';
 

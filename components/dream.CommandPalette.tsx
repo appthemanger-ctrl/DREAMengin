@@ -1,12 +1,26 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import {
-  Search, Home, Compass, Settings, User, MessageSquare,
-  TrendingUp, ShoppingBag, Music, Gamepad2, FlaskConical,
-  Code2, Palette, PenLine, Stars, ArrowRight, Zap, Flame,
+    ArrowRight,
+    Code2,
+    Compass,
+    Flame,
+    FlaskConical,
+    Gamepad2,
+    Home,
+    MessageSquare,
+    Music,
+    Palette, PenLine,
+    Search,
+    Settings,
+    ShoppingBag,
+    Stars,
+    TrendingUp,
+    User,
+    Zap,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 interface CommandItem {
   id: string;

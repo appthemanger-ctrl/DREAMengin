@@ -1,8 +1,8 @@
 // CrossWidgetPosting - Server-validated cross-widget posting system
 // Implements POST_REQUEST validation and platform publishing
 
-import { WidgetLinkGraph, type CapabilityMask } from './WidgetLinkGraph';
 import { widgetEventBus, type WidgetMsg } from './WidgetEventBus';
+import { WidgetLinkGraph } from './WidgetLinkGraph';
 
 // Message types
 export const MSG_TYPE_POST_REQUEST = 1;

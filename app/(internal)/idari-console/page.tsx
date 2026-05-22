@@ -1,18 +1,26 @@
+import { DatabaseIcon } from "lucide-react";
 // SURFACE: dreamsurface.Admin  (framework-mandated basename: page.tsx)
-import type { Database } from '@/types/supabase';
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import IDariPanel from '@/components/dream.panel.IDariPanel';
 import ChildSafetyPanel from '@/components/dream.panel.ChildSafetyPanel';
-import Link from 'next/link';
-import {
-  ArrowLeft, Bot, Shield, Activity, Users, Database,
-  CheckCircle, XCircle, Clock, AlertTriangle, Zap
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { isDevAdminBypassActive } from '@/lib/dev-bypass';
-import { isOwnerEmail } from '@/lib/ai/triad';
+import IDariPanel from '@/components/dream.panel.IDariPanel';
 import { createUpgradeReadinessSnapshot } from '@/lib/admin/upgrade-readiness';
+import { isOwnerEmail } from '@/lib/ai/triad';
+import { isDevAdminBypassActive } from '@/lib/dev-bypass';
+import { createServerClient } from '@/lib/supabase/server';
+import type { LucideIcon } from 'lucide-react';
+import {
+    Activity,
+    AlertTriangle,
+    ArrowLeft, Bot,
+    CheckCircle,
+    Clock,
+    Database as DatabaseIcon,
+    Shield,
+    Users,
+    XCircle,
+    Zap
+} from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Admin – Dreamengin' };

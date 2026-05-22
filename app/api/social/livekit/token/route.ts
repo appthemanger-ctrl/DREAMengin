@@ -9,9 +9,9 @@
  * Response: { token: string; wsUrl: string; roomName: string; identity: string }
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
 import { generateServerToken, LiveKitError } from '@/lib/social/livekit';
+import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();

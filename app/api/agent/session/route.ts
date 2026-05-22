@@ -1,7 +1,7 @@
 import { getAgentOS } from '@/lib/agentOS';
 import { codeEnginHostTools } from '@/lib/agentOS/hostTools';
-import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 
 // ---------------------------------------------------------------------------
 // Supabase service-role client for server-side session persistence.

@@ -1,4 +1,3 @@
-import type { Database } from '@/types/supabase';
 /**
  * lib/offline/offlineCache.ts
  *

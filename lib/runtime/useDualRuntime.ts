@@ -24,13 +24,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  bridge,
-  type DualRuntimeChannel,
-  type ChannelEventKey,
-  type ChannelEventPayload,
-  type BridgeEventHandler,
-  type UnsubscribeFn,
-  type PeerState,
+    bridge,
+    type BridgeEventHandler,
+    type ChannelEventKey,
+    type ChannelEventPayload,
+    type DualRuntimeChannel,
+    type PeerState,
+    type UnsubscribeFn,
 } from './dualRuntimeBridge';
 
 // ─── Return type ──────────────────────────────────────────────────────────────
@@ -161,10 +161,6 @@ export function useDualRuntime(channel: DualRuntimeChannel): UseDualRuntimeRetur
 // ─── Convenience re-exports ───────────────────────────────────────────────────
 
 export type {
-  DualRuntimeChannel,
-  ChannelEventKey,
-  ChannelEventPayload,
-  PeerState,
-  BridgeEventHandler,
-  UnsubscribeFn,
+    BridgeEventHandler, ChannelEventKey,
+    ChannelEventPayload, DualRuntimeChannel, PeerState, UnsubscribeFn
 } from './dualRuntimeBridge';

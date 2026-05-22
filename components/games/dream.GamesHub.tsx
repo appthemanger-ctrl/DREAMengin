@@ -5,22 +5,22 @@
  * Every finished game is wired here immediately after completion.
  */
 
-import dynamicImport from 'next/dynamic';
-import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  GAME_LIBRARY_SELECTION_STORAGE_KEY,
-  GAME_LIBRARY_SESSION_STORAGE_KEY,
-  type SavedGameSession,
-  upsertSavedGameSession,
-} from '@/lib/games/library-state';
-import { GAME_CATALOG, type GameCatalogEntry } from '@/lib/games/catalog';
-import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
 import { getAvatarDataUrl, setPlayAsMe } from '@/lib/games/avatar';
+import { GAME_CATALOG, type GameCatalogEntry } from '@/lib/games/catalog';
+import {
+    GAME_LIBRARY_SELECTION_STORAGE_KEY,
+    GAME_LIBRARY_SESSION_STORAGE_KEY,
+    type SavedGameSession,
+    upsertSavedGameSession,
+} from '@/lib/games/library-state';
+import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
 import { useGsapScrollReveal } from '@/lib/gsap/useGsapScrollReveal';
 import { useMotionTilt } from '@/lib/hooks/useMotionTilt';
+import { AnimatePresence, motion } from 'framer-motion';
+import dynamicImport from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const Loading = () => (
   <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>

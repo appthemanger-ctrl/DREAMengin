@@ -1,11 +1,11 @@
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { FlaskConical, Play } from 'lucide-react';
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import LabEngin from '@/engins/engin.LabEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import LabEngin from '@/engins/engin.LabEngin';
+import { createServerClient } from '@/lib/supabase/server';
+import { FlaskConical, Play } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Experiments, prototypes, simulations, and models.' };

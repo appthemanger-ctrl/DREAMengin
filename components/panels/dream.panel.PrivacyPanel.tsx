@@ -6,9 +6,9 @@
  * Back → openInSurface('settings'). No routing.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Shield, EyeOff, UserX, Flag, Check, Loader2 } from 'lucide-react';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { ArrowLeft, Check, EyeOff, Flag, Loader2, Shield, UserX } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'de-privacy-settings';
 

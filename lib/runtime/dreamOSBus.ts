@@ -1,9 +1,9 @@
-import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import { AI_AGENTS, type RuntimeRegion } from '@/lib/identity/canonical-names';
+import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import {
-  bridge,
-  type AnyBridgeEmission,
-  type DualRuntimeChannel,
+    bridge,
+    type AnyBridgeEmission,
+    type DualRuntimeChannel,
 } from '@/lib/runtime/dualRuntimeBridge';
 import { RuntimeContainer } from '@/lib/runtime/runtimeContainer';
 import type { DreamArtifactBusEventMap } from '@/types/dreamArtifact';

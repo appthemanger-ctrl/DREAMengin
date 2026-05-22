@@ -15,14 +15,14 @@
  *  • Haptic rumble feedback on crash/boost/speed
  *  • Score multiplier chains and distance bonuses
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
-import { publishGamePerformanceBaseline } from '@/lib/games/performance-baseline';
-import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
 import { EliteGameEngine } from '@/lib/gameengin';
 import { AIDirector } from '@/lib/gameengin/ai-director';
 import { PostFXManager } from '@/lib/gameengin/post-fx';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { publishGamePerformanceBaseline } from '@/lib/games/performance-baseline';
+import * as BABYLON from '@babylonjs/core';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Phase = 'menu' | 'playing' | 'gameover';
 
@@ -39,7 +39,6 @@ const TOTAL_TILES   = TILE_COUNT * TILE_LENGTH;
 // Obstacle types
 const OBS_BARRIER = 0; // red barrier block
 const OBS_PILLAR  = 1; // tall neon pillar
-const OBS_RAMP    = 2; // low ramp (passable at speed)
 
 interface ObstacleState {
   mesh: BABYLON.Mesh;

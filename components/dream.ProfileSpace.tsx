@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
 import type { WidgetInstanceRecord } from '@/lib/navigation/WidgetInstanceMemory';
-import { DragToAnchorClose, DragHandle } from './dream.DragToAnchorClose';
+import { DragHandle, DragToAnchorClose } from './dream.DragToAnchorClose';
 
 interface ProfileSpaceProps {
   widgets: WidgetInstanceRecord[];

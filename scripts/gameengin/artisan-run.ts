@@ -12,17 +12,17 @@
  *     not assumed here; the spec marks Basis encode as Mechanic post-process.)
  */
 
+import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { createHash } from 'node:crypto';
 
 import {
-  logRDSession,
-  BRAIN_ROOT,
-  listTechniques,
-  listMaterialRecipes,
-  listCompositionPrinciples,
-  recordAssetGeneration,
+    BRAIN_ROOT,
+    listCompositionPrinciples,
+    listMaterialRecipes,
+    listTechniques,
+    logRDSession,
+    recordAssetGeneration,
 } from '../../lib/gameengin/brain-reader.js';
 
 interface PromptManifest {

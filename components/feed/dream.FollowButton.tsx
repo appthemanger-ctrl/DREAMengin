@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { UserPlus, UserCheck } from 'lucide-react';
 import FollowOnboarding, { type FollowFrequency } from '@/components/feed/dream.FollowOnboarding';
+import { UserCheck, UserPlus } from 'lucide-react';
+import { useState } from 'react';
 
 type Props = { handle: string; displayName: string };
 

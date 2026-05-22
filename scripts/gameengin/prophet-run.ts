@@ -19,11 +19,11 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import {
-  readGenreDNA,
-  listMechanics,
-  signatureHash,
-  isOriginal,
-  logRDSession,
+    isOriginal,
+    listMechanics,
+    logRDSession,
+    readGenreDNA,
+    signatureHash,
 } from '../../lib/gameengin/brain-reader.js';
 
 const DEFAULT_GENRE = 'platformer';

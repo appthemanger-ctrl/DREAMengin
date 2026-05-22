@@ -1,3 +1,4 @@
+import { DatabaseIcon } from "lucide-react";
 'use client';
 
 /**
@@ -15,34 +16,43 @@
  * server-side RLS. Follows AXIOM 4 (security by default).
  */
 
-import type { Database } from '@/types/supabase';
-import { useEffect, useRef, useState } from 'react';
-import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
-import { createClient } from '@/lib/supabase/client';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ForgeDreamCanvas } from '@/components/dream.ForgeDreamCanvas';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import type { EngineBase, UpgradedEngine } from '@/lib/dreamenginOS';
+import { createEventBus, upgradeEngine } from '@/lib/dreamenginOS';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useLabEnginRuntime } from '@/lib/engins/lab/useLabEnginRuntime';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useLabEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
-import { ArtifactSlot } from '@/lib/enginpipe';
-import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
-import { useLabEnginRuntime } from '@/lib/engins/lab/useLabEnginRuntime';
-import { ForgeDreamCanvas } from '@/components/dream.ForgeDreamCanvas';
-import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
-import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
+import { createClient } from '@/lib/supabase/client';
+import { useEffect, useRef, useState } from 'react';
 // Shared engin component — real quantum circuit simulator (QAOA / VQE,
 // complex-number gate math, state-vector evolution). Available to every
 // engin from this single canonical path.
 import QuantumCircuitCanvas, {
-  type QuantumMeasurementResult,
+    type QuantumMeasurementResult,
 } from '@/engins/dream.QuantumCircuitCanvas';
-import Link from 'next/link';
 import {
-  ArrowLeft, FlaskConical, Activity, Play, BarChart2,
-  Download, Code2, Gamepad2, Music, Loader2, RefreshCw, Terminal, Database, Box,
+    Activity,
+    ArrowLeft,
+    BarChart2,
+    Box,
+    Code2,
+    Database as DatabaseIcon,
+    Download,
+    FlaskConical,
+    Gamepad2,
+    Loader2,
+    Music,
+    Play,
+    RefreshCw,
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface Props {
   onBack: () => void;
@@ -111,13 +121,6 @@ const ACCENT = '#22c55e';
 // const ACCENT_GRADIENT_LEGACY = 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)';
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
-const CollabLab        = 'lab-feature';
-const MoleculeViewer   = 'lab-feature';
-const DatasetBrowser   = 'lab-feature';
-const PublishedResults = 'lab-feature';
-const GPUCompute       = 'lab-feature-2026'; // 2026: GPU compute shaders
-const QuantumCircuits2026 = 'lab-feature-2026'; // 2026: Enhanced quantum circuits
-const RealTimeViz      = 'lab-feature-2026'; // 2026: Real-time data visualization
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   draft:     { bg: 'rgba(160,195,240,0.18)', text: 'var(--de-text-dim)',   border: 'rgba(160,195,240,0.25)' },
@@ -160,7 +163,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useLabEnginRuntime();
 
   // ── Workflow (lab:experiment — default workflow) ──
-  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  const { loadWorkflow } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('lab:experiment'); }, [loadWorkflow]);
 
   // ── Engin Forge panel state ──

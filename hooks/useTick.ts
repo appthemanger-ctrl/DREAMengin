@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 /**
  * Custom hook for synthetic haptic feedback using Web Audio API

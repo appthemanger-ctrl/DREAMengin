@@ -19,12 +19,12 @@
  */
 
 import {
-  ALL_COMBOS,
-  MULTITOUCH_COMBOS,
-  type Combo,
-  type FaceButton,
-  type MultiTouchCombo,
-  maxComboLength,
+    ALL_COMBOS,
+    maxComboLength,
+    MULTITOUCH_COMBOS,
+    type Combo,
+    type FaceButton,
+    type MultiTouchCombo,
 } from './moves';
 
 export const COMBO_WINDOW_MS = 350;

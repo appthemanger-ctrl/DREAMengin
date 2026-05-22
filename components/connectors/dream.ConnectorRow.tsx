@@ -15,10 +15,9 @@
  * AXIOMS.md §3 — Every visible action must do something real.
  */
 
+import type { ConnectorDef, ConnectorStatus } from '@/lib/connectors/connectorRegistry';
+import { AlertCircle, CheckCircle, Clock, Lock, RefreshCw, Settings, XCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import type { ConnectorDef } from '@/lib/connectors/connectorRegistry';
-import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
-import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings } from 'lucide-react';
 
 // ── Status badge (DREAMengin palette — gold / light-blue / muted) ─────────
 

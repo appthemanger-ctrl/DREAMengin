@@ -1,23 +1,23 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import type { Scene as BabylonScene, AbstractEngine } from '@babylonjs/core';
-import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import CanvasDropZone, { type AssetImportPayload } from '@/components/dreamengin/dream.CanvasDropZone';
+import { onIdariEvent, type IdariEventDetail } from '@/lib/agents/agentBus';
+import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
-  DREAMENGIN_OS_SUBSYSTEM_MANIFEST,
-  type DreamenginOSSubsystemNode,
+    DREAMENGIN_OS_SUBSYSTEM_MANIFEST,
+    type DreamenginOSSubsystemNode,
 } from '@/lib/dreamengin/osSubsystemManifest';
+import type { RuntimeRegion } from '@/lib/identity/canonical-names';
+import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
+import {
+    dreamOSBus,
+    type DreamOSSharedArtifact,
+    type RuntimeContext,
+} from '@/lib/runtime/dreamOSBus';
 import { bridge, type PeerState } from '@/lib/runtime/dualRuntimeBridge';
 import { EnginDispatcher, type DispatcherStats } from '@/lib/runtime/EnginDispatcher';
-import { onIdariEvent, type IdariEventDetail } from '@/lib/agents/agentBus';
-import type { RuntimeRegion } from '@/lib/identity/canonical-names';
-import {
-  dreamOSBus,
-  type RuntimeContext,
-  type DreamOSSharedArtifact,
-} from '@/lib/runtime/dreamOSBus';
-import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
+import type { AbstractEngine, Scene as BabylonScene } from '@babylonjs/core';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface DREAMenginOSProps {
   audioSource?: AnalyserNode;

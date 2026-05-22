@@ -16,12 +16,12 @@
  * Phase 8 §E:   Point 46 — no placeholder handler; real system action
  */
 
+import {
+    buildContactRequestRecord,
+    validateContactRequest,
+} from '@/lib/marketplace/request';
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  validateContactRequest,
-  buildContactRequestRecord,
-} from '@/lib/marketplace/request';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();

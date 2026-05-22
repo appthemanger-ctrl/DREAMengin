@@ -9,14 +9,14 @@
 // (SUPABASE_SERVICE_ROLE_KEY). createServiceClient() uses it when configured.
 // Without it, data rows are still removed but the auth identity persists.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { runTriadConsensus } from '@/lib/agents/agentBus';
+import { writeAuditLog } from '@/lib/ai/audit';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient, createServiceClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import { writeAuditLog } from '@/lib/ai/audit';
-import { runTriadConsensus } from '@/lib/agents/agentBus';
 
 
 const DeleteDreamBodySchema = z.object({

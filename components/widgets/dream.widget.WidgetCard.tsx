@@ -13,8 +13,8 @@
  * Phase 8 Section B: Point 18 — legacy widget naming absorbed.
  */
 
-import React from 'react';
 import DreamShell from '@/components/dreams/dreamsurface.shell';
+import React from 'react';
 
 /** @deprecated Use DreamShell from components/dreams/dreamsurface.shell.tsx */
 export interface WidgetCardProps {

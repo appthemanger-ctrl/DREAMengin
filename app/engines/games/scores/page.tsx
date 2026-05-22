@@ -1,11 +1,11 @@
 // SURFACE: dreamsurface.EnginesGamesScores  (framework-mandated basename: page.tsx)
+import ScoresPanel from '@/components/engines/games/panels/dream.panel.ScoresPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import ScoresPanel from '@/components/engines/games/panels/dream.panel.ScoresPanel';
 import { connection } from 'next/server';
-import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
 
 export const metadata = { title: 'Scores – GameEngin', description: 'Your personal best scores.' };
 

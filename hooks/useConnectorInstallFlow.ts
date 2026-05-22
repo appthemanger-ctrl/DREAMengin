@@ -8,18 +8,18 @@
 
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
-import type { WidgetTypeDef } from '@/lib/widgets/widgetRegistry';
-import { getWidgetTypeDef } from '@/lib/widgets/widgetRegistry';
 import { getConnectorDef } from '@/lib/connectors/connectorRegistry';
 import {
-  handleConnectSuccess,
-  handleDismissPrompt,
-  handleAddWidget,
-  handlePlaceLater,
-  consumeDeferredPrompt,
-  type SlotGrid,
+    consumeDeferredPrompt,
+    handleAddWidget,
+    handleConnectSuccess,
+    handleDismissPrompt,
+    handlePlaceLater,
+    type SlotGrid,
 } from '@/lib/connectors/installFlow';
+import type { WidgetTypeDef } from '@/lib/widgets/widgetRegistry';
+import { getWidgetTypeDef } from '@/lib/widgets/widgetRegistry';
+import { useCallback, useRef, useState } from 'react';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 export interface ConnectorInstallFlowOptions {
@@ -146,7 +146,7 @@ export function useConnectorInstallFlow(
   const onPromptAdd = useCallback((widgetId: string) => {
     if (!prompt) return;
     const def = getWidgetTypeDef(widgetId);
-    const { slot, needsPlacementMode } = handleAddWidget(
+    const { needsPlacementMode } = handleAddWidget(
       widgetId,
       prompt.connectorId,
       prompt.connectorName,
@@ -190,7 +190,7 @@ export function useConnectorInstallFlow(
   }, []);
 
   // ── Placement: Done ───────────────────────────────────────────────────
-  const onPlacementDone = useCallback((slot: number) => {
+  const onPlacementDone = useCallback(() => {
     if (!placementRequest) return;
     setPlacementRequest(null);
     onAutoLock(); // req 40, 83

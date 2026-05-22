@@ -1,7 +1,7 @@
 'use client';
 
-import { EventEmitter } from 'events';
 import { invokeMadMaxiSnapshotTransfer } from '@/lib/runtime/madMaxiSnapshotBridge';
+import { EventEmitter } from 'events';
 
 // ── Channel types ──────────────────────────────────────────────────────────────
 

@@ -16,8 +16,8 @@
  *   Client-side uid filtering is defence-in-depth (AXIOM 4 / SECURITY.md).
  */
 
-import { createClient } from '@/lib/supabase/client';
 import { decodeLedgerStringToUint8Array, encodeUint8ArrayToLedgerString } from '@/lib/media/ledger';
+import { createClient } from '@/lib/supabase/client';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

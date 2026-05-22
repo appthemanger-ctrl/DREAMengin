@@ -1,18 +1,18 @@
 // SURFACE: dreamsurface.ProfileHandle  (framework-mandated basename: page.tsx)
-import { Suspense } from 'react';
-import { connection } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { ActivityProfile } from '@/components/activity/dream.ActivityProfile';
-import { Pencil } from 'lucide-react';
-import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
-import FollowButton from '@/components/feed/dream.FollowButton';
-import DreamWord from '@/components/ui/dream.DreamWord';
 import ProfileShareButton from '@/components/dream.ProfileShareButton';
+import FollowButton from '@/components/feed/dream.FollowButton';
 import ProfileCustomizeButton from '@/components/profile/dream.ProfileCustomizeButton';
+import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
+import DreamWord from '@/components/ui/dream.DreamWord';
 import InfinityIcon from '@/components/ui/dream.InfinityIcon';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
+import { Suspense } from 'react';
 // This route is dynamically rendered in a PPR-compatible way.
 //
 // Dynamic rendering is achieved via `connection()` from 'next/server' in

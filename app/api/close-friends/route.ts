@@ -5,8 +5,8 @@
  */
 
 import { createServerClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(_req: NextRequest ): Promise<NextResponse> {
   const supabase = await createServerClient();

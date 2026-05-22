@@ -415,7 +415,7 @@ export class GameCapture {
       mimeType: this.mimeType,
       videoBitsPerSecond: bitrate,
     });
-    this.recorder.ondataavailable = (e: unknown ) => {
+    this.recorder.ondataavailable = (e: BlobEvent) => {
       if (e.data.size > 0) this.chunks.push(e.data);
     };
     this.recorder.start(200); // flush a chunk every 200 ms

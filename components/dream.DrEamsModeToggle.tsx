@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Bot, BotOff } from 'lucide-react'
 import { getDrEamsMode, onDrEamsModeChange, setDrEamsMode } from '@/lib/agents/drEamsMode'
 import { emitTeach } from '@/lib/agents/teachBus'
+import { Bot, BotOff } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export default function DrEamsModeToggle( ){
   const [enabled, setEnabled] = useState(true)

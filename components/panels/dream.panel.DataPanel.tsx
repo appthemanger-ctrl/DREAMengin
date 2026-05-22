@@ -6,10 +6,10 @@
  * Back → openInSurface('settings'). No routing.
  */
 
-import { useState, useCallback } from 'react';
-import { ArrowLeft, Database, Download, Trash2, AlertTriangle, Check, Loader2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { createClient } from '@/lib/supabase/client';
+import { AlertTriangle, ArrowLeft, Check, Database, Download, Loader2, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 export default function DataPanel( ){
   const { openInSurface } = useDreamSystem();

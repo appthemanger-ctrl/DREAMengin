@@ -15,8 +15,8 @@
  * (both already in the bundle). No audio, no heavy assets.
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useCallback, useEffect, useState } from 'react';
 
 const KONAMI = [
   'ArrowUp', 'ArrowUp',

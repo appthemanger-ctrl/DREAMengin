@@ -1,13 +1,13 @@
 'use client';
 // SURFACE: dreamsurface.DreamEffects  (framework-mandated basename: page.tsx)
 
-import dynamic from 'next/dynamic';
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Zap, Layers, Monitor } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
+import { cn } from '@/lib/utils';
 import { getRendererBackend } from '@/lib/webgpu';
+import { motion } from 'framer-motion';
+import { Layers, Monitor, Sparkles, Zap } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { useEffect, useRef, useState } from 'react';
 
 /* Lazy-load the R3F scene so the heavy Three.js bundle is only pulled
    when the user actually visits this page. SSR is disabled because

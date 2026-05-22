@@ -190,7 +190,6 @@ export interface CodeContext {
  * notebook or multi-file codebase.
  */
 export function buildCodeSystemPrompt(context: CodeContext): string {
-  const intent = classifyQuery('');   // baseline — caller should pass the user query too
   const vocabBlock = CODE_VOCABULARY.slice(0, 10)
     .map((v) => `  - ${v.term}: ${v.definition}`)
     .join('\n');

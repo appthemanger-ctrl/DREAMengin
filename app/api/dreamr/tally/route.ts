@@ -26,9 +26,9 @@
  * Privacy: only the viewer's own rows are written; no cross-user reads.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const TallyBodySchema = z.object({

@@ -418,7 +418,7 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
     const d = EnginDispatcher.getInstance();
     // Manually inject a SAB to test the seam without spawning workers
     // Access private field via type cast for testing purposes
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.setDreamDMBarY(128.5);
     expect(d.getDreamDMBarY()).toBeCloseTo(128.5, 2);
@@ -439,7 +439,7 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.setDreamDMBarY(200);
     d.setDreamDMBarY(NaN);
@@ -451,7 +451,7 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.setDreamDMBarY(300);
     d.setDreamDMBarY(Infinity);
@@ -462,7 +462,7 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.setDreamDMBarY(9_999);
     expect(d.getDreamDMBarY()).toBeCloseTo(4_000, 2);
@@ -472,7 +472,7 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.setDreamDMBarY(-50);
     expect(d.getDreamDMBarY()).toBeCloseTo(0, 2);
@@ -490,7 +490,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.updateSeamOffset(0.75, 'Y');
     expect(d.getSeamOffset('Y')).toBeCloseTo(0.75, 2);
@@ -502,7 +502,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.updateSeamOffset(0.3, 'X');
     expect(d.getSeamOffset('X')).toBeCloseTo(0.3, 2);
@@ -514,7 +514,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.updateSeamOffset(2.5, 'Y');
     expect(d.getSeamOffset('Y')).toBeCloseTo(1.0, 2);
@@ -524,7 +524,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.updateSeamOffset(-0.5, 'X');
     expect(d.getSeamOffset('X')).toBe(0);
@@ -534,7 +534,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     d.updateSeamOffset(0.5, 'Y');
     d.updateSeamOffset(NaN, 'Y');
@@ -551,7 +551,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     expect(d.getLockedState()).toBe(false);
     d.setLockedState(true);
@@ -574,7 +574,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
     if (typeof SharedArrayBuffer === 'undefined') return;
 
     const d = EnginDispatcher.getInstance();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+    (d as any as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
 
     expect(d.getAxisState()).toBe('Y');
     d.setAxisState('X');
@@ -602,7 +602,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
 
     const d = EnginDispatcher.getInstance();
     const sab = createEnginSAB();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = sab;
+    (d as any as { _sab: SharedArrayBuffer })._sab = sab;
 
     d.updateSeamOffset(0.4, 'Y');
     d.updateSeamOffset(0.6, 'X');
@@ -629,9 +629,9 @@ describe('EnginDispatcher — Elite-Runtime Telemetry', () => {
 
     const d = EnginDispatcher.getInstance();
     const sab = createEnginSAB();
-    (d as unknown as { _sab: SharedArrayBuffer })._sab = sab;
+    (d as any as { _sab: SharedArrayBuffer })._sab = sab;
     // Simulate 2 workers
-    (d as unknown as { _workers: unknown[] })._workers = [null, null];
+    (d as any as { _workers: unknown[] })._workers = [null, null];
 
     // Write synthetic telemetry values into the SAB
     const tel = f64Telemetry(sab);

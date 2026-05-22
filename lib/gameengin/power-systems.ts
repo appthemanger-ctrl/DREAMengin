@@ -949,7 +949,7 @@ export class SpatialAudioDSP {
     return true;
   }
 
-  updateSourcePosition(id: string, position: [number, number, number], velocity?: [number, number, number]): void {
+  updateSourcePosition(id: string, position: [number, number, number]): void {
     const s = this.sources.get(id);
     if (!s || !this.ctx) return;
     s.panner.positionX.linearRampToValueAtTime(position[0], this.ctx.currentTime + 0.016);
@@ -1136,7 +1136,6 @@ export type BTNode = {
  */
 export class BehaviorTreeEngine {
   private trees = new Map<string, BTNode>();
-  private runningNodes = new Map<string, Set<BTNode>>();
 
   registerTree(id: string, root: BTNode): void { this.trees.set(id, root); }
 

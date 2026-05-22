@@ -158,7 +158,7 @@ export function speakWithBrowserTTS(
     }
 
     utterance.onend = () => resolve();
-    utterance.onerror = (e: unknown ) => reject(new Error(`Speech synthesis error: ${e.error}`));
+    utterance.onerror = (e: SpeechSynthesisErrorEvent) => reject(new Error(`Speech synthesis error: ${e.error}`));
 
     window.speechSynthesis.cancel(); // cancel any ongoing speech
     window.speechSynthesis.speak(utterance);

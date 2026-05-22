@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
 import DreamWord from '@/components/ui/dream.DreamWord';
+import { useRouter } from 'next/navigation';
 
 interface NexusMenuProps {
   onClose: () => void;

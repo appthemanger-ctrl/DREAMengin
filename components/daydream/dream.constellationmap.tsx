@@ -12,8 +12,8 @@
  * Battery-safe: pauses when tab is hidden.
  */
 
-import { useEffect, useRef, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Node definitions ─────────────────────────────────────────────────────────
 const NODES = [

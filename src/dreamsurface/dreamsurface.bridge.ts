@@ -1,12 +1,12 @@
 // dreamsurface.bridge — the ONLY legal path from dream.* → engin.core.*
 // Apply Rule-Set deltas to Base State. Bridge between dream.* and engin.core.*.
 
-import { type DreamLedger, appendEntry } from '../engin/core/engin.ledger';
-import { type EventBus } from '../engin/core/engin.eventbus';
 import {
-  type HomeDreamState,
-  applyDelta,
+    type HomeDreamState,
+    applyDelta,
 } from '../dream/rulesets/homedream/dream.homedream.transforms';
+import { type EventBus } from '../engin/core/engin.eventbus';
+import { type DreamLedger, appendEntry } from '../engin/core/engin.ledger';
 
 export interface DreamSurfaceBridge {
   applyRulesetDelta(

@@ -12,11 +12,11 @@
  * Architecture: docs/ARCHITECTURE.md §6 (Pass 6 — Universal drag/drop).
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import type { DreamDrop, DreamDropType } from '@/lib/runtime/coercionTable';
 import { coerceDataTransfer } from '@/lib/runtime/coercionTable';
 import { dropTargetRegistry } from '@/lib/runtime/dropTargetRegistry';
-import type { DreamDrop, DreamDropType } from '@/lib/runtime/coercionTable';
 import type { RuntimeId } from '@/types/module-manifest';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface UseDragSurfaceOptions {
   /** The runtime region this surface belongs to. */
@@ -81,12 +81,12 @@ export function useDragSurface({
     return () => dropTargetRegistry.unregister(targetId.current);
   }, [region, priority, handleDrop]);
 
-  const onDragOver: React.DragEventHandler = useCallback((e: unknown ) => {
+  const onDragOver: React.DragEventHandler = useCallback((e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   }, []);
 
-  const onDragEnter: React.DragEventHandler = useCallback((e: unknown ) => {
+  const onDragEnter: React.DragEventHandler = useCallback((e) => {
     e.preventDefault();
     enterCount.current++;
     setIsOver(true);

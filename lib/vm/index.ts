@@ -6,20 +6,16 @@
 
 // ── §35 Feature detection ─────────────────────────────────────────────────────
 export {
-  detectWasmFeatures,
-  resetWasmFeatureCache,
-  type WasmFeatureSet,
+    detectWasmFeatures,
+    resetWasmFeatureCache,
+    type WasmFeatureSet
 } from './wasm-features';
 
 // ── §35 Resource quotas ───────────────────────────────────────────────────────
 export {
-  enforceQuota,
-  withinQuota,
-  QuotaExceededError,
-  DEFAULT_RESOURCE_QUOTA,
-  type ResourceQuota,
-  type ResourceUsage,
-  type QuotaViolation,
+    DEFAULT_RESOURCE_QUOTA, QuotaExceededError, enforceQuota,
+    withinQuota, type QuotaViolation, type ResourceQuota,
+    type ResourceUsage
 } from './resource-quota';
 
 // ── §35 Inter-VM messaging ────────────────────────────────────────────────────
@@ -27,72 +23,38 @@ export { InterVMChannel, type VMEvent } from './inter-vm-messaging';
 
 // ── §35 Security ──────────────────────────────────────────────────────────────
 export {
-  checkBounds,
-  isSyscallAllowed,
-  MemoryBoundsError,
-  SYSCALL_ALLOWLIST,
-  GPUTimeSlicer,
-  type AllowedSyscall,
-  type TimeBudget,
+    GPUTimeSlicer, MemoryBoundsError,
+    SYSCALL_ALLOWLIST, checkBounds,
+    isSyscallAllowed, type AllowedSyscall,
+    type TimeBudget
 } from './security';
 
 // ── §35.5 Bus events ──────────────────────────────────────────────────────────
 export type {
-  VMBusEventMap,
-  VMBusEventName,
-  VMWorkloadSubmittedPayload,
-  VMComputeCompletePayload,
-  VMErrorPayload,
-  VMStatsUpdatePayload,
-  VMStatsPayload,
+    VMBusEventMap,
+    VMBusEventName, VMComputeCompletePayload,
+    VMErrorPayload, VMStatsPayload, VMStatsUpdatePayload, VMWorkloadSubmittedPayload
 } from './bus-events';
 
 // ── §35 DualRuntime orchestrator ──────────────────────────────────────────────
 export {
-  DualRuntime,
-  dualRuntime,
-  type VMId,
-  type VMWorkloadSpec,
-  type VMRuntimeStats,
+    DualRuntime,
+    dualRuntime,
+    type VMId, type VMRuntimeStats, type VMWorkloadSpec
 } from './dual-runtime';
 
-export { WasmGpuVM } from './wasmGpuVM';
 export { BufferManager } from './bufferManager';
+export {
+    destroyDualVMCoordinator, getDualVMCoordinator,
+    initializeDualVMCoordinator, type DualVMConfig, type DualVMCoordinator,
+    type VMRegion, type VMWorkload
+} from './dualVMCoordinator';
 export { PipelineCache } from './pipelineCache';
 export { SnapshotManager } from './snapshot';
-export {
-  getDualVMCoordinator,
-  initializeDualVMCoordinator,
-  destroyDualVMCoordinator,
-  type DualVMCoordinator,
-  type VMRegion,
-  type DualVMConfig,
-  type VMWorkload,
-} from './dualVMCoordinator';
+export { WasmGpuVM } from './wasmGpuVM';
 
 export type {
-  VMConfig,
-  VMState,
-  VMErrorCode,
-  VMSyscalls,
-  BufferHandle,
-  PipelineHandle,
-  BindGroupHandle,
-  LayoutHandle,
-  WasmLinearMemory,
-  GPUBufferDescriptor,
-  ComputePipelineDescriptor,
-  BindGroupDescriptor,
-  CommandBufferState,
-  VMResourceQuotas,
-  VMPerformanceCounters,
-  VMSnapshot,
-  WasmMemorySnapshot,
-  GPUBufferSnapshot,
-  PipelineSnapshot,
-  HandleTableSnapshot,
-  VMMessageQueueDescriptor,
-  VMEventChannel,
+    BindGroupDescriptor, BindGroupHandle, BufferHandle, CommandBufferState, ComputePipelineDescriptor, GPUBufferDescriptor, GPUBufferSnapshot, HandleTableSnapshot, LayoutHandle, PipelineHandle, PipelineSnapshot, VMConfig, VMErrorCode, VMEventChannel, VMMessageQueueDescriptor, VMPerformanceCounters, VMResourceQuotas, VMSnapshot, VMState, VMSyscalls, WasmLinearMemory, WasmMemorySnapshot
 } from './types';
 
-export { GPUBufferUsageFlags, VMErrorCode as ErrorCode, DEFAULT_VM_CONFIG } from './types';
+export { DEFAULT_VM_CONFIG, VMErrorCode as ErrorCode, GPUBufferUsageFlags } from './types';

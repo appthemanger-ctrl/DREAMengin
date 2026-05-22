@@ -1,8 +1,8 @@
 // SURFACE: dreamsurface.EnginesPortfolio  (framework-mandated basename: page.tsx)
+import PortfolioEnginApp from '@/components/engines/portfolio/dream.PortfolioEnginApp';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import PortfolioEnginApp from '@/components/engines/portfolio/dream.PortfolioEnginApp';
 import { connection } from 'next/server';
 export default async function PortfolioEnginAppPage( ){
   await connection();

@@ -12,14 +12,18 @@
  * Visual language: DreamR neomorphism (identical to DreamRCreatorPanel).
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import Image from 'next/image';
-import {
-  X, Youtube, Play, Maximize2, ExternalLink,
-  Loader2, ChevronRight,
-} from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
+import {
+    ChevronRight,
+    ExternalLink,
+    Loader2,
+    Maximize2,
+    Play,
+    X, Youtube,
+} from 'lucide-react';
+import Image from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 
@@ -62,51 +66,6 @@ function embedUrl(permalink: string): string | null {
 
 // ── Mini video thumbnail ───────────────────────────────────────────────────────
 
-function VideoThumb({
-  item, onPlay,
-}: { item: UnifiedFeedItem; onPlay?: () => void }) {
-  const thumb = item.media[0]?.thumbnail_url ?? item.media[0]?.url ?? null;
-  const [playing, setPlaying] = useState(false);
-  const embed = item.permalink ? embedUrl(item.permalink) : null;
-
-  return (
-    <div
-      style={{
-        position: 'relative', width: '100%', aspectRatio: '16/9',
-        borderRadius: 12, overflow: 'hidden',
-        background: '#0d1526', flexShrink: 0,
-        cursor: 'pointer',
-      }}
-      onClick={() => { setPlaying(true); onPlay?.(); }}
-    >
-      {playing && embed ? (
-        <iframe
-          src={embed}
-          title={item.content_text}
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      ) : (
-        <>
-          {thumb && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }} />
-          )}
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.22)' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(239,68,68,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.40)' }}>
-              <Play size={16} fill="#fff" color="#fff" />
-            </div>
-          </div>
-          {/* YT badge */}
-          <div style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.70)', borderRadius: 4, padding: '2px 6px', display: 'flex', alignItems: 'center', gap: 3, fontSize: 9, fontWeight: 700, color: '#fff' }}>
-            <Youtube size={9} color="#ef4444" /> YouTube
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 // ── VideoRow — compact list item ───────────────────────────────────────────────
 

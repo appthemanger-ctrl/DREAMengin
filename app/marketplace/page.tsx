@@ -1,11 +1,11 @@
 // SURFACE: dreamsurface.Marketplace  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ShoppingBag, PlusCircle } from 'lucide-react';
 import MarketplaceListingCard from '@/components/marketplace/dream.MarketplaceListingCard';
-import DreamWord from '@/components/ui/dream.DreamWord';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import DreamWord from '@/components/ui/dream.DreamWord';
+import { createServerClient } from '@/lib/supabase/server';
+import { PlusCircle, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'DreamMarketplace – Dreamengin', description: 'Discover themes, Dreams, and tools from the community.' };

@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export type ApiContext = {
   req: NextRequest;

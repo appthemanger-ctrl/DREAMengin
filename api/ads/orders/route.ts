@@ -24,9 +24,9 @@
  *   500  { error: string }
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 const PLATFORM_SHARE_PERCENT = 0.10; // 10% DREAMengin platform cut
 

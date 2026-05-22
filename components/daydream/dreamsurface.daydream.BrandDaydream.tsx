@@ -29,16 +29,26 @@
  * Connected to dual-runtime bridge and Forge intelligence.
  */
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import {
-  Palette, BarChart2, Users, TrendingUp, TrendingDown,
-  Minus, Megaphone, BookOpen, Layers, Eye, DollarSign, Share2,
-} from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { createClient } from '@/lib/supabase/client';
+import {
+    BarChart2,
+    BookOpen,
+    DollarSign,
+    Eye,
+    Layers,
+    Megaphone,
+    Minus,
+    Palette,
+    Share2,
+    TrendingDown,
+    TrendingUp,
+    Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 const ACCENT = '#ec4899';
 

@@ -23,40 +23,40 @@
  *  • Shared GameRemote CustomEvent bridge (de-game-input).
  */
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
-import { createBabylonEngine } from '@/lib/babylon/createEngine';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 // Side-effect import: registers the glTF/GLB loader on Babylon's SceneLoader so
 // the MADMAXI authored hero mesh (`/models/madmaxi.glb`) can be imported at runtime.
-import '@babylonjs/loaders/glTF';
 import {
-  DreamEngineGodTierSystem,
-  applyGodTierToBabylon,
-  defaultDeviceSignals,
-  defaultUXSignals,
-  defaultRouteSignals,
-  type BabylonSceneLike,
+    DreamEngineGodTierSystem,
+    applyGodTierToBabylon,
+    defaultDeviceSignals,
+    defaultRouteSignals,
+    defaultUXSignals,
+    type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
+import '@babylonjs/loaders/glTF';
+import { MadmaxiAudioController } from './audio';
 import {
-  BOSS_ENRAGE_MULTIPLIER,
-  BOSS_ENRAGE_THRESHOLD,
-  MADMAXI_SUPER_SECONDS,
-  MADMAXI_SUPER_STREAK,
-  STAR_SEED_OFFSET,
-  STAR_SEED_PRIME,
-  TOTAL_LEVELS,
-  ZONES,
-  getBossForLevel,
-  getZoneIdx,
-  isBossLevel,
-  seededRng,
+    BOSS_ENRAGE_MULTIPLIER,
+    BOSS_ENRAGE_THRESHOLD,
+    MADMAXI_SUPER_SECONDS,
+    MADMAXI_SUPER_STREAK,
+    STAR_SEED_OFFSET,
+    STAR_SEED_PRIME,
+    TOTAL_LEVELS,
+    ZONES,
+    getBossForLevel,
+    getZoneIdx,
+    isBossLevel,
+    seededRng,
 } from './config';
 import { getMadmaxiLevelDefinition } from './levels';
-import { MadmaxiAudioController } from './audio';
 import { createScanLineTexture, makeDetailMat, type ScanLineTexture } from './materials';
-import { createMadmaxiVfx, type VfxKit, type VfxTier } from './vfx';
 import type { CoinDef, EnemyDef, HazardDef, MadmaxiEnemyKind, MadmaxiPowerUpKind, PlatDef, PowerUpDef } from './types';
+import { createMadmaxiVfx, type VfxKit, type VfxTier } from './vfx';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
 const GW = 800; // logical canvas width
@@ -78,10 +78,6 @@ const DASH_COOL  = 45;      // frames between dashes
 const PROJ_SPD   = 4.5;     // boss projectile speed (px/frame)
 const PROJ_LIFE  = 120;     // frames before projectile despawns
 const COMBO_WIN  = 1500;    // ms window to chain a combo kill
-const SHIELD_DURATION_FRAMES    = 8 * 60;
-const HIGH_JUMP_DURATION_FRAMES = 8 * 60;
-const LASER_DURATION_FRAMES     = 8 * 60;
-const GIANT_DURATION_FRAMES     = 4 * 60;
 
 // World scale: all Babylon geometry is WORLD_SCALE× larger than before.
 // The camera is pulled back by the same factor so the viewport looks identical,

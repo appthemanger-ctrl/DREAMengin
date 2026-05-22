@@ -13,43 +13,43 @@
  *               tap-and-hold / release interaction events.
  */
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
 import clsx from 'clsx';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
+import styles from '@/components/games/dream.GameController.module.css';
 import {
-  emitMobileButton,
-  emitMobileJump,
-  emitMobileLookDelta,
-  emitMobileMove,
-  emitMobileShoot,
-  fireLegacyGameInput,
-  getLegacyMoveAction,
-  type MobileControlVector,
-} from '@/lib/games/mobileControls';
+    ButtonInteractionManager,
+    CONTROLLER_BUTTON_DEFS,
+    type ControllerButton,
+} from '@/lib/games/gameControllerButtons';
 import {
-  computeLeftStickVector,
-  LEFT_STICK_RADIUS_PX,
-  type StickVector,
+    computeLeftStickVector,
+    LEFT_STICK_RADIUS_PX,
+    type StickVector,
 } from '@/lib/games/gameControllerLeft';
 import {
-  AUTO_FIRE_DELAY_MS,
-  AUTO_FIRE_INTERVAL_MS,
-  computeAimDelta,
-  evaluateRightStickTap,
-  RIGHT_RESET_TIMEOUT_MS,
+    AUTO_FIRE_DELAY_MS,
+    AUTO_FIRE_INTERVAL_MS,
+    computeAimDelta,
+    evaluateRightStickTap,
+    RIGHT_RESET_TIMEOUT_MS,
 } from '@/lib/games/gameControllerRight';
 import {
-  ButtonInteractionManager,
-  CONTROLLER_BUTTON_DEFS,
-  type ControllerButton,
-} from '@/lib/games/gameControllerButtons';
-import styles from '@/components/games/dream.GameController.module.css';
+    emitMobileButton,
+    emitMobileJump,
+    emitMobileLookDelta,
+    emitMobileMove,
+    emitMobileShoot,
+    fireLegacyGameInput,
+    getLegacyMoveAction,
+    type MobileControlVector,
+} from '@/lib/games/mobileControls';
 
 interface GameControllerProps {
   gameLabel: string;

@@ -13,19 +13,19 @@
  *   5. Scroll-margin minimap — right-side strip showing diff hunk positions.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Minimize2 } from 'lucide-react';
 import {
-  buildFullFileLines,
-  buildScrollMarkers,
-  firstHunkIndex,
-  nextHunkIndex,
-  parseUnifiedDiff,
-  prevHunkIndex,
-  type DiffFile,
-  type FullFileLine,
-  DEMO_DIFF,
+    buildFullFileLines,
+    buildScrollMarkers,
+    DEMO_DIFF,
+    firstHunkIndex,
+    nextHunkIndex,
+    parseUnifiedDiff,
+    prevHunkIndex,
+    type DiffFile,
+    type FullFileLine,
 } from '@/lib/diff/diffUtils';
+import { ChevronDown, ChevronsUpDown, ChevronUp, Minimize2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

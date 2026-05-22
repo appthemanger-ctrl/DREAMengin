@@ -6,8 +6,8 @@
  * Back → openInSurface('settings'). No routing.
  */
 
-import { ArrowLeft, HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-react';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { ArrowLeft, BookOpen, HelpCircle, MessageCircle, Wand2 } from 'lucide-react';
 
 const GUIDES = [
   { icon: '🔒', title: 'How to use the Home Buttons',     desc: 'Drag the blue + gold buttons together to lock, then tap to open menus.' },

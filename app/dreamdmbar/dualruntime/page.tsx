@@ -22,9 +22,9 @@
  *            refresh re-joins the same session instead of creating another).
  */
 
-import { useEffect, useState } from 'react';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import SharedDreamRuntime from '@/components/shared-dream/dream.SharedDreamRuntime';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { useEffect, useState } from 'react';
 
 const SESSION_STORAGE_KEY = 'dreamengin:dualruntime:session-id';
 

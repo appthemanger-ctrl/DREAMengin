@@ -1,5 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface SocialHumanityInput {
   userId: string;

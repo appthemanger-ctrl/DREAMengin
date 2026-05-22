@@ -20,10 +20,10 @@
  * ARCHITECTURE.md §3 — All OAuth token exchange is server-side.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
-import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const IG_TOKEN_URL      = 'https://api.instagram.com/oauth/access_token';
 const IG_LONG_TOKEN_URL = 'https://graph.instagram.com/access_token';

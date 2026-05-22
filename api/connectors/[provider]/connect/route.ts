@@ -12,16 +12,16 @@
  * ARCHITECTURE.md §5 — Privacy and projection boundaries.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { mastodonVerify } from '@/lib/connectors/providers/mastodon';
 import { blueskyVerify } from '@/lib/connectors/providers/bluesky';
 import { githubVerify } from '@/lib/connectors/providers/github';
-import { redditVerify } from '@/lib/connectors/providers/reddit';
+import { mastodonVerify } from '@/lib/connectors/providers/mastodon';
 import { nostrVerify } from '@/lib/connectors/providers/nostr';
+import { redditVerify } from '@/lib/connectors/providers/reddit';
 import { youtubeVerify } from '@/lib/connectors/providers/youtube';
+import { createServerClient } from '@/lib/supabase/server';
 import type { ConnectorConnectResponse } from '@/types/connector';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(
   req: NextRequest,

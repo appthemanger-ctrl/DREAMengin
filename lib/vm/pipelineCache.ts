@@ -1,4 +1,3 @@
-import type { Database } from '@/types/supabase';
 /**
  * lib/vm/pipelineCache.ts — GPU Compute Pipeline Cache
  *

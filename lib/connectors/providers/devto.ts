@@ -13,7 +13,7 @@
  */
 
 import { normaliseDevto } from '@/lib/connectors/normalise';
-import { parseRssFeed, devtoUserRssUrl } from '@/lib/social/rss-feed';
+import { devtoUserRssUrl, parseRssFeed } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
 export interface DevtoCredentials {

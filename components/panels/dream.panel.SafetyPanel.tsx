@@ -6,12 +6,12 @@
  * Back → openInSurface('settings'). No routing.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Shield, FileText, ChevronRight, Loader2 } from 'lucide-react';
-import { createClient }    from '@/lib/supabase/client';
-import { useDreamSystem }  from '@/lib/dreamdm/DreamSystemContext';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { createClient } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { ArrowLeft, ChevronRight, FileText, Loader2, Shield } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface PolicyEvent {
   event_id: string; timestamp: string; action: string;

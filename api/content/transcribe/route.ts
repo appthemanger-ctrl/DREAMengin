@@ -1,7 +1,7 @@
+import { parseSRT, parseVTT, totalDurationMs } from '@/lib/content/transcriptEditor';
+import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createServerClient } from '@/lib/supabase/server';
-import { parseSRT, parseVTT, totalDurationMs } from '@/lib/content/transcriptEditor';
 
 const TranscribeSchema = z.object({
   /** Raw SRT or VTT content uploaded by the user */

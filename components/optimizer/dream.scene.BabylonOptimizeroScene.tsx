@@ -9,29 +9,23 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { createBabylonEngine } from '@/lib/babylon/createEngine';
 import {
-  BabylonUIOptimizero,
-  BabylonUIGenerator,
-  type BabylonUICandidate,
-} from '@/lib/optimizer/babylon-optimizero';
-import { type OptimizeroResult } from '@/lib/optimizer/creative-optimizero';
-import {
-  DEFAULT_WEIGHTS,
-  CHAOS_WEIGHTS,
-  STABLE_WEIGHTS,
-  type OptimizeroWeights,
-} from '@/lib/optimizer/creative-optimizero';
-import {
-  DreamEngineGodTierSystem,
-  applyGodTierToBabylon,
-  defaultDeviceSignals,
-  defaultRuntimeMetrics,
-  defaultUXSignals,
-  defaultRouteSignals,
-  type BabylonSceneLike,
+    DreamEngineGodTierSystem,
+    applyGodTierToBabylon,
+    defaultDeviceSignals,
+    defaultRouteSignals,
+    defaultRuntimeMetrics,
+    defaultUXSignals,
+    type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
+import {
+    BabylonUIGenerator,
+    BabylonUIOptimizero,
+    type BabylonUICandidate,
+} from '@/lib/optimizer/babylon-optimizero';
+import { CHAOS_WEIGHTS, DEFAULT_WEIGHTS, STABLE_WEIGHTS, type OptimizeroResult, type OptimizeroWeights } from '@/lib/optimizer/creative-optimizero';
+import { useEffect, useRef, useState } from 'react';
 
 type WeightPreset = 'default' | 'chaos' | 'stable' | 'custom';
 
@@ -219,7 +213,6 @@ export default function BabylonOptimizeroScene({
             }
 
             // Add ranking indicator (smaller sphere on top)
-            const rank = index + 1;
             const rankSphere = MeshBuilder.CreateSphere(
               `${candidate.id}-rank`,
               { diameter: 0.3, segments: 8 },

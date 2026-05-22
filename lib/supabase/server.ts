@@ -1,10 +1,9 @@
-import 'server-only'
-import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import type { Database } from '@/types/supabase'
+import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { SUPABASE_CONFIG } from './config'
-import { SUPABASE_SERVICE_ROLE_KEY } from './config'
+import { cookies } from 'next/headers'
+import 'server-only'
+import { SUPABASE_CONFIG, SUPABASE_SERVICE_ROLE_KEY } from './config'
 
 type DisabledSupabaseClient = {
   auth: {

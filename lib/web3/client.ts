@@ -15,13 +15,13 @@
  */
 
 import {
-  WalletAccount,
-  WalletConnectionState,
-  WalletProvider,
-  Web3Error,
-  SUPPORTED_CHAINS,
-  DEFAULT_CHAIN_ID,
-  type ChainConfig,
+    DEFAULT_CHAIN_ID,
+    SUPPORTED_CHAINS,
+    WalletAccount,
+    WalletConnectionState,
+    WalletProvider,
+    Web3Error,
+    type ChainConfig,
 } from './types';
 
 // ─── EIP-1193 minimal types ───────────────────────────────────────────────────

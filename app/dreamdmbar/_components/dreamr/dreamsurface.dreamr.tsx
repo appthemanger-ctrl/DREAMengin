@@ -21,23 +21,38 @@
  * Plus Jakarta Sans (--font-dreamr) throughout.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import {
-  Radio, PlusCircle, Layers, BarChart2, MapPin,
-  Heart, Eye, Users, MessageCircle,
-  TrendingUp, TrendingDown, Minus,
-  Image as ImageIcon, Video, Music, Send, Loader2,
-  Check, ExternalLink, RefreshCw, Plug,
-  ChevronRight,
-} from 'lucide-react';
-import type { FeedPost } from '@/lib/feed/useLiveFeed';
-import DreamRFeed from '@/lib/dreamr/dreamrfeed';
 import DreamRCore from '@/app/dreamdmbar/_components/dreamr/dream.DreamRCore';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import DreamRFeed from '@/lib/dreamr/dreamrfeed';
+import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';
+import {
+    BarChart2,
+    Check,
+    ChevronRight,
+    Eye,
+    Heart,
+    Image as ImageIcon,
+    Layers,
+    Loader2,
+    MapPin,
+    MessageCircle,
+    Minus,
+    Music,
+    Plug,
+    PlusCircle,
+    Radio,
+    RefreshCw,
+    Send,
+    TrendingDown,
+    TrendingUp,
+    Users,
+    Video,
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 

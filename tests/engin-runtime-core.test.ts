@@ -294,7 +294,7 @@ describe('EnginRuntime', () => {
       ioAdapter: new MemoryAdapter(),
       capabilities: DENY_ALL,
     });
-    const actionWithCap = { type: 'counter:increment', payload: { by: 1 }, __capability: 'state:write' } as unknown as CounterAction;
+    const actionWithCap = { type: 'counter:increment', payload: { by: 1 }, __capability: 'state:write' } as any as CounterAction;
     const result = restrictedRuntime.dispatch(actionWithCap);
     expect(result).toBe(false);
   });

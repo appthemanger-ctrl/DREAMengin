@@ -1,10 +1,10 @@
 // SURFACE: dreamsurface.EnginesGames  (framework-mandated basename: page.tsx)
+import GameEnginApp from '@/components/engines/games/dream.GameEnginApp';
+import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import GameEnginApp from '@/components/engines/games/dream.GameEnginApp';
 import { connection } from 'next/server';
-import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
 
 
 interface GamesEnginAppPageProps {

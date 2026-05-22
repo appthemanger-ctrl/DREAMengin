@@ -1,15 +1,26 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import Link from 'next/link';
-import { 
-  Eye, Share2, Check, Pencil, X, Save, 
-  Music, ShoppingBag, FileText, Users, Image as ImageIcon,
-  Globe, BarChart3, Gamepad2
-} from 'lucide-react';
 import PlatformBadge from '@/components/ui/dream.PlatformBadge';
 import { PROFILE_SHARE_PLATFORMS } from '@/lib/social/platforms';
+import { createClient } from '@/lib/supabase/client';
+import {
+    BarChart3,
+    Check,
+    Eye,
+    FileText,
+    Gamepad2,
+    Globe,
+    Image as ImageIcon,
+    Music,
+    Pencil,
+    Save,
+    Share2,
+    ShoppingBag,
+    Users,
+    X
+} from 'lucide-react';
+import Link from 'next/link';
+import { useCallback, useState } from 'react';
 
 type Profile = {
   id: string;

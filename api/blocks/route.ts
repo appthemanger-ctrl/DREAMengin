@@ -3,9 +3,9 @@
 // RLS on user_blocks enforces owner-only access at the DB layer.
 // Constitution Art. I Rule 1 — privacy by default; blocks are private.
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
 import { jsonApiError } from '@/lib/api/route';
+import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 

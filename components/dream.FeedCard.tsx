@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, memo } from 'react';
-import { formatRelativeTime } from '@/lib/utils';
-import { UniverseCard, UniverseCardContent } from '@/components/universe';
-import Image from 'next/image';
-import { cn } from '@/lib/utils';
-import { inferProviderFromUrl } from '@/lib/widgets/parseConfig';
-import { ExternalLink, FileText, Heart, MessageCircle, Share2, Sparkles, Youtube, MoreHorizontal, Bookmark, Flag, Link2 } from 'lucide-react';
 import CommentSection from '@/components/feed/dream.CommentSection';
+import { UniverseCard, UniverseCardContent } from '@/components/universe';
+import { cn, formatRelativeTime } from '@/lib/utils';
+import { inferProviderFromUrl } from '@/lib/widgets/parseConfig';
+import { Bookmark, ExternalLink, FileText, Flag, Heart, Link2, MessageCircle, MoreHorizontal, Share2, Sparkles, Youtube } from 'lucide-react';
+import Image from 'next/image';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 
 interface FeedCardProps {
   item: {

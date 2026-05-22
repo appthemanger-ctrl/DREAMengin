@@ -7,8 +7,8 @@
 // Preview shows exactly what will appear (req 57)
 // Removing a slice does NOT disconnect the connector (req 60)
 
-import React, { useState } from 'react';
 import type { ConnectorDef, SliceTypeDef } from '@/lib/connectors/connectorRegistry';
+import { useState } from 'react';
 
 export interface FeedSlice {
   id: string;

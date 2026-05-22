@@ -916,7 +916,7 @@ describe('AssetStreamManager', () => {
     // Manually set to queued to test cancel
     const h = mgr.get('audio1')!;
     h.state = 'queued';
-    (mgr as unknown as { queue: typeof h[] }).queue.push(h);
+    (mgr as any as { queue: typeof h[] }).queue.push(h);
     mgr.cancel('audio1');
     expect(mgr.get('audio1')!.state).toBe('unloaded');
   });

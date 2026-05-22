@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/client';
 import { encodeUint8ArrayToLedgerString } from '@/lib/media/ledger';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * THE FLOW:

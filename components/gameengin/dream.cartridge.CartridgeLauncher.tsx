@@ -8,12 +8,12 @@
  * cartridge automatically.
  */
 
-import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
 import GameRuntime from '@/lib/gameengin/GameRuntime';
-import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';
 import type { GameCartridge, GravityPreset } from '@/lib/gameengin/cartridge';
+import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';
 import type { CartridgeManifestEntry } from '@/lib/gameengin/cartridges/manifest';
+import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import CrashReportModal, { type CrashContext } from './dream.CrashReportModal';
 import { CartridgeErrorBoundary, useGlobalCrashListener, type CartridgeCrashEvent } from './dream.cartridge.CartridgeErrorBoundary';
 

@@ -7,10 +7,9 @@
 // matching pattern wins and provides a ready-made recommended_action. When no
 // pattern matches, the top anomaly signal drives a generic fallback analysis.
 
-import type { Database } from '@/types/supabase';
-import type { AnomalySignal } from './correlator';
-import type { TelemetrySnapshot } from './collector';
 import type { PatchRisk } from '@/lib/agents/idari';
+import type { TelemetrySnapshot } from './collector';
+import type { AnomalySignal } from './correlator';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

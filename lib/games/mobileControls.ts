@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { broadcastGameInput } from '@/lib/games/useRemoteChannel';
+import { useEffect, useRef } from 'react';
 
 export interface MobileControlVector {
   x: number;

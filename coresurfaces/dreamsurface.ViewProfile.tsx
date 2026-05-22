@@ -1,12 +1,12 @@
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Pencil, Eye } from 'lucide-react';
-import { createServerClient } from '@/lib/supabase/server';
-import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
 import ProfileShareButton from '@/components/dream.ProfileShareButton';
+import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
 import DreamWord from '@/components/ui/dream.DreamWord';
-import { connection } from 'next/server';
+import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { Eye, Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 
 export const metadata = {

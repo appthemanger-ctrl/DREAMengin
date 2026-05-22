@@ -11,9 +11,9 @@
  *   - Ghost cursor indicator at drag position
  */
 
+import type { ModuleManifest, RuntimeId } from '@/lib/universal-editor/module-manifest';
 import React, { useCallback, useState } from 'react';
 import { useTapHoldMove, type Position } from './useTapHoldMove';
-import type { ModuleManifest, RuntimeId } from '@/lib/universal-editor/module-manifest';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

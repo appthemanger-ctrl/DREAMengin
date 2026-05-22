@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { SpatialNavigationEngine } from '@/lib/navigation/SpatialNavigationEngine';
-import { WidgetInstanceRecord, WidgetPresentation, WidgetVisibility, WidgetBindingType } from '@/lib/navigation/WidgetInstanceMemory';
-import { LAYER_HOME, LAYER_PROFILE } from '@/lib/navigation/NavStateBuffer';
-import { Home } from 'lucide-react';
-import PixiPhysicsLayer from '@/components/spatial/dream.PixiPhysicsLayer';
 import { ProfileSpace } from '@/components/dream.ProfileSpace';
+import PixiPhysicsLayer from '@/components/spatial/dream.PixiPhysicsLayer';
+import { LAYER_HOME, LAYER_PROFILE } from '@/lib/navigation/NavStateBuffer';
+import { SpatialNavigationEngine } from '@/lib/navigation/SpatialNavigationEngine';
+import { WidgetBindingType, WidgetInstanceRecord, WidgetPresentation, WidgetVisibility } from '@/lib/navigation/WidgetInstanceMemory';
+import { Home } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface EnhancedSpatialShellProps {
   userId: string;

@@ -19,13 +19,13 @@
  * ARCHITECTURE.md §3 — Logic layer (lib/connectors) handles provider calls.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServiceClient } from '@/lib/supabase/server';
+import type { ReconcileResult } from '@/lib/connectors/reconcile';
 import { reconcileConnector } from '@/lib/connectors/reconcile';
 import { DISPATCH_SUPPORTED_PROVIDERS } from '@/lib/connectors/syncDispatch';
 import { isCronAuthorised } from '@/lib/connectors/webhookVerification';
-import type { ReconcileResult } from '@/lib/connectors/reconcile';
+import { createServiceClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 const DEFAULT_BATCH_SIZE = 50;
 const MAX_BATCH_SIZE = 100;

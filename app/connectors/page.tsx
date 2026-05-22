@@ -1,10 +1,10 @@
 // SURFACE: dreamsurface.Connectors  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Plug } from 'lucide-react';
-import ConnectorsClient from './dream.ConnectorsClient';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
+import ConnectorsClient from './dream.ConnectorsClient';
 
 export const metadata = { title: 'System Integrations – Dreamengin', description: 'Connect and configure your system integrations.' };
 

@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { SUPABASE_CONFIG, getServerSiteOrigin, getSupabaseAuthCallbackUrl } from "@/lib/supabase/config";
+import { NextResponse } from "next/server";
 
 /**
  * GET /api/setup/google-oauth

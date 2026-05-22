@@ -34,13 +34,13 @@
  * only bridge — there is no cycle.
  */
 
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
+import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import {
-  ENGIN_KEYS,
-  findWorkflows,
-  type EnginKey,
+    ENGIN_KEYS,
+    findWorkflows,
+    type EnginKey,
 } from '@/lib/runtime/enginWorkflowRegistry';
 
 // ── Engin key normaliser ───────────────────────────────────────────────────────

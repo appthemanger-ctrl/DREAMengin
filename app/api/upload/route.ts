@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 import { gunzipSync, gzipSync } from 'zlib';
 
-import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const MAX_PAYLOAD_BYTES = 2_000_000;
 

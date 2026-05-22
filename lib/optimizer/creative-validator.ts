@@ -4,9 +4,9 @@
  */
 
 import type {
-  CreativeOption,
-  CreativeValidationResult,
-  HardFailureReason,
+    CreativeOption,
+    CreativeValidationResult,
+    HardFailureReason,
 } from './types';
 
 /**

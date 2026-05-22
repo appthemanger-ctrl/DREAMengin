@@ -7,11 +7,11 @@
  * pickers. Lives at /engines/portfolio/optimize.
  */
 
-import { useState } from 'react';
-import { TrendingUp, Activity, ShieldCheck, Cpu, Loader2 } from 'lucide-react';
 import QuantumCircuitCanvas, {
-  type QuantumMeasurementResult,
+    type QuantumMeasurementResult,
 } from '@/engins/dream.QuantumCircuitCanvas';
+import { Activity, Cpu, Loader2, ShieldCheck, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
 
 type Algorithm = 'vqe' | 'qaoa';
 type Backend   = 'local_simulator' | 'ibm_quantum';

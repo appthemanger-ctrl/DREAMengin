@@ -15,7 +15,7 @@
  * ARCHITECTURE.md §3 — Logic layer (lib/)
  */
 
-import type { UnifiedFeedItem, FeedItemMedia } from '@/types/connector';
+import type { FeedItemMedia, UnifiedFeedItem } from '@/types/connector';
 
 // ── Mastodon ──────────────────────────────────────────────────────────────
 
@@ -219,7 +219,6 @@ interface RedditPost {
 export function normaliseReddit(post: RedditPost): UnifiedFeedItem {
   const d = post.data;
   const handle = d.author ?? 'unknown';
-  const sub = d.subreddit_name_prefixed ?? 'r/unknown';
 
   const media: FeedItemMedia[] = [];
   if (d.thumbnail && d.thumbnail !== 'self' && d.thumbnail !== 'nsfw' && d.thumbnail !== 'default') {

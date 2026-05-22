@@ -25,8 +25,8 @@
  * docs/dreamdm_messaging_phase2.md §3 — useDreamSearch
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

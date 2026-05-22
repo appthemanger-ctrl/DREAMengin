@@ -18,8 +18,8 @@
  * always receives a correctly-sized box and needs no internal inset clipping.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
+import React, { useCallback, useEffect, useState } from 'react';
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2.5;

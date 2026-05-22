@@ -1,8 +1,8 @@
-import type { Database } from '@/types/supabase';
+import { normalizeShopListing, validateShopListing } from '@/lib/shop/listings';
 import { createServerClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { validateShopListing, normalizeShopListing } from '@/lib/shop/listings';
 
 // GET - Fetch merch items
 export async function GET(req: NextRequest ): Promise<Response> {

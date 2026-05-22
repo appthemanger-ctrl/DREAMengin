@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 
 export interface NodeItem {
   id: string;
@@ -28,7 +28,6 @@ export function NodeCluster({
   className,
   layout = 'grid',
   showConnections = true,
-  interactive = true,
 }: NodeClusterProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -102,7 +101,7 @@ export function NodeCluster({
       {/* Connection lines */}
       {showConnections && (
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-          {nodes.map((node, i: number) => {
+          {nodes.map((node) => {
             const pos = nodePositions.get(node.id);
             const centerX = containerRef.current?.clientWidth ? containerRef.current.clientWidth / 2 : 0;
             const centerY = containerRef.current?.clientHeight ? containerRef.current.clientHeight / 2 : 0;

@@ -6,8 +6,8 @@
 
 'use client';
 
+import { getTierDescription, getTierDisplayName } from '@/lib/activity/scoring';
 import { ActivityTier } from '@/lib/activity/types';
-import { getTierDisplayName, getTierDescription } from '@/lib/activity/scoring';
 
 interface TierBadgeProps {
   tier: ActivityTier;

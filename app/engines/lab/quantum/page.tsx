@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.EnginesLabQuantum  (framework-mandated basename: page.tsx)
+import QuantumPanel from '@/components/engines/lab/panels/dream.panel.QuantumPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import QuantumPanel from '@/components/engines/lab/panels/dream.panel.QuantumPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Quantum Circuit – LabEngin', description: 'Design and simulate quantum circuits.' };

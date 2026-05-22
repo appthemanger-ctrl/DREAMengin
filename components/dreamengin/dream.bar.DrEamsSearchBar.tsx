@@ -29,17 +29,17 @@
 
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowRight, MessageCircle, Search, Sparkles, X } from 'lucide-react';
 import {
-  buildDreamDMUrl,
-  buildDrEamsRequest,
-  matchNavSuggestions,
-  parseDrEamsReply,
-  truncatePreview,
-  type NavSuggestion,
+    buildDreamDMUrl,
+    buildDrEamsRequest,
+    matchNavSuggestions,
+    parseDrEamsReply,
+    truncatePreview,
+    type NavSuggestion,
 } from '@/lib/dreamengin/drEamsSearch';
+import { ArrowRight, MessageCircle, Search, Sparkles, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Sub-components

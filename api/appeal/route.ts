@@ -6,13 +6,13 @@
 // - Notifies Dr. Eams bridge so users see "under review" status (req 74, 75)
 // - Every appeal entry carries policy_version for traceability (req 3, 18)
 
-import { NextRequest, NextResponse } from 'next/server';
+import { writeAuditLog } from '@/lib/ai/audit';
+import { BOOGIE_POLICY_VERSION, RULE_CODES } from '@/lib/ai/boogie-policy';
+import { AppealRequestSchema } from '@/lib/ai/schemas';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { AppealRequestSchema } from '@/lib/ai/schemas';
-import { BOOGIE_POLICY_VERSION, RULE_CODES } from '@/lib/ai/boogie-policy';
-import { writeAuditLog } from '@/lib/ai/audit';
 
 
 export async function POST(req: NextRequest ): Promise<Response> {

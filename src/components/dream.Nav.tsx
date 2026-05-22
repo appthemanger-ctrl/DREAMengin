@@ -1,8 +1,8 @@
 'use client'
-import Link from 'next/link'
-import Image from 'next/image'
-import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useState } from 'react'
 
 const links = [
   { href: '/home',        label: 'Home' },

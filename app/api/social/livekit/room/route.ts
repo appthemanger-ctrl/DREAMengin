@@ -6,9 +6,9 @@
  * so callers can treat "no room" as zero participants rather than an error.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
 import type { LiveKitRoomInfo } from '@/lib/social/livekit';
+import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();

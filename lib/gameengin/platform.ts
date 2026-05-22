@@ -29,12 +29,12 @@
  *      running. It is the OS layer; cartridges are the apps.
  */
 
-import type { Scene, Camera } from '@babylonjs/core';
-import { EliteGameEngine, type FrameTelemetry, type PerformanceBudget, type QualityTier } from './core';
+import type { Camera, Scene } from '@babylonjs/core';
 import { AIDirector } from './ai-director';
-import { PostFXManager } from './post-fx';
 import type { GameCartridge, GameEngineAPI } from './cartridge';
 import { GRAVITY_VALUES } from './cartridge';
+import { EliteGameEngine, type FrameTelemetry, type PerformanceBudget, type QualityTier } from './core';
+import { PostFXManager } from './post-fx';
 
 // ── Capability detection ─────────────────────────────────────────────────────
 
@@ -390,32 +390,32 @@ export class GameEnginPlatform {
           return entry ? entry.data : null;
         },
         list: async () => [],
-        erase: async (key: string) => {},
+        erase: async () => {},
         autoSave: async () => {},
       },
 
       achievements: {
         unlock: async (id: string) => { console.log(`[Platform] Achievement unlocked: ${id}`); },
-        progress: async (id: string, current: number, target: number) => {},
+        progress: async () => {},
         getAll: async () => [],
       },
 
       audio: {
-        play: (soundId: string) => {},
-        stop: (soundId: string) => {},
+        play: () => {},
+        stop: () => {},
       },
 
       haptics: {
-        vibrate: (pattern: number | number[]) => {},
+        vibrate: () => {},
       },
 
       assets: {
-        load: async (assets: string[]) => ({}),
+        load: async () => ({}),
       },
 
       network: {
-        send: (type: string, payload: unknown) => {},
-        onMessage: (type: string, cb: (payload: any) => void) => () => {},
+        send: () => {},
+        onMessage: () => () => {},
       },
       
       loop: {
@@ -462,11 +462,11 @@ export class GameEnginPlatform {
       
       pool: {
         acquire: <T,>(factory: () => T) => factory(),
-        release: (obj: any) => { /* no-op default */ },
+        release: () => { /* no-op default */ },
       },
       
       telemetry: {
-        reportFrame: (dtMs: number) => { /* engine drives telemetry */ },
+        reportFrame: () => { /* engine drives telemetry */ },
       },
     } as unknown as GameEngineAPI;
   }

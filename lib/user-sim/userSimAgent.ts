@@ -11,19 +11,19 @@
 // pausing unpredictably) — mock Math.random in tests when you need reproducibility.
 // No network calls, no DB access.
 
-import { v4 as uuidv4 } from 'uuid';
 import type {
-  Persona,
-  PersonaType,
-  PerceptionFrame,
-  BehaviorSignals,
-  AgentAction,
-  AuditFinding,
-  FindingSeverity,
-  SimStep,
-  SimJourneyResult,
-  JourneyOutcome,
+    AgentAction,
+    AuditFinding,
+    BehaviorSignals,
+    FindingSeverity,
+    JourneyOutcome,
+    PerceptionFrame,
+    Persona,
+    PersonaType,
+    SimJourneyResult,
+    SimStep,
 } from '@/types/user-sim';
+import { v4 as uuidv4 } from 'uuid';
 
 // ============================================================================
 // 1. PERSONA BRAIN

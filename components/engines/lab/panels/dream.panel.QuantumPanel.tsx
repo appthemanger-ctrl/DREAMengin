@@ -7,8 +7,8 @@
  * Lives at /engines/lab/quantum.
  */
 
-import { useState, useCallback } from 'react';
-import { Zap, RotateCcw, Play, Info } from 'lucide-react';
+import { Info, Play, RotateCcw, Zap } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 type GateType = 'H' | 'X' | 'Y' | 'Z' | 'CNOT' | 'T' | 'S' | 'M';
 

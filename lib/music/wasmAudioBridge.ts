@@ -106,7 +106,7 @@ async function loadWasmModule(): Promise<EnginWasmExports | null> {
       },
     });
 
-    cachedExports = instance.exports as unknown as EnginWasmExports;
+    cachedExports = instance.exports as any as EnginWasmExports;
     return cachedExports;
   } catch {
     return null;

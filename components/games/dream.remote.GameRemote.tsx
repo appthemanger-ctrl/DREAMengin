@@ -8,5 +8,4 @@
  * available for legacy Daydream / Side-B remote workflows via this export.
  */
 
-export { type GameInputAction } from '@/components/games/dream.remote.LegacyGameRemote';
-export { default } from '@/components/games/dream.remote.LegacyGameRemote';
+export { default, type GameInputAction } from '@/components/games/dream.remote.LegacyGameRemote';

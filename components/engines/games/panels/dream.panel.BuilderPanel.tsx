@@ -7,9 +7,9 @@
  * Lives at /engines/games/builder.
  */
 
-import { useState, useCallback, type KeyboardEvent } from 'react';
-import { Save, Trash2, Info, Sparkles } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { Info, Save, Sparkles, Trash2 } from 'lucide-react';
+import { useCallback, useState, type KeyboardEvent } from 'react';
 
 const GRID_SIZE = 32;
 

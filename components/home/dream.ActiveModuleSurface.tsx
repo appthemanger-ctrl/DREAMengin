@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { X } from 'lucide-react';
-import { saveArtifact, loadArtifacts } from '@/lib/artifactStore';
 import {
-  loadActiveModules,
-  removeActiveModule,
-  saveActiveModule,
-  saveActiveModules,
+    loadActiveModules,
+    removeActiveModule,
+    saveActiveModule,
+    saveActiveModules,
 } from '@/lib/activeModulesStore';
-import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+import { loadArtifacts, saveArtifact } from '@/lib/artifactStore';
 import { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';
 import { useDreamWindowActions } from '@/lib/dream-window/useDreamWindowActions';
+import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 import type {
-  ActiveModuleInstance,
-  DreamArtifact,
-  DreamArtifactDragPayload,
+    ActiveModuleInstance,
+    DreamArtifact,
+    DreamArtifactDragPayload,
 } from '@/types/dreamArtifact';
+import { X } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface ActiveModuleSurfaceProps {
   accountId?: string | null;

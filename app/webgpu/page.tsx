@@ -1,6 +1,6 @@
 // SURFACE: dreamsurface.Webgpu  (framework-mandated basename: page.tsx)
-import type { Metadata } from 'next';
 import WebGPUShowcase from '@/components/webgpu/dream.WebGPUShowcase';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'WebGPU — DREAMengin',

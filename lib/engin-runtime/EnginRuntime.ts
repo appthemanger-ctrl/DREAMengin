@@ -17,13 +17,13 @@
  */
 
 import { createBaseState, patchBaseState, type EnginBaseState, type EnginLifecycle } from './EnginBaseState';
+import {
+    DEFAULT_USER_CAPABILITIES,
+    gateCapability,
+    type EnginCapabilityMap,
+} from './EnginCapabilities';
 import { createEnginEventBus, type EnginEventBus, type EnginLifecycleEvents } from './EnginEventBus';
 import { LocalStorageAdapter, type EnginIOAdapter } from './EnginIOAdapter';
-import {
-  DEFAULT_USER_CAPABILITIES,
-  gateCapability,
-  type EnginCapabilityMap,
-} from './EnginCapabilities';
 import type { EnginAction, EnginRuleSetContract } from './EnginRuleSetContract';
 
 // ─── Runtime options ──────────────────────────────────────────────────────────

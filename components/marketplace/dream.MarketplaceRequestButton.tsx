@@ -10,8 +10,8 @@
  * Phase 8 §E:   Point 46 — contact/request flow routes to real system action
  */
 
+import { CheckCircle, Loader2, Send } from 'lucide-react';
 import { useState } from 'react';
-import { Loader2, Send, CheckCircle } from 'lucide-react';
 
 type Props = {
   itemId:    string;

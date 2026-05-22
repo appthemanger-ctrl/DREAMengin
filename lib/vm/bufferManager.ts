@@ -5,8 +5,8 @@
  * Enforces resource quotas and tracks memory usage.
  */
 
+import type { BufferHandle, GPUBufferDescriptor, VMPerformanceCounters, VMResourceQuotas } from './types';
 import { GPUBufferUsageFlags, VMErrorCode } from './types';
-import type { BufferHandle, GPUBufferDescriptor, VMResourceQuotas, VMPerformanceCounters } from './types';
 
 export class BufferManager {
   private readonly buffers = new Map<BufferHandle, GPUBufferDescriptor>();

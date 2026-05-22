@@ -3,11 +3,11 @@
 // Resolves feed data for dream instances
 // =====================================================
 
-import { NextRequest, NextResponse, connection } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { resolveFeedHost } from '@/lib/widgets/feed-resolver';
-import { HostKind, type FeedHostConfig, type DreamDefinition, type DreamInstance } from '@/types/widget-system-v2';
+import { HostKind, type DreamDefinition, type DreamInstance, type FeedHostConfig } from '@/types/widget-system-v2';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse, connection } from 'next/server';
 
 // Type for joined query result
 type DreamInstanceWithDefinition = DreamInstance & {

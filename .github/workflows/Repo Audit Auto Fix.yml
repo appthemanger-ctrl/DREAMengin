@@ -1,0 +1,45 @@
+name: Repo Audit Auto Fix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit-fix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install deps
+        run: |
+          npm install
+          npm install -D ts-morph glob
+
+      - name: Run targeted audit fixes
+        run: node scripts/fix-audit.js
+
+      - name: ESLint autofix
+        run: |
+          npx eslint . --ext .ts,.tsx --fix || true
+
+      - name: Typecheck
+        run: |
+          npx tsc --noEmit || true
+
+      - name: Build
+        run: |
+          npm run build || true
+
+      - name: Commit fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "fix: automated audit repairs"

@@ -1,8 +1,8 @@
 'use client';
 
-import { Eye, EyeOff, RotateCcw } from 'lucide-react';
-import { useDreamLayout } from '@/hooks/useDreamLayout';
 import DraggableDream from '@/components/dreams/dream.DraggableDream';
+import { useDreamLayout } from '@/hooks/useDreamLayout';
+import { Eye, EyeOff, RotateCcw } from 'lucide-react';
 
 const DEFAULT_DREAMS = [
   { id: 'home-feed', name: 'HomeDream Feed', surface: 'home' as const },

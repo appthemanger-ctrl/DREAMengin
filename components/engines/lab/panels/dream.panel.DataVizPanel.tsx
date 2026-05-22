@@ -7,8 +7,8 @@
  * Lives at /engines/lab/data.
  */
 
+import { BarChart2, Download, Layers, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import { BarChart2, TrendingUp, Download, RefreshCw, Layers } from 'lucide-react';
 
 type ChartType = 'bar' | 'line' | 'scatter';
 

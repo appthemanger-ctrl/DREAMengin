@@ -26,8 +26,8 @@
  *   children   — animate children instead of the root    (default: true)
  */
 
-import { useEffect, useRef } from 'react';
 import { getGsap } from '@/lib/gsap/gsap';
+import { useEffect, useRef } from 'react';
 
 export interface ScrollRevealOptions {
   /** Entry direction. 'up' slides in from below (most common). */
