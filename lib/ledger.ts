@@ -270,9 +270,12 @@ export function storeAsset(
     id?: string;
   }
 ): string {
+  const idSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID().replace(/-/g, '').slice(0, 7)
+    : Date.now().toString(36);
   const id =
     fields.id ??
-    `asset_${fields.type}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    `asset_${fields.type}_${Date.now()}_${idSuffix}`;
   const entry: AssetEntry = {
     kind: 'asset',
     id,

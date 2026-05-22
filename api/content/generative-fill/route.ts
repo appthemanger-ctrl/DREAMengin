@@ -121,7 +121,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       if (!createRes.ok) {
         const err = await createRes.json().catch(() => ({}));
         return NextResponse.json(
-          { error: 'Replicate prediction failed to start', detail: (err as any).detail ?? createRes.statusText },
+          { error: 'Replicate prediction failed to start', detail: (err as Record<string, unknown>).detail ?? createRes.statusText },
           { status: createRes.status },
         );
       }

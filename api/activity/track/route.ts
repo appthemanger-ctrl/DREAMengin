@@ -105,7 +105,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
 
     // Return response
     const response: TrackActivityResponse = {
-      activity_point: activityResult.data as any,
+      activity_point: activityResult.data as Record<string, unknown> | null,
       verification,
       points_earned: points,
     };

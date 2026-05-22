@@ -3,6 +3,8 @@
 import { AlertTriangle, Loader2, ShieldAlert, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+type TimeoutHandle = ReturnType<typeof setTimeout>;
+
 type ModalType = 'delete-data' | 'delete-account' | null;
 
 /** Premium in-app confirmation modal — replaces browser `window.confirm/prompt` */
@@ -18,6 +20,13 @@ function ConfirmModal({
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const redirectTimerRef = useRef<TimeoutHandle | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current !== null) clearTimeout(redirectTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (type) {
@@ -52,7 +61,7 @@ function ConfirmModal({
       if (json.ok) {
         setDone(true);
         if (isAccount) {
-          setTimeout(() => { window.location.href = '/'; }, 1800);
+          redirectTimerRef.current = setTimeout(() => { window.location.href = '/'; }, 1800);
         }
       } else {
         setError(json.error?.message ?? 'Something went wrong. Please try again.');

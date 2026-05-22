@@ -114,7 +114,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           return NextResponse.json(
-            { error: 'ElevenLabs clone failed', detail: (err as any).detail ?? res.statusText },
+            { error: 'ElevenLabs clone failed', detail: (err as Record<string, unknown>).detail ?? res.statusText },
             { status: res.status },
           );
         }
@@ -142,7 +142,10 @@ export async function POST(req: NextRequest ): Promise<Response> {
     }
 
     // Dev stub — no API key configured
-    const profileId = `voice_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const idSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID().replace(/-/g, '').slice(0, 8)
+      : Date.now().toString(36);
+    const profileId = `voice_${Date.now()}_${idSuffix}`;
     const now = new Date().toISOString();
     await db
       .from('voice_profiles')
@@ -190,7 +193,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       .catch(() => ({ data: [], error: null })) as { data: unknown[]; error: unknown };
 
     const profiles = (Array.isArray(result.data) ? result.data : []).map((row) => {
-      const r = row as any;
+      const r = row as Record<string, unknown>;
       return {
         id: String(r.id ?? ''),
         name: String(r.name ?? ''),
@@ -257,7 +260,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         return NextResponse.json(
-          { error: 'ElevenLabs TTS failed', detail: (err as any).detail ?? res.statusText },
+          { error: 'ElevenLabs TTS failed', detail: (err as Record<string, unknown>).detail ?? res.statusText },
           { status: res.status },
         );
       }

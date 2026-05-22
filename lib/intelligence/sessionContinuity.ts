@@ -229,8 +229,11 @@ export class SessionContinuity {
 
   constructor(backend?: SessionStorageBackend) {
     this.backend = backend ?? null;
+    const suffix = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID().replace(/-/g, '').slice(0, 8)
+      : Array.from({ length: 8 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
     this.currentSession = {
-      id: `session:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
+      id: `session:${Date.now()}:${suffix}`,
       startedAt: Date.now(),
       endedAt: Date.now(),
       activations: [],

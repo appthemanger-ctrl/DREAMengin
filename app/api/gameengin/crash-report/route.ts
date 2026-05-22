@@ -96,7 +96,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         ? (safe.error as { name?: string; message?: string; stack?: string })
         : undefined,
       context: typeof safe.context === 'object' && safe.context !== null
-        ? (safe.context as any)
+        ? (safe.context as Record<string, unknown>)
         : undefined,
     });
     return NextResponse.json({ ok: true, stored: filePath.split(/[\\/]/).slice(-3).join('/') }, { status: 201 });

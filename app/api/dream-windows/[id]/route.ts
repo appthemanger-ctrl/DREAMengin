@@ -185,7 +185,7 @@ export async function PATCH(
     // Merge existing config with any config update to get the effective config
     const effectiveConfig = {
       ...(existing.config ?? {}),
-      ...(update.config ? (update.config as any) : {}),
+      ...(update.config ? (update.config as Record<string, unknown>) : {}),
     };
 
     // Build a minimal DreamWindowInstance for layer validation

@@ -111,7 +111,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
       db,
       account.user_id as string,
       account.provider as string,
-      (account.token_blob ?? {}) as any,
+      (account.token_blob ?? {}) as Record<string, unknown>,
     );
     results.push(result);
   }

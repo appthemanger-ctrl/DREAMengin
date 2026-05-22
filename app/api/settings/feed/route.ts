@@ -39,7 +39,7 @@ export async function GET( ): Promise<NextResponse> {
   }
 
    
-  const prefs = ((data as any)?.feed_preferences as any) ?? {};
+  const prefs = ((data as Record<string, unknown>)?.feed_preferences as Record<string, unknown>) ?? {};
   return NextResponse.json({ ok: true, preferences: prefs });
 }
 
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     'sortOrder',
   ]);
   const safe: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(body as any)) {
+  for (const [k, v] of Object.entries(body as Record<string, unknown>)) {
     if (allowed.has(k)) safe[k] = v;
   }
 
