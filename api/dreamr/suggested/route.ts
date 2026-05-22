@@ -71,12 +71,12 @@ export async function GET(req: NextRequest ): Promise<Response> {
       .order('created_at', { ascending: false })
       .limit(60);
 
-    const visible = filterByCloseFriends((rows ?? []) as any[] as any, user.id, circle);
+    const visible = filterByCloseFriends((rows ?? []) as Record<string, unknown>[], user.id, circle);
 
     const posts: ScoredPost[] = visible.map((r: any) => ({
       id:             r.id,
       content:        r.content ?? '',
-      media_url:      getPrimaryPostMediaUrl(r as any),
+      media_url:      getPrimaryPostMediaUrl(r as Record<string, unknown>),
       created_at:     r.created_at,
       views_count:    r.view_count     ?? 0,
       likes_count:    r.likes_count    ?? 0,
@@ -107,7 +107,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
       .order('created_at', { ascending: false })
       .limit(200);
 
-    const visible = filterByCloseFriends((rows ?? []) as any[] as any, user.id, circle);
+    const visible = filterByCloseFriends((rows ?? []) as Record<string, unknown>[], user.id, circle);
 
     if (visible.length === 0) {
       return NextResponse.json({ suggestions: [] });
@@ -134,7 +134,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
     const SCORE_PER_CREATOR_CAP = 5;
     const scoredCount = new Map<string, number>();
 
-    for (const row of visible as any[]) {
+    for (const row of visible as Record<string, unknown>[]) {
       const uid = row.user_id;
       const p   = row.profiles ?? {};
 
@@ -162,7 +162,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
         const scored = scoreDreamRPost({
           id:             row.id,
           content:        row.content ?? '',
-          media_url:      getPrimaryPostMediaUrl(row as any),
+          media_url:      getPrimaryPostMediaUrl(row as Record<string, unknown>),
           created_at:     row.created_at,
           views_count:    row.view_count     ?? 0,
           likes_count:    row.likes_count    ?? 0,

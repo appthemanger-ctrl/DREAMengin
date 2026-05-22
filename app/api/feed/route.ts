@@ -85,7 +85,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     if (items) {
       for (const item of items) {
-        const p = (item.payload ?? {}) as any;
+        const p = (item.payload ?? {}) as Record<string, unknown>;
         entries.push({
           id:           item.id,
           source:       'connector',
@@ -137,8 +137,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (posts) {
       for (const post of posts) {
 
-        const p = post as any;
-        const profile = (p.profiles ?? {}) as any;
+        const p = post as Record<string, unknown>;
+        const profile = (p.profiles ?? {}) as Record<string, unknown>;
 
         // Phase 9: Get view count for this post
         const { count: viewCount } = await (supabase as SupabaseClient)

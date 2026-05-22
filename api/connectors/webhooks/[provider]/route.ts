@@ -225,7 +225,7 @@ export async function POST(
       .eq('status', 'connected');
 
     const matching = (accounts ?? []).filter((a: { token_blob: Record<string, unknown> }) => {
-      const blob = a.token_blob as any;
+      const blob = a.token_blob as Record<string, unknown>;
       return blob.channel_id === entry.channelId || blob.channelId === entry.channelId;
     });
 
@@ -303,7 +303,7 @@ export async function POST(
         .eq('status', 'connected');
 
       const matching = (accounts ?? []).filter((a: { token_blob: Record<string, unknown> }) => {
-        const blob = a.token_blob as any;
+        const blob = a.token_blob as Record<string, unknown>;
         return (
           String(blob.instagram_user_id ?? '') === instagramAccountId ||
           String(blob.user_id ?? '') === instagramAccountId ||

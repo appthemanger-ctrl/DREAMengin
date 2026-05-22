@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * useDaydreamPersistence — saves AND restores full workspace state for a Daydream Engin.
  *

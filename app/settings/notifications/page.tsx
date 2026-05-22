@@ -3,7 +3,7 @@
 
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { Bell, Check, DollarSign, Heart, Loader2, MessageSquare, Sparkles, Users } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 
 const STORAGE_KEY = 'de-notification-settings';
@@ -32,6 +32,13 @@ export default function NotificationSettingsPage( ){
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current !== null) clearTimeout(savedTimerRef.current);
+    };
+  }, []);
 
   // Load settings on mount — try DB first, fall back to localStorage cache
   useEffect(() => {
@@ -39,7 +46,9 @@ export default function NotificationSettingsPage( ){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setSettings((p) => ({ ...p, ...(JSON.parse(raw) as Partial<NotificationSettings>) }));
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.warn('[NotificationSettings] Failed to load from localStorage:', err);
+    }
 
     // Then fetch real stored settings from Supabase
     fetch('/api/settings/notifications')
@@ -47,10 +56,14 @@ export default function NotificationSettingsPage( ){
       .then((data: { ok: boolean; notifications: Partial<NotificationSettings> | null }) => {
         if (data.ok && data.notifications) {
           setSettings((p) => ({ ...p, ...data.notifications }));
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...data.notifications })); } catch { /* ignore */ }
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...data.notifications })); } catch (err) {
+            console.warn('[NotificationSettings] Failed to persist to localStorage:', err);
+          }
         }
       })
-      .catch(() => { /* keep localStorage values */ });
+      .catch((err) => {
+        console.warn('[NotificationSettings] Failed to fetch from server, using localStorage values:', err);
+      });
   }, []);
 
   const toggleSetting = (key: string) => {
@@ -67,14 +80,21 @@ export default function NotificationSettingsPage( ){
         body: JSON.stringify(settings),
       });
       // Update localStorage cache
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch (err) {
+        console.warn('[NotificationSettings] Failed to persist to localStorage:', err);
+      }
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch {
-      // Fallback to localStorage if network fails
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch { /* ignore */ }
+      if (savedTimerRef.current !== null) clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      // Network failed — fall back to localStorage only
+      console.warn('[NotificationSettings] Save to server failed, falling back to localStorage:', err);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch (lsErr) {
+        console.warn('[NotificationSettings] localStorage fallback also failed:', lsErr);
+      }
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      if (savedTimerRef.current !== null) clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
     } finally {
       setSaving(false);
     }

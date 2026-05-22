@@ -708,11 +708,11 @@ export async function POST(req: NextRequest): Promise<NextResponse | Response> {
     return NextResponse.json({ error: 'Body must be valid JSON.' }, { status: 400 });
   }
 
-  if (!body || typeof body !== 'object' || typeof (body as any).prompt !== 'string') {
+  if (!body || typeof body !== 'object' || typeof (body as Record<string, unknown>).prompt !== 'string') {
     return NextResponse.json({ error: 'Missing required field: prompt (string).' }, { status: 400 });
   }
 
-  const prompt = ((body as any).prompt as string).trim();
+  const prompt = ((body as Record<string, unknown>).prompt as string).trim();
   if (!prompt) {
     return NextResponse.json({ error: 'Prompt must not be empty.' }, { status: 400 });
   }

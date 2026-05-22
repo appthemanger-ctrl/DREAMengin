@@ -62,7 +62,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => ({})) as any;
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { title = '', content, scheduled_for, platforms = [] } = body;
 
   if (!content || String(content).trim().length === 0) {
@@ -97,7 +97,7 @@ export async function PUT(req: NextRequest ): Promise<Response> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => ({})) as any;
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { id, ...rest } = body;
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
 

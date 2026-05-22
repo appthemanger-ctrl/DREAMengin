@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * useForgeActivity — client-side hook for recording Forge activity pulses.
  *
