@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import { type SkinLayout, type SkinShadow } from '@/lib/ui/skin-engine';
 import { SlidePanel } from './dream.panel.ColorPanel';

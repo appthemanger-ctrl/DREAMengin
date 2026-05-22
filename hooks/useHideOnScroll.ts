@@ -1,7 +1,7 @@
 // hooks/useHideOnScroll.ts
 // iOS-safe scroll direction hook using useRef to avoid stale closures
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface UseHideOnScrollOptions {
   threshold?: number; // Minimum scroll Y before hiding

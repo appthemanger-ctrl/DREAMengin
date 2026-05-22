@@ -27,10 +27,10 @@
  *   // publishes the snapshot automatically when `active` flips to true.
  */
 
-import { useEffect } from 'react';
-import { useSharedEnginChannel } from '@/lib/runtime/useSharedEnginChannel';
 import type { EnginName } from '@/lib/runtime/instanceManager';
+import { useSharedEnginChannel } from '@/lib/runtime/useSharedEnginChannel';
 import type { RuntimeId } from '@/types/module-manifest';
+import { useEffect } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

@@ -1,27 +1,27 @@
 // Index file for navigation module
-export { NavStateBuffer, LAYER_HOME, LAYER_CUBE, LAYER_PROFILE, LAYER_WIDGET, LAYER_DREAM, PROFILE_DEPTH, FULLSCREEN_DEPTH } from './NavStateBuffer';
-export { ReturnStack } from './ReturnStack';
-export { PointerEventCapture } from './PointerEventCapture';
-export { GestureFrameComputer } from './GestureFrameComputer';
-export { GestureIntentResolver, GestureIntent, PINCH_IN_THRESHOLD, PINCH_OUT_THRESHOLD, SWIPE_THRESHOLD, HOLD_THRESHOLD_MS } from './GestureIntentResolver';
-export { TransformSolver } from './TransformSolver';
-export { WidgetInstanceMemory, WidgetPresentation, WidgetVisibility, WidgetBindingType } from './WidgetInstanceMemory';
-export { SpatialNavigationEngine } from './SpatialNavigationEngine';
-export { useNavigation } from './useNavigation';
-export { AnchorStateBuffer, MODE_HOME, MODE_PROFILE, MODE_SHRUNK, HOLD_IDLE, HOLD_HOLDING, HOLD_FIRED } from './AnchorStateBuffer';
+export { AnchorStateBuffer, HOLD_FIRED, HOLD_HOLDING, HOLD_IDLE, MODE_HOME, MODE_PROFILE, MODE_SHRUNK } from './AnchorStateBuffer';
 export { AnchorWidgetStorage } from './AnchorWidgetStorage';
+export { GestureFrameComputer } from './GestureFrameComputer';
+export { GestureIntent, GestureIntentResolver, HOLD_THRESHOLD_MS, PINCH_IN_THRESHOLD, PINCH_OUT_THRESHOLD, SWIPE_THRESHOLD } from './GestureIntentResolver';
+export { FULLSCREEN_DEPTH, LAYER_CUBE, LAYER_DREAM, LAYER_HOME, LAYER_PROFILE, LAYER_WIDGET, NavStateBuffer, PROFILE_DEPTH } from './NavStateBuffer';
+export { PointerEventCapture } from './PointerEventCapture';
+export { ReturnStack } from './ReturnStack';
+export { SpatialNavigationEngine } from './SpatialNavigationEngine';
+export { TransformSolver } from './TransformSolver';
+export { useNavigation } from './useNavigation';
+export { WidgetBindingType, WidgetInstanceMemory, WidgetPresentation, WidgetVisibility } from './WidgetInstanceMemory';
 
-export type { PointerState } from './PointerEventCapture';
+export type { AnchorWidgetState, HomeSlotMapping, PriorityWidget } from './AnchorWidgetStorage';
 export type { GestureFrame } from './GestureFrameComputer';
 export type { ResolvedIntent } from './GestureIntentResolver';
+export type { PointerState } from './PointerEventCapture';
+export type { EngineConfig, EngineEventCallback, EngineEventType } from './SpatialNavigationEngine';
 export type { TransformOutput, ViewportMetrics } from './TransformSolver';
-export type { WidgetTransformState, WidgetInstanceRecord } from './WidgetInstanceMemory';
-export type { EngineConfig, EngineEventType, EngineEventCallback } from './SpatialNavigationEngine';
-export type { UseNavigationOptions, NavigationState } from './useNavigation';
-export type { HomeSlotMapping, PriorityWidget, AnchorWidgetState } from './AnchorWidgetStorage';
+export type { NavigationState, UseNavigationOptions } from './useNavigation';
+export type { WidgetInstanceRecord, WidgetTransformState } from './WidgetInstanceMemory';
 
 // StructureLedger — precomputed conserved navigation structure
-export { matchState, resolveTransition, ledgerStats } from './StructureLedger';
+export { ledgerStats, matchState, resolveTransition } from './StructureLedger';
 
 // Quaternion Math (Section 3)
 export * from './quaternion';

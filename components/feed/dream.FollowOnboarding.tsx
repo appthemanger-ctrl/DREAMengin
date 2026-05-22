@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import { Check, X } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 export const FOLLOW_OPTIONS = [
   { id: 'all',       emoji: '📡', label: 'Everything',    desc: 'Every post, real time'               },

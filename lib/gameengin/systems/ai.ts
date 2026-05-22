@@ -14,8 +14,8 @@
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  BehaviorTreeEngine,
-  WorkerJobSystem,
+    BehaviorTreeEngine,
+    WorkerJobSystem
 } from '../power-systems';
 
 /** Alias: BehaviorTreeSystem → BehaviorTreeEngine. */
@@ -24,10 +24,6 @@ export { BehaviorTreeEngine as BehaviorTreeSystem } from '../power-systems';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  BTStatus,
-  BTContext,
-  BTNode,
-  JobPriority,
-  Job,
-  JobResult,
+    BTContext,
+    BTNode, BTStatus, Job, JobPriority, JobResult
 } from '../power-systems';

@@ -9,36 +9,23 @@
  */
 
 // Types
+export { DEFAULT_CHAIN_ID, SUPPORTED_CHAINS, Web3Error } from './types';
 export type {
-  WalletProvider,
-  WalletAccount,
-  WalletConnectionState,
-  EngagementPayload,
-  EngagementStats,
-  IpfsUploadResult,
-  IpfsContent,
-  ChainConfig,
+    ChainConfig, EngagementPayload,
+    EngagementStats, IpfsContent, IpfsUploadResult, WalletAccount,
+    WalletConnectionState, WalletProvider
 } from './types';
-export { Web3Error, SUPPORTED_CHAINS, DEFAULT_CHAIN_ID } from './types';
 
 // Wallet client
 export { Web3Client, web3Client } from './client';
 
 // Engagement
 export {
-  trackEngagement,
-  getEngagementStats,
-  applyOptimisticEngagement,
-  getOptimisticDelta,
-  clearOptimisticDelta,
+    applyOptimisticEngagement, clearOptimisticDelta, getEngagementStats, getOptimisticDelta, trackEngagement
 } from './engagement';
 
 // IPFS
 export {
-  uploadToIpfs,
-  uploadFileToIpfs,
-  getFromIpfs,
-  pinCid,
-  resolveIpfsUrl,
-  isIpfsCid,
+    getFromIpfs, isIpfsCid, pinCid,
+    resolveIpfsUrl, uploadFileToIpfs, uploadToIpfs
 } from './ipfs';

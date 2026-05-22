@@ -17,12 +17,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
-  DEFAULT_DUAL_RUNTIME,
-  setRuntimeWorld,
-  swapDominantRuntime,
-  makeHomeActiveTop,
-  type DualRuntimeState,
-  type RuntimeWorld,
+    DEFAULT_DUAL_RUNTIME,
+    makeHomeActiveTop,
+    setRuntimeWorld,
+    swapDominantRuntime,
+    type DualRuntimeState,
+    type RuntimeWorld,
 } from './dualRuntime';
 
 const STORAGE_KEY = 'de-dual-runtime-state';

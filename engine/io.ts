@@ -1,11 +1,11 @@
 import type {
-  RealtimeChannel,
-  RealtimePostgresInsertPayload,
-  SupabaseClient,
+    RealtimeChannel,
+    RealtimePostgresInsertPayload,
+    SupabaseClient,
 } from '@supabase/supabase-js'
 
 export type {
-  RealtimeChannel,
-  RealtimePostgresInsertPayload,
-  SupabaseClient,
+    RealtimeChannel,
+    RealtimePostgresInsertPayload,
+    SupabaseClient
 }

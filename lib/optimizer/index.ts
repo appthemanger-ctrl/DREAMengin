@@ -6,22 +6,22 @@
 import { ConstraintSolver } from './constraint-solver';
 import { validateCreativeOption } from './creative-validator';
 import type {
-  OptimizerConfig,
-  OptimizationItem,
-  RankedItem,
-  FeedItem,
-  WidgetPriority,
-  SearchResult,
-  Asset,
-  Notification,
-  QueuedAction,
-  Constraint,
-  CreativeOption,
-  CreativeScore,
-  RankedCreativeOption,
-  CreativeOptimizerResult,
-  CreativeContext,
-  RuntimeContext,
+    Asset,
+    Constraint,
+    CreativeContext,
+    CreativeOptimizerResult,
+    CreativeOption,
+    CreativeScore,
+    FeedItem,
+    Notification,
+    OptimizationItem,
+    OptimizerConfig,
+    QueuedAction,
+    RankedCreativeOption,
+    RankedItem,
+    RuntimeContext,
+    SearchResult,
+    WidgetPriority,
 } from './types';
 
 export class DreamOptimizer {
@@ -83,7 +83,6 @@ export class DreamOptimizer {
    */
   optimizeSearch(
     searchResults: SearchResult[],
-    query: string,
     userPermissions: string[]
   ): RankedItem<SearchResult>[] {
     if (!this.config.search_ranking?.enabled) {
@@ -763,5 +762,5 @@ export class DreamOptimizer {
   }
 }
 
-export * from './types';
 export { ConstraintSolver } from './constraint-solver';
+export * from './types';

@@ -10,9 +10,9 @@
  * the public rate limit (50/5 min vs 10/5 min for public posts).
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { Loader2, Search, UserMinus, UserPlus, Users, X } from 'lucide-react';
 import Image from 'next/image';
-import { Users, UserPlus, UserMinus, Search, Loader2, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Friend {
   friend_id: string;

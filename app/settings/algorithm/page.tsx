@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.SettingsAlgorithm  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { Cpu } from 'lucide-react';
 import AlgorithmEngine from '@/components/feed/dream.AlgorithmEngine';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import { createServerClient } from '@/lib/supabase/server';
+import { Cpu } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = {

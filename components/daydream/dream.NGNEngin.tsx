@@ -16,44 +16,53 @@
  * Feature 41.
  */
 
+import { bridgeBuses, createEventBus } from '@/lib/event-bus';
 import {
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  type MouseEvent as ReactMouseEvent,
-  type DragEvent,
-} from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+    addConnection,
+    addPiece,
+    createAssembly,
+    movePiece,
+    removePiece,
+    serializeAssembly,
+    validateAssembly,
+    type EngineAssembly,
+    type PlacedPiece,
+} from '@/lib/forge-ngn/assembly';
 import {
-  Plus, X, Play, Save, Share2, ChevronDown, ChevronRight,
-  Zap, Cpu, Music, Eye, Bot, Gamepad2, Users, Wrench,
-  AlertCircle, CheckCircle2, Boxes,
+    PIECE_CATEGORIES,
+    PIECE_REGISTRY,
+    getPiece,
+    getPiecesByCategory,
+    type PieceCategory,
+    type PieceManifest,
+    type Port,
+} from '@/lib/forge-ngn/piece-registry';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    AlertCircle,
+    Bot,
+    Boxes,
+    CheckCircle2,
+    ChevronDown, ChevronRight,
+    Cpu,
+    Eye,
+    Gamepad2,
+    Music,
+    Play,
+    Plus,
+    Save, Share2,
+    Users, Wrench,
+    X,
+    Zap,
 } from 'lucide-react';
 import {
-  PIECE_REGISTRY,
-  PIECE_CATEGORIES,
-  getPiecesByCategory,
-  getPiece,
-  type PieceManifest,
-  type PieceCategory,
-  type Port,
-} from '@/lib/forge-ngn/piece-registry';
-import {
-  createAssembly,
-  addPiece,
-  removePiece,
-  movePiece,
-  addConnection,
-  removeConnection,
-  serializeAssembly,
-  validateAssembly,
-  isValidAssembly,
-  type EngineAssembly,
-  type PlacedPiece,
-  type Connection,
-} from '@/lib/forge-ngn/assembly';
-import { createEventBus, bridgeBuses } from '@/lib/event-bus';
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type DragEvent,
+    type MouseEvent as ReactMouseEvent,
+} from 'react';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 

@@ -13,22 +13,21 @@
  * AXIOMS.md §3 — Every visible action does something real.
  */
 
-import React, { useState, useEffect } from 'react';
-import { CONNECTOR_REGISTRY } from '@/lib/connectors/connectorRegistry';
-import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
-import ConnectorRow from '@/components/connectors/dream.ConnectorRow';
-import ConnectWidgetPrompt from '@/components/connectors/dream.widget.ConnectWidgetPrompt';
-import AddSliceSheet from '@/components/connectors/dream.AddSliceSheet';
-import PlacementMode from '@/components/connectors/dream.PlacementMode';
-import NoSlotDialog from '@/components/connectors/dream.NoSlotDialog';
-import WidgetShell from '@/components/widgets/dream.widget.WidgetShell';
-import type { WidgetDataState } from '@/components/widgets/dream.widget.WidgetShell';
-import { getWidgetTypeDef } from '@/lib/widgets/widgetRegistry';
-import { getConnectorDef } from '@/lib/connectors/connectorRegistry';
-import { useConnectorInstallFlow } from '@/hooks/useConnectorInstallFlow';
-import type { SlotGrid } from '@/lib/connectors/installFlow';
 import type { FeedSlice } from '@/components/connectors/dream.AddSliceSheet';
+import AddSliceSheet from '@/components/connectors/dream.AddSliceSheet';
+import ConnectorRow from '@/components/connectors/dream.ConnectorRow';
+import NoSlotDialog from '@/components/connectors/dream.NoSlotDialog';
+import PlacementMode from '@/components/connectors/dream.PlacementMode';
+import ConnectWidgetPrompt from '@/components/connectors/dream.widget.ConnectWidgetPrompt';
+import type { WidgetDataState } from '@/components/widgets/dream.widget.WidgetShell';
+import WidgetShell from '@/components/widgets/dream.widget.WidgetShell';
+import { useConnectorInstallFlow } from '@/hooks/useConnectorInstallFlow';
+import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
+import { CONNECTOR_REGISTRY, getConnectorDef } from '@/lib/connectors/connectorRegistry';
+import type { SlotGrid } from '@/lib/connectors/installFlow';
+import { getWidgetTypeDef } from '@/lib/widgets/widgetRegistry';
 import { RefreshCw } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 // Demo initial grid: 6 slots, all empty
 const DEMO_GRID: SlotGrid = { totalSlots: 6, filledSlots: new Set() };

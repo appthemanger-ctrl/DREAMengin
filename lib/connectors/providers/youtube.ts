@@ -15,11 +15,11 @@
  */
 
 import {
-  deduplicateFeedItems,
-  normaliseYouTubePlaylistItem,
-  normaliseYouTubeSearchResult,
-  type YouTubePlaylistItem,
-  type YouTubeSearchItem,
+    deduplicateFeedItems,
+    normaliseYouTubePlaylistItem,
+    normaliseYouTubeSearchResult,
+    type YouTubePlaylistItem,
+    type YouTubeSearchItem,
 } from '@/lib/connectors/normalise';
 import type { UnifiedFeedItem } from '@/types/connector';
 

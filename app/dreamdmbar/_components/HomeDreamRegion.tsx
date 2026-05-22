@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Bell, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import NotificationCenter from '@/components/dream.NotificationCenter';
-import HomeFeed from '@/components/dream.HomeFeed';
+import DreamRSection from '@/app/dreamdmbar/_components/dreamr/dreamsurface.dreamr';
 import BrandLogo from '@/components/dream.BrandLogo';
+import HomeFeed from '@/components/dream.HomeFeed';
+import NotificationCenter from '@/components/dream.NotificationCenter';
+import DraggableDream from '@/components/dreams/dream.DraggableDream';
+import ActiveModuleSurface from '@/components/home/dream.ActiveModuleSurface';
 import DaydreamPulseStrip from '@/components/home/dream.DaydreamPulseStrip';
 import FlagshipEnginesStrip from '@/components/home/dream.FlagshipEnginesStrip';
-import ActiveModuleSurface from '@/components/home/dream.ActiveModuleSurface';
-import DreamRSection from '@/app/dreamdmbar/_components/dreamr/dreamsurface.dreamr';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
-import DraggableDream from '@/components/dreams/dream.DraggableDream';
 
 type ProfileLike = {
   id?: string;
@@ -86,7 +86,6 @@ export default function HomeDreamSurface({
   posts,
   onOpenDrEams,
   onOpenDreamSpace,
-  onOpenUrl,
   userId,
 }: HomeDreamSurfaceProps) {
   const router = useRouter();

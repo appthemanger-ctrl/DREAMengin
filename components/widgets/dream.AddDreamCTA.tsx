@@ -5,7 +5,6 @@
 // • Shown centred when layer is completely empty (req 62)
 // • Becomes smaller / disappears after first widget is installed (req 63)
 
-import React from 'react';
 
 export interface AddDreamCTAProps {
   /** Whether any widgets have been installed yet */

@@ -5,52 +5,49 @@
  * All features are real. No mock data.
  */
 
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import DiffViewer from '@/components/daydream/dream.DiffViewer';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
+import { useSharedDream } from '@/hooks/useSharedDream';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import type { EngineBase, UpgradedEngine } from '@/lib/dreamenginOS';
+import { createEventBus, upgradeEngine } from '@/lib/dreamenginOS';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useCodeEnginRuntime } from '@/lib/engins/code/useCodeEnginRuntime';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
 import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
-import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
-import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
-import { useSharedDream } from '@/hooks/useSharedDream';
-import Link from 'next/link';
 import {
-  ArrowLeft, ArrowLeftRight, Zap, Bug, ListChecks,
-  Play, Loader2, CheckCircle, XCircle,
-  Plus, X, Trash2, Copy, Clipboard, Scissors, Undo2,
-  Code2, FolderOpen, Github, Gamepad2, Music2, FlaskConical,
-  ZoomIn, ZoomOut, MousePointer2, Bot, ShieldCheck,
-  Terminal, ExternalLink, BarChart2, Shield,
+    ArrowLeft, ArrowLeftRight,
+    BarChart2,
+    Bot,
+    Bug,
+    CheckCircle,
+    Clipboard,
+    Code2,
+    Copy,
+    ListChecks,
+    Loader2,
+    MousePointer2,
+    Plus,
+    Scissors,
+    Shield,
+    Terminal,
+    Trash2,
+    X,
+    XCircle,
+    Zap,
+    ZoomIn, ZoomOut,
 } from 'lucide-react';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import DiffViewer from '@/components/daydream/dream.DiffViewer';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
-import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
-import { ArtifactSlot } from '@/lib/enginpipe';
-import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
-import { useCodeEnginRuntime } from '@/lib/engins/code/useCodeEnginRuntime';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
-import {
-  parseAiInstruction,
-  buildEditPreview,
-  applyEdit,
-  undoEdit,
-  SCOPE_ORDER,
-  SCOPE_LABEL,
-  SCOPE_DESCRIPTION,
-  SCOPE_RISK,
-  CONFIRMATION_REQUIRED,
-  CODEENGIN_PRODUCTION_MODE,
-  type EditScope,
-  type AiSuggestion,
-  type EditPreview,
-  type UndoSnapshot,
-  type EditableCell,
-} from '@/lib/diff/aiEditEngine';
-import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
+import Link from 'next/link';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { parseCode } from './CodeEngin/core/parser';
+import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
 
 // ----------------------------------------------------------------------
 // Types
@@ -109,7 +106,7 @@ const DEMO_CELLS: NotebookCell[] = [
 // REAL CODE EXECUTION (Pyodide CDN, no install)
 // ----------------------------------------------------------------------
 
-let pyodideInstance: unknown = null;
+let pyodideInstance: any = null;
 let pyodidePromise: Promise<unknown> | null = null;
 
 async function loadPyodide( ){
@@ -141,7 +138,7 @@ sys.stdout = StringIO()
     let lastExpr = '';
     try { lastExpr = pyodide.runPython('_') || ''; } catch {}
     return output + (lastExpr ? (output ? '\n' : '') + lastExpr : '');
-  } catch (err: unknown) {
+  } catch (err: any) {
     return `Error: ${(err as Error).message}`;
   }
 }
@@ -156,7 +153,7 @@ function executeJavaScript(code: string): string {
     let output = logs.join('\n');
     if (result !== undefined) output += (output ? '\n' : '') + String(result);
     return output || 'Executed successfully (no output)';
-  } catch (err: unknown) {
+  } catch (err: any) {
     return `Error: ${(err as Error).message}`;
   }
 }
@@ -379,7 +376,7 @@ async function callEamsAssist(prompt: string, codeContext?: string, language?: C
     }
     const data = await res.json() as { response_text?: string };
     return data.response_text || 'No response from AI.';
-  } catch (err: unknown) {
+  } catch (err: any) {
     return `AI assistant error: ${err instanceof Error ? (err as Error).message : String(err)}`;
   }
 }
@@ -408,7 +405,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useCodeEnginRuntime();
 
   // ── Workflow (code:sprint — default workflow) ──
-  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  const { loadWorkflow } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('code:sprint'); }, [loadWorkflow]);
 
   // ── Pair programming state ──
@@ -536,7 +533,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       const output = await runCellCode(language, code);
       setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'done', output } : c));
       bridge.emit('code', 'code:cell-executed', { cellId, language, outputType: 'text' });
-    } catch (err: unknown) {
+    } catch (err: any) {
       setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'error', output: (err as Error).message, error: (err as Error).message } : c));
     }
   }, []);
@@ -626,7 +623,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callCI(apiKey);
       setCiResults(data);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setCiError((err as Error).message);
     } finally {
       setCiRunning(false);
@@ -643,7 +640,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callSecurityScan(apiKey);
       setSecResults(data);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setSecError((err as Error).message);
     } finally {
       setSecRunning(false);
@@ -653,7 +650,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   // Load user and projects from Supabase
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(async (res: { data: { user: import('@supabase/supabase-js').User | null }; error: unknown }) => {
+    supabase.auth.getUser().then(async (res: { data: { user: import('@supabase/supabase-js').User | null }; error: any }) => {
       const u = res.data.user;
       if (!u) { setLoadingProjects(false); return; }
       setUser(u);
@@ -955,7 +952,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
               {ciResults && (
                 <div>
                   <div style={{ marginBottom: 8 }}>Overall status: <strong style={{ color: (ciResults as Record<string, unknown>).status === 'passing' ? OUT_OK : OUT_ERR }}>{(ciResults as Record<string, unknown>).status.toUpperCase()}</strong></div>
-                  {(ciResults as Record<string, unknown>).stages.map((stage: unknown, i: number) => (
+                  {(ciResults as Record<string, unknown>).stages.map((stage: any, i: number) => (
                     <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 8, background: (stage as Record<string, unknown>).passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${(stage as Record<string, unknown>).passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
                       <div style={{ fontWeight: 700, marginBottom: 4 }}>{(stage as Record<string, unknown>).name} {(stage as Record<string, unknown>).passed ? <CheckCircle size={12} style={{ color: OUT_OK, display: 'inline', marginLeft: 6 }} /> : <XCircle size={12} style={{ color: OUT_ERR, display: 'inline', marginLeft: 6 }} />}</div>
                       <pre style={{ fontSize: 10, whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0 }}>{(stage as Record<string, unknown>).output}</pre>
@@ -980,7 +977,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
                 <div>
                   <div style={{ marginBottom: 8 }}>Total vulnerabilities: <strong>{secResults.summary?.total || 0}</strong> (High: {secResults.summary?.high || 0}, Moderate: {secResults.summary?.moderate || 0}, Low: {secResults.summary?.low || 0})</div>
                   {secResults.advisories && secResults.advisories.length > 0 ? (
-                    secResults.advisories.map((adv: unknown, i: number) => (
+                    secResults.advisories.map((adv: any, i: number) => (
                       <div key={i} style={{ marginBottom: 8, padding: 8, borderRadius: 8, background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.2)' }}>
                         <div><strong>{adv.title}</strong> – {(adv as Record<string, unknown>).severity.toUpperCase()}</div>
                         <div>Package: {adv.package}</div>

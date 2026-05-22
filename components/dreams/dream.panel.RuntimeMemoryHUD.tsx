@@ -19,9 +19,9 @@
  *   dreamOSBus subscription follows the same pattern as ActiveModuleSurface.
  */
 
-import React, { useEffect, useState } from 'react';
-import { dreamOSBus, type DreamOSSnapshot } from '@/lib/runtime/dreamOSBus';
 import { formatArtifactKind, getArtifactAccent } from '@/lib/intelligence/continuityHelpers';
+import { dreamOSBus, type DreamOSSnapshot } from '@/lib/runtime/dreamOSBus';
+import { useEffect, useState } from 'react';
 
 // ── Layout constants ──────────────────────────────────────────────────────────
 

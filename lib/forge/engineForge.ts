@@ -5,8 +5,8 @@
  * Integrates with componentInventory for the piece palette.
  */
 
-import { createEventBus, type EventBus } from '../eventBus';
 import type { AtomicComponent } from '../componentInventory';
+import { createEventBus, type EventBus } from '../eventBus';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 import { CARTRIDGE_MANIFEST } from '@/lib/gameengin/cartridges/manifest';
-import type { GameRenderMode } from '@/lib/games/performance-baseline';
 import type { MobileHudMode } from '@/lib/games/mobileControls';
+import type { GameRenderMode } from '@/lib/games/performance-baseline';
 
 const MOBILE_HUD_BY_GAME_ID: Record<string, MobileHudMode> = {
   platformer: 'buttons',

@@ -1,8 +1,8 @@
 // SURFACE: dreamsurface.EnginesMusic  (framework-mandated basename: page.tsx)
+import MusicEnginApp from '@/components/engines/music/dream.MusicEnginApp';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import MusicEnginApp from '@/components/engines/music/dream.MusicEnginApp';
 import { connection } from 'next/server';
 
 

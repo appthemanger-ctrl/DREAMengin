@@ -23,8 +23,8 @@
  *   renderer.present(); // no-op for Canvas 2D
  */
 
-import type { IRenderer, TextStyle } from './IRenderer';
 import { FrustumCuller, type Rect } from './FrustumCuller';
+import type { IRenderer, TextStyle } from './IRenderer';
 
 // ─── Canvas2DRenderer ─────────────────────────────────────────────────────────
 

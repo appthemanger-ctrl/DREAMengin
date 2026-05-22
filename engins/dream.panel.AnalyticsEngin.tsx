@@ -14,22 +14,28 @@
  * Follows AXIOM 4 (security by default) and AXIOM 3 (real actions only).
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
-import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
-import { createClient } from '@/lib/supabase/client';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import { ActivityProfile } from '@/components/activity/dream.ActivityProfile';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import Link from 'next/link';
-import {
-  ArrowLeft, BarChart2, Activity, TrendingUp, DollarSign,
-  Shield, RefreshCw, Zap, Eye,
-} from 'lucide-react';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import type { GetPlatformMetricsResponse, SkipCredit } from '@/lib/activity/types';
 import { PLATFORM_HEALTH_TARGETS } from '@/lib/activity/types';
-import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
+import { createClient } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+    Activity,
+    ArrowLeft, BarChart2,
+    DollarSign,
+    Eye,
+    RefreshCw,
+    Shield,
+    TrendingUp,
+    Zap,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface Props {
   onBack: () => void;

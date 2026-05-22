@@ -19,10 +19,10 @@
  */
 
 import {
-  RUNTIME_REGIONS,
-  SURFACE_NAMES,
-  type RuntimeSeamName,
-  type DreamWindowState,
+    RUNTIME_REGIONS,
+    SURFACE_NAMES,
+    type DreamWindowState,
+    type RuntimeSeamName,
 } from '@/lib/identity/canonical-names';
 
 // ---------------------------------------------------------------------------

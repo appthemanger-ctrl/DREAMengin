@@ -12,10 +12,10 @@
  *   engineEmoji  → visual identity in the header
  */
 
-import { type ReactNode, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { X, ChevronLeft } from 'lucide-react';
 import { InviteFlow, SharedDreamProvider } from '@/components/shared-dream';
+import { ChevronLeft, X } from 'lucide-react';
+import Link from 'next/link';
+import { type ReactNode, useEffect, useRef } from 'react';
 
 export interface EnginAppShellProps {
   engineName: string;

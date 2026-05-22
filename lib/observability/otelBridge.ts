@@ -9,9 +9,9 @@
 //
 // This module records **only** system-level signals — no PII, no user content.
 
+import type { Counter, Histogram, UpDownCounter } from '@opentelemetry/api';
 import { SpanStatusCode, type Span } from '@opentelemetry/api';
 import { getMeter, getTracer } from './otel';
-import type { Counter, Histogram, UpDownCounter } from '@opentelemetry/api';
 
 // ── Singleton guard ───────────────────────────────────────────────────────────
 

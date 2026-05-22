@@ -7,8 +7,8 @@
  * Lives at /engines/music/library.
  */
 
+import { ChevronRight, Drum, FolderOpen, Music2, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { Music2, Drum, FolderOpen, Sparkles, ChevronRight } from 'lucide-react';
 
 interface LibraryItem {
   id: string;

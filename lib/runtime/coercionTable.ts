@@ -162,7 +162,7 @@ export function coerceRawPayload(payload: unknown): DreamDrop {
 
   // Already a DreamDrop — pass through.
   if (typeof p['type'] === 'string' && typeof p['content'] === 'string' && p['timestamp']) {
-    return p as unknown as DreamDrop;
+    return p as any as DreamDrop;
   }
 
   // engin-state shape.

@@ -1,2 +1,2 @@
-export * from './piece-registry';
 export * from './assembly';
+export * from './piece-registry';

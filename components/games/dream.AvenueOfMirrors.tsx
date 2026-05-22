@@ -11,8 +11,8 @@
  * silent-hill fog grey, pool tile teal, distance-fog cutoff at 8 cells.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const MAP_N = 16;
 const VIEW_W = 640;

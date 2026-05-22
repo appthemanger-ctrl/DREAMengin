@@ -9,8 +9,8 @@
  * Dispatches de-theme-mode-changed so other components can sync.
  */
 
-import { useEffect, useState } from 'react';
 import { applyVoidTheme, isVoidThemeActive } from '@/components/dream.ThemeApplicator';
+import { useEffect, useState } from 'react';
 
 export default function VoidThemeToggle( ){
   const [isVoid, setIsVoid] = useState(false);

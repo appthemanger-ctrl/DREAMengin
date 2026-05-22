@@ -11,12 +11,12 @@
  *   dispatch({ type: 'content:creativity-set', payload: { level: 75 } });
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
 import { MemoryAdapter } from '@/lib/engin-runtime/EnginIOAdapter';
-import { CONTENT_ENGIN_RULE_SET } from './contentEnginRuleSet';
-import type { ContentEnginAction, ContentEnginDerivedState } from './contentEnginRuleSet';
 import type { EnginRuntimeOptions } from '@/lib/engin-runtime/EnginRuntime';
+import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ContentEnginAction, ContentEnginDerivedState } from './contentEnginRuleSet';
+import { CONTENT_ENGIN_RULE_SET } from './contentEnginRuleSet';
 
 export interface UseContentEnginRuntimeOptions
   extends Omit<EnginRuntimeOptions, 'ioAdapter'> {
@@ -70,7 +70,7 @@ export function useContentEnginRuntime(
       rt.bus.off('engin:state', handleState);
       if (!rt.bus.destroyed) rt.stop();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const dispatch = useCallback((action: ContentEnginAction): boolean => {

@@ -22,10 +22,10 @@
  *    HomeFeed so YouTube cards render with zero additional template code.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { ALL_TOPICS, DEFAULT_TOPIC_IDS, loadActiveTopicIds, topicIdsToQueries } from '@/lib/feed/feedTopics';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
-import { ALL_TOPICS, DEFAULT_TOPIC_IDS, loadActiveTopicIds, topicIdsToQueries } from '@/lib/feed/feedTopics';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

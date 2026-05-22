@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Bot, Maximize2, Minimize2, Send, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 import { onIdariEvent } from '@/lib/agents/agentBus';
 import { getDrEamsMode, onDrEamsModeChange } from '@/lib/agents/drEamsMode';

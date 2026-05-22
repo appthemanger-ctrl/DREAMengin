@@ -17,13 +17,13 @@
 
 import 'server-only';
 
-import { mastodonSync } from '@/lib/connectors/providers/mastodon';
 import { blueskySync } from '@/lib/connectors/providers/bluesky';
 import { githubSync } from '@/lib/connectors/providers/github';
-import { redditSync } from '@/lib/connectors/providers/reddit';
-import { nostrSync } from '@/lib/connectors/providers/nostr';
-import { youtubeSync } from '@/lib/connectors/providers/youtube';
 import { instagramSync } from '@/lib/connectors/providers/instagram';
+import { mastodonSync } from '@/lib/connectors/providers/mastodon';
+import { nostrSync } from '@/lib/connectors/providers/nostr';
+import { redditSync } from '@/lib/connectors/providers/reddit';
+import { youtubeSync } from '@/lib/connectors/providers/youtube';
 import type { UnifiedFeedItem } from '@/types/connector';
 
 /**

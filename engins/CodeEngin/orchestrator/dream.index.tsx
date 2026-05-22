@@ -1,7 +1,7 @@
 'use client';
 
-import { AgentPanel } from '../modules/ai-co-pilot/dream.panel.AgentPanel';
 import { ArtifactSlot } from '@/lib/enginpipe';
+import { AgentPanel } from '../modules/ai-co-pilot/dream.panel.AgentPanel';
 
 /**
  * CodeEnginOrchestrator – thin composition layer for CodeEngin modules.

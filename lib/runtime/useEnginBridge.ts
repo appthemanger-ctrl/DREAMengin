@@ -10,8 +10,8 @@
  * Privacy: only IDs / primitives cross Engin boundaries (AXIOM 4).
  */
 
-import { useEffect, useState } from 'react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useEffect, useState } from 'react';
 
 function ts( ){
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

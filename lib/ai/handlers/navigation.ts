@@ -1,12 +1,11 @@
 // lib/ai/handlers/navigation.ts
 // Navigation Intent Handlers
 
-import { ToolHandler } from '../tool-router';
 import {
-  NavDeltaPayload,
-  HomeAnchorSetStatePayload,
-  HomeMenuOpenPayload,
+    HomeAnchorSetStatePayload,
+    NavDeltaPayload,
 } from '@/types/ai-system';
+import { ToolHandler } from '../tool-router';
 
 // ============================================================================
 // NAV_DELTA Handler
@@ -69,7 +68,7 @@ export const handleHomeAnchorSetState: ToolHandler = async (ctx) => {
 // HOME_MENU_OPEN Handler
 // ============================================================================
 
-export const handleHomeMenuOpen: ToolHandler = async (ctx) => {
+export const handleHomeMenuOpen: ToolHandler = async () => {
   return {
     ok: true,
     data: {},

@@ -12,9 +12,9 @@
  * state), CONSTITUTION.md Rule 6 (every visible action does something real).
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Check, EyeOff, Flag, Loader2, Shield, UserX, X } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, EyeOff, UserX, Flag, Check, Loader2, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'de-privacy-settings';
 

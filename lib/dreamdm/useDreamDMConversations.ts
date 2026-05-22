@@ -11,9 +11,9 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import type { RealtimePostgresInsertPayload } from '@/engine/io';
+import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface DMConversation {
   id: string;

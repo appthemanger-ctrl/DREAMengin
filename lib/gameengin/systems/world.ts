@@ -14,9 +14,8 @@
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  ProceduralWorldGen,
-  TerrainEngine,
-  GlobalIllumProbes,
+    GlobalIllumProbes, ProceduralWorldGen,
+    TerrainEngine
 } from '../power-systems';
 
 /** Alias: TerrainSystem → TerrainEngine. */
@@ -28,9 +27,5 @@ export { GlobalIllumProbes as GIProbeSystem } from '../power-systems';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  WorldGenConfig,
-  WorldChunk,
-  TerrainPage,
-  SHCoeffs,
-  GIProbe,
+    GIProbe, SHCoeffs, TerrainPage, WorldChunk, WorldGenConfig
 } from '../power-systems';

@@ -23,14 +23,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  applyOptimisticDelete,
-  applyOptimisticMarkAll,
-  applyOptimisticRead,
-  getUnreadCount,
-  normalizeDbRow,
-  sortByRecent,
-  type DbNotificationRow,
-  type UiNotification,
+    applyOptimisticDelete,
+    applyOptimisticMarkAll,
+    applyOptimisticRead,
+    getUnreadCount,
+    normalizeDbRow,
+    sortByRecent,
+    type DbNotificationRow,
+    type UiNotification,
 } from './notificationHelpers';
 
 // Poll every 30 s — unobtrusive; follows render-on-demand spirit

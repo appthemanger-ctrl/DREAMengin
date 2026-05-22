@@ -7,8 +7,8 @@
  * Lives at /engines/brand/campaigns.
  */
 
+import { Calculator, DollarSign, Plus, Trash2, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import { DollarSign, TrendingUp, Plus, Trash2, Calculator } from 'lucide-react';
 
 interface Campaign {
   id: string;

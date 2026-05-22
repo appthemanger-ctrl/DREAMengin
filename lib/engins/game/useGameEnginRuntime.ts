@@ -11,12 +11,12 @@
  *   dispatch({ type: 'game:session-start', payload: { gameId: 'platformer' } });
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
 import { MemoryAdapter } from '@/lib/engin-runtime/EnginIOAdapter';
-import { GAME_ENGIN_RULE_SET } from './gameEnginRuleSet';
-import type { GameEnginAction, GameEnginDerivedState } from './gameEnginRuleSet';
 import type { EnginRuntimeOptions } from '@/lib/engin-runtime/EnginRuntime';
+import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { GameEnginAction, GameEnginDerivedState } from './gameEnginRuleSet';
+import { GAME_ENGIN_RULE_SET } from './gameEnginRuleSet';
 
 export interface UseGameEnginRuntimeOptions
   extends Omit<EnginRuntimeOptions, 'ioAdapter'> {
@@ -78,7 +78,7 @@ export function useGameEnginRuntime(
       rt.bus.off('engin:state', handleState);
       if (!rt.bus.destroyed) rt.stop();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const dispatch = useCallback((action: GameEnginAction): boolean => {

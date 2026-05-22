@@ -10,8 +10,8 @@
  * Tap the dim backdrop or any item → closes.
  */
 
-import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 /* ── Types ─────────────────────────────────────────────────────────────────── */
 

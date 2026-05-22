@@ -1,13 +1,13 @@
 import { getMadmaxiEnemyCount, ZONES } from './config';
 import type {
-  CoinDef,
-  EnemyDef,
-  HazardDef,
-  LevelDef,
-  MadmaxiEnemyKind,
-  MadmaxiPowerUpKind,
-  PlatDef,
-  PowerUpDef,
+    CoinDef,
+    EnemyDef,
+    HazardDef,
+    LevelDef,
+    MadmaxiEnemyKind,
+    MadmaxiPowerUpKind,
+    PlatDef,
+    PowerUpDef,
 } from './types';
 
 interface RouteStep {

@@ -19,7 +19,7 @@
  */
 
 import { normaliseTwitter } from '@/lib/connectors/normalise';
-import { parseRssFeed, twitterNitterRssUrl, DEFAULT_NITTER_INSTANCE } from '@/lib/social/rss-feed';
+import { DEFAULT_NITTER_INSTANCE, parseRssFeed, twitterNitterRssUrl } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
 export interface TwitterCredentials {

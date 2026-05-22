@@ -14,27 +14,40 @@
  *   - Like/comment counts sync via UPDATE events (no re-fetch)
  */
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
-  Plus, Image as ImageIcon, Sparkles, TrendingUp, Users,
-  Send, Loader2, Globe, Lock, ArrowUp, Wifi, X,
-  FileText, Radio, RefreshCw, ChevronDown, ChevronUp,
-} from 'lucide-react';
+import { AdUnit } from '@/components/ads/dream.AdUnit';
+import FeedVideoCard from '@/components/feed/dream.FeedVideoCard';
+import EditableAvatar from '@/components/profile/dream.EditableAvatar';
+import SocialShareSheet from '@/components/ui/dream.SocialShareSheet';
+import { AdType } from '@/lib/activity/types';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import { useYouTubeLiveFeed } from '@/lib/feed/useYouTubeLiveFeed';
-import FeedVideoCard from '@/components/feed/dream.FeedVideoCard';
-import { AdUnit } from '@/components/ads/dream.AdUnit';
-import { AdType } from '@/lib/activity/types';
-import SocialShareSheet from '@/components/ui/dream.SocialShareSheet';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
-import EditableAvatar from '@/components/profile/dream.EditableAvatar';
+import {
+    ArrowUp,
+    Bookmark,
+    ChevronDown, ChevronUp,
+    FileText,
+    Globe,
+    Heart,
+    Image as ImageIcon,
+    Loader2,
+    Lock,
+    MessageCircle,
+    MoreHorizontal,
+    Plus,
+    Radio, RefreshCw,
+    Send,
+    Share2,
+    Sparkles, TrendingUp, Users,
+    Wifi, X,
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface Comment {
   id: string;

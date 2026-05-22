@@ -13,12 +13,12 @@
  *  - Works for both YouTube videos and user-posted video URLs.
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import {
-  Maximize2, Minimize2, X, Youtube,
-  ChevronLeft, ChevronRight,
-} from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
+import {
+    ChevronLeft, ChevronRight,
+    Maximize2, Minimize2, X, Youtube,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 

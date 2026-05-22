@@ -1,7 +1,7 @@
 // SURFACE: dreamsurface.SettingsDreams
-import Link from 'next/link';
-import { LayoutGrid, RotateCcw } from 'lucide-react';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import { LayoutGrid, RotateCcw } from 'lucide-react';
+import Link from 'next/link';
 import DreamsLayoutEditor from './dreams-layout-editor';
 
 export const metadata = { title: 'Dreams – DREAMengin Settings' };

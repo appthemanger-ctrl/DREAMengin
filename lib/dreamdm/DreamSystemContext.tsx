@@ -22,26 +22,24 @@
  *   - homeData: user profile + posts, always populated after auth
  */
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
-} from 'react';
-import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
+import {
+    moveTorus as computeMoveTorus,
+    torusFocusKey,
+} from '@/lib/runtime/dualRuntime';
 import { createClient } from '@/lib/supabase/client';
 import {
-  moveTorus as computeMoveTorus,
-  torusFocusKey,
-  TORUS_WIDTH,
-  TORUS_HEIGHT,
-} from '@/lib/runtime/dualRuntime';
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+    type Dispatch,
+    type ReactNode,
+    type SetStateAction,
+} from 'react';
 
 // ── Home data shared by DreamBarDataBridge into PersistentDreamBar ───────────
 

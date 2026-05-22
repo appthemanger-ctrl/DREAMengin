@@ -4,10 +4,10 @@
 // Includes "Why was I warned?" (req 12) and "Appeal" (req 13) links.
 // Uses factual, calm tone (req H64). Never reveals internals (req H63).
 
-import Link from 'next/link';
-import { AlertTriangle, X, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
 import type { PolicyResult } from '@/lib/policy/boogiePolicy';
+import { AlertTriangle, ExternalLink, X } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
 interface BoogieWarningBannerProps {
   /** The PolicyResult that triggered this warning. */

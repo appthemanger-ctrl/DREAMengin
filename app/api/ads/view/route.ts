@@ -4,18 +4,17 @@
 // Records verified ad views for CPV (Cost Per View) billing.
 // Per ACTIVITY_FIRST_PROTOCOL.md §V (Ad System)
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase/server';
 import { qualifiesForPremiumCPV } from '@/lib/activity/aqs';
-import type {
-  AdView,
-  TrackAdViewRequest,
-  TrackAdViewResponse,
-} from '@/lib/activity/types';
-import { CPV_PRICING, CPVTier } from '@/lib/activity/types';
 import { calculateActivityRevenueSplit } from '@/lib/activity/revenueSplit';
 import { calculateSkipCreditsEarned } from '@/lib/activity/skipCredits';
+import type {
+    AdView,
+    TrackAdViewRequest,
+    TrackAdViewResponse,
+} from '@/lib/activity/types';
+import { CPV_PRICING, CPVTier } from '@/lib/activity/types';
+import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 type ActivitySupabaseClient = {
   rpc: <T>(

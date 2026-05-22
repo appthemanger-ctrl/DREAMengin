@@ -29,9 +29,9 @@
  */
 
 import { useRouter } from 'next/navigation';
-import EnginAppShell from './dream.shell.EnginAppShell';
 import EnginNavBar from './dream.bar.EnginNavBar';
 import type { EnginRuleSet } from './dream.EnginRuleSet';
+import EnginAppShell from './dream.shell.EnginAppShell';
 
 /**
  * Returns a React component that renders the full Engin shell for the given

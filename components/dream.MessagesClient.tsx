@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { Bot, MessageSquare, Send, Search, ArrowLeft, Loader2, Plus, Music, FileText, X, Mail } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { formatRelativeTime } from '@/lib/utils';
-import { createClient } from '@/lib/supabase/client';
-import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
-import { useDreamDMMessages } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamDMDraft } from '@/lib/dreamdm/useDreamDMDraft';
-import { useDreamSearch } from '@/lib/dreamdm/useDreamSearch';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
+import { useDreamDMMessages } from '@/lib/dreamdm/useDreamDMMessages';
+import { useDreamSearch } from '@/lib/dreamdm/useDreamSearch';
+import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
+import { createClient } from '@/lib/supabase/client';
+import { formatRelativeTime } from '@/lib/utils';
+import { ArrowLeft, Bot, FileText, Loader2, Mail, MessageSquare, Music, Plus, Search, Send, X } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 interface Conversation {
   id: string;

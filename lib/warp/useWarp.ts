@@ -8,8 +8,8 @@
  *   return <canvas ref={canvasRef} />;
  */
 
-import { useRef, useEffect, useState, useCallback } from 'react';
-import { WarpEngine, WarpEffect, WarpEngineOptions } from './warpEngine';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { WarpEffect, WarpEngine, WarpEngineOptions } from './warpEngine';
 
 // Passive 30 fps cap (≈33.33 ms/frame). Keeps the ambient effect smooth
 // while ~halving CPU/GPU/battery cost on mobile vs. an uncapped rAF loop.

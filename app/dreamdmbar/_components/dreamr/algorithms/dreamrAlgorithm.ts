@@ -24,9 +24,9 @@
  */
 
 import {
-  calculateRank,
-  derivePostMassMeta,
-  getPostMass,
+    calculateRank,
+    derivePostMassMeta,
+    getPostMass,
 } from '@/lib/dreamr/torridityLedger';
 
 export interface ScoredPost {

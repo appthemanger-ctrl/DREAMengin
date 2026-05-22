@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import HomeDreamSurface from '@/app/dreamdmbar/_components/HomeDreamRegion';
+import Link from 'next/link';
+import React, { useRef, useState } from 'react';
 
 type CoreFace = 'home' | 'profile';
 
@@ -20,7 +20,7 @@ type Props = {
     avatar_url?: string | null;
   } | null;
    
-  posts?: unknown[];
+  posts?: Post[];
 };
 
 /* ── Recent activity agent definitions ── */
@@ -55,201 +55,15 @@ const RECENT_AGENTS = [
 ] as const;
 
 /* ── Shared section header row ── */
-function SectionHeader({ title, badge }: {title: string; badge?: number}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--de-heading)' }}>{title}</span>
-      {badge !== undefined && (
-        <span style={{
-          background: 'rgba(230,220,200,0.85)',
-          color: 'var(--de-heading)',
-          borderRadius: 100,
-          padding: '2px 12px',
-          fontSize: 13,
-          fontWeight: 600,
-        }}>
-          {badge}
-        </span>
-      )}
-    </div>
-  );
-}
 
 /* ── Feed post card ── */
-function PostCard( ){
-  const [liked, setLiked] = useState(false);
-  return (
-    <div style={{
-      background: 'rgba(255,255,255,0.94)',
-      borderRadius: 20,
-      boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
-      overflow: 'hidden',
-      marginBottom: 4,
-    }}>
-      {/* Post header */}
-      <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #2a8ab8, #c8981a)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14, color: 'white', fontWeight: 700, flexShrink: 0,
-          }}>D</div>
-          <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--de-heading)' }}>Dreamengin</span>
-        </div>
-        <span style={{ color: 'var(--de-text-dim)', fontSize: 18, letterSpacing: 3, lineHeight: 1 }}>···</span>
-      </div>
-
-      {/* Post image */}
-      <div style={{
-        height: 140,
-        background: 'linear-gradient(135deg, #b8d4e8 0%, #c5daf0 50%, #d8e8f5 100%)',
-        margin: '0 12px',
-        borderRadius: 12,
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 10,
-      }}>
-        <span style={{ fontSize: 38, opacity: 0.35 }}>🏗️</span>
-      </div>
-
-      {/* Post actions */}
-      <div style={{ padding: '2px 16px 14px', display: 'flex', gap: 22 }}>
-        {([
-          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v) => !v) },
-          { icon: '💬',               label: 'Comment', action: undefined },
-          { icon: '↗',               label: 'Share',   action: undefined },
-        ] as const).map(({ icon, label, action }) => (
-          <button
-            key={label}
-            type="button"
-            onClick={action}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 5,
-              fontSize: 13, color: liked && label === 'Like' ? '#e54' : 'var(--de-text-dim)',
-              fontWeight: 500, padding: 0,
-            }}
-          >
-            <span style={{ fontSize: 16 }}>{icon}</span>
-            {label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ── Recent Activity agent card ── */
-function AgentCard({ agent }: {agent: typeof RECENT_AGENTS[number]}) {
-  return (
-    <div style={{
-      minWidth: 148,
-      padding: '14px 16px',
-      background: 'rgba(255,255,255,0.92)',
-      borderRadius: 16,
-      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-      flexShrink: 0,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: '50%',
-          background: agent.bg,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: agent.id === 'dr-eams' ? 14 : 15,
-          fontWeight: 700,
-          color: agent.iconColor,
-          flexShrink: 0,
-        }}>
-          {agent.initial}
-        </div>
-        <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 88 }}>
-          {agent.name}
-        </span>
-      </div>
-      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 2 }}>{agent.time1}</div>
-      <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{agent.time2}</div>
-    </div>
-  );
-}
 
 /* ── Key Metrics cards ── */
-function MetricsRow( ){
-  const cards = [
-    {
-      id: 'eams',
-      rows: [
-        { icon: '👤', label: 'Eams' },
-        { icon: '✦', label: 'Valhzdrd' },
-      ],
-      minWidth: 150,
-    },
-    {
-      id: 'ean',
-      rows: [
-        { icon: '✏️', label: 'Ean' },
-        { icon: '✦', label: '3065' },
-      ],
-      minWidth: 100,
-    },
-  ];
-
-  return (
-    <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-      {cards.map((card) => (
-        <div key={card.id} style={{
-          minWidth: card.minWidth,
-          padding: '14px 16px',
-          background: 'rgba(255,255,255,0.92)',
-          borderRadius: 16,
-          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-          flexShrink: 0,
-        }}>
-          {card.rows.map((row) => (
-            <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: 'rgba(220,235,250,0.7)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 13, flexShrink: 0,
-              }}>{row.icon}</div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{row.label}</span>
-            </div>
-          ))}
-        </div>
-      ))}
-
-      {/* Bar-chart card */}
-      <div style={{
-        minWidth: 96,
-        padding: '14px 16px',
-        background: 'rgba(255,255,255,0.92)',
-        borderRadius: 16,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-        flexShrink: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-      }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 10, display: 'block' }}>Tams</span>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 32 }}>
-          {[0.45, 0.75, 0.5, 1, 0.65].map((h, i: number) => (
-            <div key={i} style={{
-              flex: 1, borderRadius: 3,
-              height: `${h * 100}%`,
-              background: `rgba(42,138,184,${0.35 + h * 0.45})`,
-            }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ── Home face — delegates to HomeDreamSurface ── */
-function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: { onOpenDrEams: () => void; onOpenDreamSpace?: () => void; profile: Props['profile']; isAdmin?: boolean; posts?: unknown[] }) {
+function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: { onOpenDrEams: () => void; onOpenDreamSpace?: () => void; profile: Props['profile']; isAdmin?: boolean; posts?: Post[] }) {
   return (
     <HomeDreamSurface
       profile={profile}

@@ -9,7 +9,7 @@
  *   3. Accept flow initialises sync automatically (handled via URL param)
  */
 
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useSharedDream } from './dream.SharedDreamProvider';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

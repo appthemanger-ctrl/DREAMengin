@@ -20,27 +20,27 @@
  * These three layers never overlap. Do not add score/lives/game info here.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type {
-  GameCartridge,
-  GameEngineAPI,
-  GravityPreset,
-  CartridgeInputEvent,
-} from './cartridge';
-import { ENGINE_VERSION, GRAVITY_VALUES } from './cartridge';
+import { recordEmission } from '@/lib/runtime/channelMetrics';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 import { createLocalChannel } from '@/lib/runtime/runtimeChannel';
-import { recordEmission } from '@/lib/runtime/channelMetrics';
 import { acquireSharedResource, releaseSharedResource } from '@/lib/runtime/sharedResourcePool';
-import { createSaveAPI } from './cartridges/saveState';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type {
+    AchievementDefinition,
+    CartridgeInputEvent,
+    GameCartridge,
+    GameEngineAPI,
+    GravityPreset,
+} from './cartridge';
+import { ENGINE_VERSION, GRAVITY_VALUES } from './cartridge';
 import { createAchievementsAPI } from './cartridges/achievementEngine';
 import {
-  stubAudioAPI,
-  stubHapticsAPI,
-  stubAssetsAPI,
-  stubNetworkAPI,
+    stubAssetsAPI,
+    stubAudioAPI,
+    stubHapticsAPI,
+    stubNetworkAPI,
 } from './cartridges/apiStubs';
-import type { AchievementDefinition } from './cartridge';
+import { createSaveAPI } from './cartridges/saveState';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -106,7 +106,6 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
         };
 
     // Achievements — real implementation when capability is declared
-    const achievementDefs: AchievementDefinition[] = [];
     const achievementsAPI = capabilities.has('achievements')
       ? createAchievementsAPI((cartridgeId: string, achievementDefs: AchievementDefinition[], def: AchievementDefinition) => {
           // Emit to dreamOSBus so the shell can show a pop-up

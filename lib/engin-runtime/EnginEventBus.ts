@@ -12,7 +12,7 @@
  * Buses are never shared between engines.
  */
 
-import { createEventBus, type EventBus, type EventHandler } from '@/lib/eventBus';
+import { createEventBus, type EventHandler } from '@/lib/eventBus';
 
 // ─── Lifecycle events (always emitted by the runtime) ────────────────────────
 

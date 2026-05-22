@@ -3,7 +3,6 @@
 // When no empty slot is available: "Place now" vs "Later" (req 33)
 // No forced edit mode (req 33)
 
-import React from 'react';
 import type { WidgetTypeDef } from '@/lib/widgets/widgetRegistry';
 
 export interface NoSlotDialogProps {

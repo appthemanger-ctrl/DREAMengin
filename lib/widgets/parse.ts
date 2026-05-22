@@ -2,15 +2,15 @@
 // No zod dependency: manual runtime validation + safe defaults.
 
 import type {
-  DreamenginWidgetType,
-  TypedWidget,
-  YouTubeWidgetConfig,
-  SocialEmbedWidgetConfig,
-  SocialFeedWidgetConfig,
-  SocialProfileWidgetConfig,
-  EmbedWidgetConfig,
-  TextWidgetConfig,
-  SocialProvider,
+    DreamenginWidgetType,
+    EmbedWidgetConfig,
+    SocialEmbedWidgetConfig,
+    SocialFeedWidgetConfig,
+    SocialProfileWidgetConfig,
+    SocialProvider,
+    TextWidgetConfig,
+    TypedWidget,
+    YouTubeWidgetConfig,
 } from '@/types/widgetConfigs';
 
 function isRecord(v: unknown): v is Record<string, unknown> {

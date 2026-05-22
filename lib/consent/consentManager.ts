@@ -219,7 +219,7 @@ export class ConsentManager {
     try {
       const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
-      const db = supabase as unknown as ConsentSupabaseClient;
+      const db = supabase as any as ConsentSupabaseClient;
       const { data: authData, error: authError } = await db.auth.getUser();
       if (authError) return;
       if (authData.user?.id !== userId) {
@@ -249,7 +249,7 @@ export class ConsentManager {
     try {
       const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
-      const db = supabase as unknown as ConsentSupabaseClient;
+      const db = supabase as any as ConsentSupabaseClient;
       const { data: authData, error: authError } = await db.auth.getUser();
       if (authError) return;
       if (authData.user?.id !== userId) {

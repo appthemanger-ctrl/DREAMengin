@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import * as PIXI from "pixi.js";
 import { Viewport } from "pixi-viewport";
+import * as PIXI from "pixi.js";
+import { useEffect, useRef } from "react";
 
 export interface PixiPhysicsLayerProps {
   worldWidth: number;

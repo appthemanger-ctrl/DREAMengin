@@ -20,22 +20,16 @@
 
 // ── Re-export lifecycle types from the state machine ─────────────────────────
 // Also import locally so they can be used in this file's interface definitions
-import type { Database } from '@/types/supabase';
 import type {
-  DreamWindowInstance,
-  DreamWindowSize,
-  DreamWindowPosition,
-  DreamWindowConfig,
-  DestinationRule,
-  DreamWindowState,
+    DestinationRule,
+    DreamWindowConfig,
+    DreamWindowPosition,
+    DreamWindowSize,
+    DreamWindowState,
 } from '@/lib/dream-window/DreamWindowLifecycle';
 
 export type {
-  DreamWindowInstance,
-  DreamWindowSize,
-  DreamWindowPosition,
-  DreamWindowConfig,
-  DestinationRule,
+    DestinationRule, DreamWindowConfig, DreamWindowInstance, DreamWindowPosition, DreamWindowSize
 } from '@/lib/dream-window/DreamWindowLifecycle';
 
 export { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';

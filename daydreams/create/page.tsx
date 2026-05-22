@@ -1,11 +1,11 @@
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle, FileText, BarChart2, Video, Brain, RefreshCw, Sparkles } from 'lucide-react';
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import ContentEngin from '@/engins/engin.ContentEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import ContentEngin from '@/engins/engin.ContentEngin';
+import { createServerClient } from '@/lib/supabase/server';
+import { BarChart2, Brain, Calendar, FileText, PlusCircle, RefreshCw, Sparkles, Video } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 const WIDGETS: DaydreamWidget[] = [

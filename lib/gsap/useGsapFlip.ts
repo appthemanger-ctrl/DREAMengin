@@ -17,8 +17,8 @@
  *   <div ref={containerRef}>…</div>
  */
 
-import { useCallback, useRef, useState } from 'react';
 import { getGsap } from '@/lib/gsap/gsap';
+import { useCallback, useRef, useState } from 'react';
 
 export function useGsapFlip( ){
   const containerRef = useRef<HTMLDivElement | null>(null);

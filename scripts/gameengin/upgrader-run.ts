@@ -25,14 +25,14 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import {
-  logRDSession,
-  listCartridges,
-  listMechanics,
-  listTechniques,
-  readUpgradeRules,
-  recordUpgrade,
-  getLastTouched,
-  type AgentName,
+    getLastTouched,
+    listCartridges,
+    listMechanics,
+    listTechniques,
+    logRDSession,
+    readUpgradeRules,
+    recordUpgrade,
+    type AgentName,
 } from '../../lib/gameengin/brain-reader.js';
 
 interface ManifestLite {

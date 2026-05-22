@@ -14,13 +14,12 @@
  *  - Inspired by Ableton Live Session View
  */
 
-import { type CSSProperties, useState, useCallback, useEffect, useRef } from 'react';
-import { Radio, Square, Mic2, Volume2, StopCircle } from 'lucide-react';
 import {
-  type SessionViewState,
-  type SessionTrack,
-  type SessionClip,
+    type SessionTrack,
+    type SessionViewState,
 } from '@/lib/music/starmakerDaw';
+import { Mic2, Radio, Square, StopCircle, Volume2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 
@@ -80,17 +79,6 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
     });
   }, [state, tracks, onStateChange]);
 
-  const updateClip = useCallback((trackId: string, clipIndex: number, patch: Partial<SessionClip>) => {
-    onStateChange({
-      ...state,
-      tracks: tracks.map((tr) =>
-        tr.id !== trackId ? tr : {
-          ...tr,
-          clips: tr.clips.map((cl, i: number) => i === clipIndex ? { ...cl, ...patch } : cl),
-        },
-      ),
-    });
-  }, [state, tracks, onStateChange]);
 
   function handleClipClick(trackId: string, clipIndex: any): number | undefined {
     const track = tracks.find((t) => t.id === trackId);

@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.AdsSlotId  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, LayoutGrid, DollarSign, ToggleLeft, Hash } from 'lucide-react';
 import type { AdSlot } from '@/types/ads';
+import { ArrowLeft, DollarSign, Hash, LayoutGrid, ToggleLeft } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 

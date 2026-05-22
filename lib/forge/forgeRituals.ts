@@ -13,7 +13,7 @@
  * Architecture: Pure computation from Forge history. No Supabase writes.
  */
 
-import { FORGE_HISTORY_KEY, CREATIVE_ENGINES, ENGIN_REGISTRY } from './forgeRegistry';
+import { CREATIVE_ENGINES, ENGIN_REGISTRY, FORGE_HISTORY_KEY } from './forgeRegistry';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -59,7 +59,6 @@ interface HistoryEntry {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const MS_PER_HOUR = 3_600_000;
 
 /** Minimum occurrences to consider a pattern a ritual */
 const MIN_OCCURRENCES = 2;
@@ -342,7 +341,6 @@ export function detectAffinityPatterns(history: HistoryEntry[]): ForgeRitual[] {
   }
 
   // Underused engines
-  const creativeIds = new Set(CREATIVE_ENGINES.map((e) => e.id));
   const unused = CREATIVE_ENGINES.filter((e) => !counts.has(e.id));
   if (unused.length > 0 && unused.length < CREATIVE_ENGINES.length) {
     rituals.push({

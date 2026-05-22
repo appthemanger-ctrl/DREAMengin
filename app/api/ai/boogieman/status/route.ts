@@ -3,8 +3,8 @@
 // Dr. Eams queries this to surface enforcement status to users (req 66, 67).
 // Public-read: returns ok/degraded/offline + current policy version.
 
-import { NextResponse } from 'next/server';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
+import { NextResponse } from 'next/server';
 
 
 export async function GET( ): Promise<NextResponse> {

@@ -5,9 +5,9 @@
  * Persists to localStorage. Constitution Rule 6-7.
  */
 
-import { useState, useCallback } from 'react';
+import { ArrowLeft, Check, Sliders } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, Sliders, Check } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import PositionIndicatorToggle from './dream.PositionIndicatorToggle';
 
 const STORAGE_KEY = 'de-controls-settings';

@@ -11,12 +11,12 @@
  *   dispatch({ type: 'music:bpm-set', payload: { bpm: 140 } });
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
 import { MemoryAdapter } from '@/lib/engin-runtime/EnginIOAdapter';
-import { STAR_MAKER_ENGIN_RULE_SET } from './starMakerEnginRuleSet';
-import type { StarMakerEnginAction, StarMakerEnginDerivedState } from './starMakerEnginRuleSet';
 import type { EnginRuntimeOptions } from '@/lib/engin-runtime/EnginRuntime';
+import { EnginRuntime } from '@/lib/engin-runtime/EnginRuntime';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { StarMakerEnginAction, StarMakerEnginDerivedState } from './starMakerEnginRuleSet';
+import { STAR_MAKER_ENGIN_RULE_SET } from './starMakerEnginRuleSet';
 
 export interface UseStarMakerEnginRuntimeOptions
   extends Omit<EnginRuntimeOptions, 'ioAdapter'> {
@@ -70,7 +70,7 @@ export function useStarMakerEnginRuntime(
       rt.bus.off('engin:state', handleState);
       if (!rt.bus.destroyed) rt.stop();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const dispatch = useCallback((action: StarMakerEnginAction): boolean => {

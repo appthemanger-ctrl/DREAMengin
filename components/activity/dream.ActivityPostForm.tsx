@@ -6,9 +6,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { calculateActivityPoints, getTierDescription } from '@/lib/activity/scoring';
 import { ActivityTier, VerificationMethod } from '@/lib/activity/types';
-import { getTierDisplayName, getTierDescription, calculateActivityPoints } from '@/lib/activity/scoring';
+import { useState } from 'react';
 import { TierBadge } from './dream.TierBadge';
 
 interface ActivityPostFormProps {

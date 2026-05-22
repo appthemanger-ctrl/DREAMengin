@@ -17,7 +17,7 @@
  * Architecture justification: docs/ARCHITECTURE.md §6 (Realtime layer).
  */
 
-import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
+import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 
 // ---------------------------------------------------------------------------
 // DreamR Pulse — live human media heartbeat

@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import MenuPanel, { type MenuItem } from './dream.panel.MenuPanel';
 
 export type SystemMenuAction =

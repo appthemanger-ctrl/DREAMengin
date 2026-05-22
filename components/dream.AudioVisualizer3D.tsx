@@ -11,12 +11,12 @@
  * - Tap hotspot → matchFingerprint + extractAudioChunks → emit stem event
  */
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import type { PeakMap, Fingerprint, MatchResult } from '../lib/audioFingerprint';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { Fingerprint, MatchResult, PeakMap } from '../lib/audioFingerprint';
 import {
-  recordReferenceFingerprint,
-  matchFingerprint,
-  extractAudioChunks,
+    extractAudioChunks,
+    matchFingerprint,
+    recordReferenceFingerprint,
 } from '../lib/audioFingerprint';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -220,7 +220,7 @@ export function AudioVisualizer3D({
     filterNode.connect(dest);
     const rec    = new MediaRecorder(dest.stream);
     const chunks: BlobPart[] = [];
-    rec.ondataavailable = (e: unknown ) => chunks.push(e.data);
+    rec.ondataavailable = (e: BlobEvent) => chunks.push(e.data);
     rec.onstop = () => {
       const blob = new Blob(chunks, { type: 'audio/webm' });
       const url  = URL.createObjectURL(blob);

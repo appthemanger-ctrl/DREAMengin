@@ -25,83 +25,77 @@
  * Bridge: lib/runtime/dualRuntimeBridge — 'music' channel, 'music:stem-ready' event.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import CompingPanel from '@/components/daydream/starmaker/dream.panel.CompingPanel';
+import PianoRollPanel from '@/components/daydream/starmaker/dream.panel.PianoRollPanel';
+import SessionViewPanel from '@/components/daydream/starmaker/dream.panel.SessionViewPanel';
+import { AudioVisualizer3D } from '@/components/dream.AudioVisualizer3D';
+import { useSharedDream } from '@/hooks/useSharedDream';
+import { buildPeakMap, createFingerprintIsolator, type PeakMap } from '@/lib/audioFingerprint';
+import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
+import type { EngineBase, UpgradedEngine } from '@/lib/dreamenginOS';
+import { createEventBus, upgradeEngine } from '@/lib/dreamenginOS';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useStarMakerEnginRuntime } from '@/lib/engins/music/useStarMakerEnginRuntime';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { buildLedgerMediaUrl, uploadBlobToLedgerStorage } from '@/lib/media/ledger';
+import {
+    BEAT_PRESETS,
+    GENRE_LIST,
+    INSTRUMENT_PRESETS,
+    PROJECT_TEMPLATES,
+    type BeatPreset,
+    type InstrumentPreset,
+    type ProjectTemplate,
+} from '@/lib/music/presets';
+import {
+    buildReleaseStrategy,
+    createMelodySuggestions,
+    summarizePlaybackProfile,
+    type MelodySuggestion,
+    type PlaybackQualityMode,
+} from '@/lib/music/starmaker';
+import {
+    ARRANGEMENT_BARS,
+    ARRANGEMENT_TRACKS,
+    type ArrangementClip,
+    type ArrangementSource,
+    type ArrangementTrackState,
+} from '@/lib/music/starmakerArrangement';
+import {
+    PIANO_ROLL_DEFAULTS,
+    createInitialCompingState,
+    createInitialSessionView,
+    type CompingState,
+    type PianoRollState,
+    type SessionViewState,
+} from '@/lib/music/starmakerDaw';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { SUPABASE_URL as CANONICAL_SUPABASE_URL } from '@/lib/supabase/config';
-import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
-import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
-import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
-import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
-import { useSharedDream } from '@/hooks/useSharedDream';
 import {
-  buildReleaseStrategy,
-  createMelodySuggestions,
-  summarizePlaybackProfile,
-  type MelodySuggestion,
-  type PlaybackQualityMode,
-} from '@/lib/music/starmaker';
-import {
-  ARRANGEMENT_BARS,
-  ARRANGEMENT_SOURCE_COLORS,
-  ARRANGEMENT_TRACKS,
-  type ArrangementClip,
-  type ArrangementSource,
-  type ArrangementTrackId,
-  type ArrangementTrackState,
-} from '@/lib/music/starmakerArrangement';
-import {
-  BEAT_PRESETS,
-  INSTRUMENT_PRESETS,
-  PROJECT_TEMPLATES,
-  GENRE_LIST,
-  type BeatPreset,
-  type InstrumentPreset,
-  type ProjectTemplate,
-} from '@/lib/music/presets';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import { useStarMakerEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
-import { useForgeActivity } from '@/lib/forge/useForgeActivity';
-import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import { buildLedgerMediaUrl, uploadBlobToLedgerStorage } from '@/lib/media/ledger';
-import {
-  type PianoRollState,
-  type CompingState,
-  type SessionViewState,
-  PIANO_ROLL_DEFAULTS,
-  createInitialCompingState,
-  createInitialSessionView,
-} from '@/lib/music/starmakerDaw';
-import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
-import { ArtifactSlot } from '@/lib/enginpipe';
-import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
-import { useStarMakerEnginRuntime } from '@/lib/engins/music/useStarMakerEnginRuntime';
-import MultitrackArrangementPanel from '@/components/daydream/starmaker/dream.panel.MultitrackArrangementPanel';
-import PianoRollPanel from '@/components/daydream/starmaker/dream.panel.PianoRollPanel';
-import CompingPanel from '@/components/daydream/starmaker/dream.panel.CompingPanel';
-import SessionViewPanel from '@/components/daydream/starmaker/dream.panel.SessionViewPanel';
-import { AudioVisualizer3D } from '@/components/dream.AudioVisualizer3D';
-import { buildPeakMap, createFingerprintIsolator, type PeakMap } from '@/lib/audioFingerprint';
-import Link from 'next/link';
-import {
-  ArrowLeft,
-  Download,
-  FileAudio,
-  FolderOpen,
-  Gauge,
-  Mic2,
-  Music,
-  Pause,
-  Play,
-  Radio,
-  Sliders,
-  Sparkles,
-  Upload,
-  Wand2,
-  ZoomIn,
-  ZoomOut,
+    ArrowLeft,
+    Download,
+    FileAudio,
+    FolderOpen,
+    Gauge,
+    Mic2,
+    Music,
+    Pause,
+    Play,
+    Radio,
+    Sliders,
+    Sparkles,
+    Upload,
+    ZoomIn,
+    ZoomOut,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type PersistedLedgerAudio = {
   bucket: 'audio';
@@ -159,12 +153,6 @@ const ACCENT = '#2a8ab8';
 const BEAT_CHANNELS = ['Kick', 'Snare', 'Hi-Hat', 'Synth'] as const;
 const BEAT_STEPS    = 8;
 
-const CHANNEL_COLORS: Record<number, string> = {
-  0: '#ef4444',  // Kick   — red
-  1: '#f59e0b',  // Snare  — amber
-  2: '#2a8ab8',  // Hi-Hat — accent blue
-  3: '#8b5cf6',  // Synth  — violet
-};
 
 const EFFECT_LIST: EffectName[] = [
   'Reverb', 'Delay', 'Chorus', 'Distortion',
@@ -200,12 +188,6 @@ const MUSICAL_KEYS = [
 ] as const;
 type MusicalKey = typeof MUSICAL_KEYS[number];
 
-const MIXER_STRIPS: { key: keyof MixerState; label: string; color: string }[] = [
-  { key: 'vocals',      label: 'VOC',  color: '#ec4899' },
-  { key: 'instruments', label: 'INST', color: '#2a8ab8' },
-  { key: 'bass',        label: 'BASS', color: '#8b5cf6' },
-  { key: 'fx',          label: 'FX',   color: '#f59e0b' },
-];
 
 const STEM_LIST: { key: StemKey; label: string }[] = [
   { key: 'vocals', label: 'Vocals' },
@@ -252,23 +234,10 @@ function getChordRootFrequency(
 
 // ─── Shared style object (BPM stepper buttons) ─────────────────────────────────
 
-const bpmBtnStyle: React.CSSProperties = {
-  padding: '4px 8px',
-  borderRadius: 6,
-  border: `1px solid ${ACCENT}30`,
-  background: `${ACCENT}10`,
-  color: ACCENT,
-  fontWeight: 700,
-  fontSize: 11,
-  cursor: 'pointer',
-  flexShrink: 0,
-  lineHeight: 1,
-};
 
 // ─── Root component ────────────────────────────────────────────────────────────
 
 export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: Props) {
-  const starBridge = useStarMakerEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'music' });
 
   // ── Stable instance ID for the runtime channel (solo or co-op) ──
@@ -294,7 +263,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useStarMakerEnginRuntime();
 
   // ── Workflow (music:beat-composition — default workflow) ──
-  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  const { loadWorkflow } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('music:beat-composition'); }, [loadWorkflow]);
 
   // ── Part 2 additions: 3D Visualizer, Fingerprint Isolate, Shared Dream ──
@@ -1258,20 +1227,6 @@ function dawPill(color: string): React.CSSProperties {
   };
 }
 
-function dawPickerStyle(color: string = DAW.accent): React.CSSProperties {
-  return {
-    width: '100%',
-    padding: '8px 10px',
-    borderRadius: 8,
-    border: `1px solid ${color}35`,
-    background: '#0f1117',
-    color: DAW.text,
-    cursor: 'pointer',
-    fontSize: 12,
-    fontWeight: 700,
-    boxShadow: `inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 20px rgba(0,0,0,0.18)`,
-  };
-}
 
 function dawDisclosureToggleStyle(active: boolean): React.CSSProperties {
   return {
@@ -1464,7 +1419,7 @@ interface DAWMultiTrackPanelProps {
 }
 
 function DAWMultiTrackPanel({
-  mixer, stemReady, beatGrid, playbackStep, playing, waveformRecording,
+  mixer, stemReady, playbackStep, playing, waveformRecording,
 }: DAWMultiTrackPanelProps) {
   const channelLevels: Record<string, number> = {
     original: 0.9,
@@ -3057,67 +3012,8 @@ function DAWFileIOPanel({
     return 240 / Math.max(60, bpm);
   }
 
-  function captureCurrentToRack( ){
-    const currentBlob = audioBlobRef.current;
-    const currentBuffer = audioBufRef.current;
-    if (!fileName || !currentBlob || !currentBuffer) {
-      showOpMsg('⚠ Load a decodable audio clip first');
-      return;
-    }
 
-    const id = `src-${Date.now()}`;
-    const color = ARRANGEMENT_SOURCE_COLORS[sourceLibrary.length % ARRANGEMENT_SOURCE_COLORS.length];
-    arrangementBuffersRef.current[id] = currentBuffer;
-    const entry: ArrangementSource = {
-      id,
-      name: fileName,
-      durationSec: currentBuffer.duration,
-      waveform: [...waveform],
-      color,
-    };
-    setSourceLibrary((prev) => [...prev, entry]);
-    setSelectedSourceId(id);
-    showOpMsg(`✓ Added ${fileName} to Source Rack`);
-  }
 
-  function placeArrangementClip(trackId: ArrangementTrackId, startBar: any): number | undefined {
-    const sourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
-    if (!sourceId) {
-      showOpMsg('⚠ Capture a clip into the Source Rack first');
-      return;
-    }
-    const source = sourceLibrary.find((item) => item.id === sourceId);
-    if (!source) {
-      showOpMsg('⚠ Selected source is unavailable');
-      return;
-    }
-    const barLength = Math.max(1, Math.min(4, Math.ceil(source.durationSec / getBarSeconds())));
-    const clip: ArrangementClip = {
-      id: `clip-${Date.now()}-${Math.round(Math.random() * 999)}`,
-      trackId,
-      sourceId,
-      label: source.name.replace(/\.[^.]+$/, ''),
-      startBar: Math.max(0, Math.min(ARRANGEMENT_BARS - barLength, startBar)),
-      barLength,
-      gain: 1,
-      color: source.color,
-    };
-    setArrClips((prev) => [...prev, clip]);
-    setSelectedClipId(clip.id);
-    showOpMsg(`✓ Placed ${source.name} on ${arrTracks.find((track) => track.id === trackId)?.label ?? trackId}`);
-  }
-
-  function updateSelectedClip(updater: (clip: ArrangementClip) => ArrangementClip | null) {
-    if (!selectedClipId) {
-      showOpMsg('⚠ Select an arrangement clip first');
-      return;
-    }
-    setArrClips((prev) => prev.flatMap((clip) => {
-      if (clip.id !== selectedClipId) return [clip];
-      const next = updater(clip);
-      return next ? [next] : [];
-    }));
-  }
 
   function stopArrangementPlayback(resetPlayhead = true ){
     arrangementSourcesRef.current.forEach((node) => {
@@ -3342,13 +3238,6 @@ function DAWFileIOPanel({
     showOpMsg(`✓ Arrangement preview ${arrLooping ? 'looping' : 'playing'} across ${ARRANGEMENT_BARS} bars`);
   }, [arrClips, arrLooping, arrTracks]);
 
-  const toggleArrangementPlayback = useCallback(() => {
-    if (arrPlaying) {
-      stopArrangementPlayback();
-      return;
-    }
-    startArrangementPlayback();
-  }, [arrPlaying, startArrangementPlayback]);
 
   // ── React to external load (from SoundRecorder "Send to Editor") ──
   useEffect(() => {

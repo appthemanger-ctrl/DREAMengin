@@ -13,8 +13,8 @@
  * Privacy: no raw user data in bridge payloads — only IDs (AXIOM 4).
  */
 
-import { useEffect } from 'react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useEffect } from 'react';
 
 interface Props {
   sharerId: string;

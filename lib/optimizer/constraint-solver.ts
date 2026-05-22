@@ -8,10 +8,10 @@
  */
 
 import type {
-  Constraint,
-  ConstraintSolverOptions,
-  OptimizationItem,
-  RankedItem,
+    Constraint,
+    ConstraintSolverOptions,
+    OptimizationItem,
+    RankedItem,
 } from './types';
 
 export class ConstraintSolver {
@@ -29,7 +29,7 @@ export class ConstraintSolver {
    * Solve optimization problem with constraints
    * Returns items ranked by their optimization score
    */
-  solve<T = any>(
+  solve(
     items: OptimizationItem[],
     constraints: Constraint[],
     metadata?: Record<string, unknown>
@@ -161,7 +161,7 @@ export class ConstraintSolver {
   /**
    * Optimize with multiple objectives
    */
-  multiObjectiveOptimize<T = any>(
+  multiObjectiveOptimize(
     items: OptimizationItem[],
     objectives: Array<{
       name: string;

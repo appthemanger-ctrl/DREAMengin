@@ -11,10 +11,10 @@
  * When an onClick handler is provided the badge renders as a button.
  */
 
-import Image from 'next/image';
-import { PLATFORM_MAP } from '@/lib/social/platforms';
 import SheetIcon from '@/components/ui/dream.SheetIcon';
 import { hasIcon } from '@/lib/icons/sheet';
+import { PLATFORM_MAP } from '@/lib/social/platforms';
+import Image from 'next/image';
 
 // ─── Legacy SVG icons (file / globe / window) ─────────────────────────────────
 const SVG_BRAND: Record<string, string> = {

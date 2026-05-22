@@ -9,10 +9,10 @@
 'use client';
 
 import type {
-  CreativeCandidate,
-  ScoredCandidate,
-  OptimizeroWeights,
-  OptimizeroResult,
+    CreativeCandidate,
+    OptimizeroResult,
+    OptimizeroWeights,
+    ScoredCandidate,
 } from './creative-optimizero';
 import { CreativeOptimizero, DEFAULT_WEIGHTS } from './creative-optimizero';
 

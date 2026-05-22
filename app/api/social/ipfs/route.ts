@@ -9,8 +9,8 @@
  * the browser bundle. All routes require a valid Supabase session.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:4000';
 

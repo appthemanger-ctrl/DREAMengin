@@ -375,7 +375,7 @@ describe('/api/content/transcribe', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subtitleContent: '1\n00:00:00,000 --> 00:00:01,000\nHello\n', format: 'srt' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     expect(res.status).toBe(401);
   });
 
@@ -388,7 +388,7 @@ describe('/api/content/transcribe', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subtitleContent: srt, format: 'srt' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.rawContent).toContain('Hello world');
@@ -406,7 +406,7 @@ describe('/api/content/transcribe', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subtitleContent: vtt, format: 'vtt' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.segmentCount).toBe(1);
@@ -422,7 +422,7 @@ describe('/api/content/transcribe', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ audioBase64: 'dGVzdA==' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.source).toBe('audio');
@@ -437,7 +437,7 @@ describe('/api/content/transcribe', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     });
-    expect((await POST(req as unknown as import('next/server').NextRequest)).status).toBe(400);
+    expect((await POST(req as any as import('next/server').NextRequest)).status).toBe(400);
   });
 });
 
@@ -453,7 +453,7 @@ describe('/api/content/generative-fill', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: 'abc123', prompt: 'sunset sky' }),
     });
-    expect((await POST(req as unknown as import('next/server').NextRequest)).status).toBe(401);
+    expect((await POST(req as any as import('next/server').NextRequest)).status).toBe(401);
   });
 
   it('returns mock result when no provider is configured', async () => {
@@ -466,7 +466,7 @@ describe('/api/content/generative-fill', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: 'abc123def456', prompt: 'replace sky with sunset' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.provider).toBe('mock');
@@ -483,7 +483,7 @@ describe('/api/content/generative-fill', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: 'abc123def456', prompt: 'fill with sky', mask: { x: 0, y: 0, width: 0.5, height: 0.5 } }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(json.message).toContain('mask:');
   });
@@ -496,7 +496,7 @@ describe('/api/content/generative-fill', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: 'abc123def456', prompt: 'fill', mask: { x: 0.8, y: 0, width: 0.5, height: 0.5 } }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     expect(res.status).toBe(400);
   });
 
@@ -508,7 +508,7 @@ describe('/api/content/generative-fill', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: 'abc123def456' }),
     });
-    expect((await POST(req as unknown as import('next/server').NextRequest)).status).toBe(400);
+    expect((await POST(req as any as import('next/server').NextRequest)).status).toBe(400);
   });
 
   it('includes ETag header in response', async () => {
@@ -521,7 +521,7 @@ describe('/api/content/generative-fill', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ imageBase64: 'abc123def456', prompt: 'test prompt' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     expect(res.headers.get('ETag')).toBeTruthy();
   });
 });
@@ -538,7 +538,7 @@ describe('/api/content/voice-clone', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'clone', sampleBase64: 'abc', voiceName: 'Test Voice' }),
     });
-    expect((await POST(req as unknown as import('next/server').NextRequest)).status).toBe(401);
+    expect((await POST(req as any as import('next/server').NextRequest)).status).toBe(401);
   });
 
   it('creates a mock voice profile when no ElevenLabs key is configured', async () => {
@@ -553,7 +553,7 @@ describe('/api/content/voice-clone', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'clone', sampleBase64: 'dGVzdGF1ZGlvZGF0YQ==', voiceName: 'My Voice' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.profile.name).toBe('My Voice');
@@ -570,7 +570,7 @@ describe('/api/content/voice-clone', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'tts', text: 'one two three four five six', voiceId: 'voice_123' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.durationSeconds).toBeCloseTo(2.4, 0);
@@ -585,7 +585,7 @@ describe('/api/content/voice-clone', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'clone', sampleBase64: 'abc' }),
     });
-    expect((await POST(req as unknown as import('next/server').NextRequest)).status).toBe(400);
+    expect((await POST(req as any as import('next/server').NextRequest)).status).toBe(400);
   });
 
   it('list action returns profiles array', async () => {
@@ -608,7 +608,7 @@ describe('/api/content/voice-clone', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'list' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(Array.isArray(json.profiles)).toBe(true);
@@ -632,7 +632,7 @@ describe('/api/content/voice-clone', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'list' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.profiles).toEqual([]);
@@ -655,7 +655,7 @@ describe('/api/content/voice-clone', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'delete', voiceId: 'voice_001' }),
     });
-    const res = await POST(req as unknown as import('next/server').NextRequest);
+    const res = await POST(req as any as import('next/server').NextRequest);
     const json = await res.json();
     expect(res.status).toBe(200);
     expect(json.message).toContain('voice_001');

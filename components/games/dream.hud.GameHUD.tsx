@@ -1,7 +1,7 @@
 'use client';
 
-import MobileGameHUD from '@/components/games/dream.hud.MobileGameHUD';
 import GameController from '@/components/games/dream.GameController';
+import MobileGameHUD from '@/components/games/dream.hud.MobileGameHUD';
 import type { MobileHudMode } from '@/lib/games/mobileControls';
 
 interface GameHUDProps {

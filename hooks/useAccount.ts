@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState } from 'react';
 
 export function useAccount(initialAccountId?: string | null ){
   const [accountId, setAccountId] = useState<string | null>(initialAccountId ?? null);

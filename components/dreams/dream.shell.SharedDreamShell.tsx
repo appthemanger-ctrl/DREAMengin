@@ -15,10 +15,10 @@
  * Audio call: WebRTC getUserMedia — microphone only, no server relay.
  */
 
-import React, { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSharedDream } from '@/hooks/useSharedDream';
 import type { DreamBroadcastPayload } from '@/lib/sharedDream';
 import { Mic, MicOff, Users, X } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

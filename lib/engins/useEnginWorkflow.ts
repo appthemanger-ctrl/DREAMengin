@@ -17,20 +17,20 @@
  *   - localStorage key: `engin_workflow:<workflowId>`
  */
 
-import { useCallback, useEffect, useState } from 'react';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { logJourneyDot } from '@/lib/journey/journeyDots';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  type EnginWorkflow,
-  type WorkflowStage,
-  type HandoffKind,
-  createWorkflow,
-  advanceStage,
-  abandonWorkflow,
-  checkHandoffEligibility,
-  describeWorkflow,
-  findWorkflowDef,
-  HANDOFF_PATHS,
+    type EnginWorkflow,
+    type HandoffKind,
+    type WorkflowStage,
+    abandonWorkflow,
+    advanceStage,
+    checkHandoffEligibility,
+    createWorkflow,
+    describeWorkflow,
+    findWorkflowDef,
+    HANDOFF_PATHS,
 } from './workflowEngine';
 
 // ─── Storage helpers (localStorage, best-effort) ─────────────────────────────

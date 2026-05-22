@@ -2,17 +2,17 @@
 // Canonical Dr. Eams endpoint — user-facing AI agent.
 // AI keys are server-side only (Vercel env vars, never client).
 
-import { NextRequest, NextResponse } from 'next/server';
+import { writeAuditLog } from '@/lib/ai/audit';
+import { boogieEvaluate } from '@/lib/ai/boogieman';
+import { makeConfirmToken } from '@/lib/ai/confirm';
+import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
+import { DrEamsRunBodySchema, type DrEamsRunResponse } from '@/lib/ai/schemas';
+import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from '@/lib/ai/triad';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { DrEamsRunBodySchema, type DrEamsRunResponse } from '@/lib/ai/schemas';
-import { boogieEvaluate } from '@/lib/ai/boogieman';
-import { makeConfirmToken } from '@/lib/ai/confirm';
-import { writeAuditLog } from '@/lib/ai/audit';
-import { checkRateLimit, getCurrentRPM } from '@/lib/ai/rateLimit';
-import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from '@/lib/ai/triad';
 
 
 

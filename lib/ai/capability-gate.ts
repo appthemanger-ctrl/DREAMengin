@@ -2,9 +2,9 @@
 // RBAC + ABAC Capability Gate
 // DB-backed authorization checks
 
-import { ActorContext, IntentType } from '@/types/ai-system';
-import { createServerClient } from '@/lib/supabase/server';
 import { isOwnerEmail } from '@/lib/ai/triad';
+import { createServerClient } from '@/lib/supabase/server';
+import { ActorContext, IntentType } from '@/types/ai-system';
 
 // ============================================================================
 // ROLE RANKS

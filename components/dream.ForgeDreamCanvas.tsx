@@ -11,31 +11,30 @@
  * - Uses local event bus, NOT global bridge
  */
 
-import React, {
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  type MouseEvent,
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type MouseEvent,
 } from 'react';
 import {
-  COMPONENT_INVENTORY,
-  ALL_CATEGORIES,
-  getByCategory,
-  type AtomicComponent,
-  type ComponentCategory,
+    ALL_CATEGORIES,
+    getByCategory,
+    type AtomicComponent,
+    type ComponentCategory,
 } from '../lib/componentInventory';
-import {
-  atomicPieceFromComponent,
-  createAssembly,
-  runAssembly,
-  serializeAssembly,
-  validateAssembly,
-  type AtomicPiece,
-  type Wire,
-  type AssemblySandbox,
-} from '../lib/forge/engineForge';
 import { createEventBus } from '../lib/eventBus';
+import {
+    atomicPieceFromComponent,
+    createAssembly,
+    runAssembly,
+    serializeAssembly,
+    validateAssembly,
+    type AssemblySandbox,
+    type AtomicPiece,
+    type Wire,
+} from '../lib/forge/engineForge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

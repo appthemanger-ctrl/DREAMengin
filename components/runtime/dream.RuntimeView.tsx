@@ -15,30 +15,30 @@
  * feature component directly inside the region. No routing. No overlays.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import HomeDreamSurface from '@/app/dreamdmbar/_components/HomeDreamRegion';
 import DreamsSpacePanel from '@/components/dreams/dreamsurface.dreamspace';
 import RuntimeShell from '@/components/runtime/dream.shell.RuntimeShell';
 import EnhancedSpatialShell from '@/components/spatial/dream.shell.EnhancedSpatialShell';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
+import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
+import React, { useCallback, useEffect, useState } from 'react';
 
 // ── Panel components (loaded in-region, never as overlays) ───────────────────
-import SettingsPanel     from '@/components/panels/dream.panel.SettingsPanel';
-import ConnectorsPanel   from '@/components/panels/dream.panel.ConnectorsPanel';
-import MarketplacePanel  from '@/components/panels/dream.panel.MarketplacePanel';
-import ProfilePanel      from '@/components/panels/dream.panel.ProfilePanel';
+import AlgorithmPanel from '@/components/panels/dream.panel.AlgorithmPanel';
+import AppearancePanel from '@/components/panels/dream.panel.AppearancePanel';
+import ConnectorsPanel from '@/components/panels/dream.panel.ConnectorsPanel';
+import ControlsPanel from '@/components/panels/dream.panel.ControlsPanel';
+import DataPanel from '@/components/panels/dream.panel.DataPanel';
 import FeedSettingsPanel from '@/components/panels/dream.panel.FeedSettingsPanel';
-import AppearancePanel   from '@/components/panels/dream.panel.AppearancePanel';
-import PrivacyPanel      from '@/components/panels/dream.panel.PrivacyPanel';
-import ControlsPanel     from '@/components/panels/dream.panel.ControlsPanel';
-import DataPanel         from '@/components/panels/dream.panel.DataPanel';
-import AlgorithmPanel    from '@/components/panels/dream.panel.AlgorithmPanel';
-import WidgetsPanel      from '@/components/panels/dream.panel.WidgetsPanel';
-import HelpPanel         from '@/components/panels/dream.panel.HelpPanel';
-import SafetyPanel       from '@/components/panels/dream.panel.SafetyPanel';
-import type { SystemPanelId } from '@/lib/panels/panelTypes';
+import HelpPanel from '@/components/panels/dream.panel.HelpPanel';
+import MarketplacePanel from '@/components/panels/dream.panel.MarketplacePanel';
+import PrivacyPanel from '@/components/panels/dream.panel.PrivacyPanel';
+import ProfilePanel from '@/components/panels/dream.panel.ProfilePanel';
+import SafetyPanel from '@/components/panels/dream.panel.SafetyPanel';
+import SettingsPanel from '@/components/panels/dream.panel.SettingsPanel';
+import WidgetsPanel from '@/components/panels/dream.panel.WidgetsPanel';
 import { getDreamComponent } from '@/lib/dreams/DreamRegistry';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
 interface RuntimeViewProps {
   world: RuntimeWorld;
@@ -50,7 +50,7 @@ interface RuntimeViewProps {
     avatar_url?: string | null;
   } | null;
    
-  posts?: unknown[];
+  posts?: Post[];
   isAdmin?: boolean;
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
@@ -83,11 +83,6 @@ export default function RuntimeView({
   onOpenDrEams,
   onOpenDreamSpace,
   onOpenInRegion,
-  onBackFromRegion,
-  seamOffsetPx,
-  splitRatio,
-  seamVisible,
-  dominantRegion,
 }: RuntimeViewProps) {
   /* ── In-region iframe state ─────────────────────────────────────────────── */
   const [iframeUrl,   setIframeUrl]   = useState<string | null>(null);

@@ -1,12 +1,11 @@
-import type { Database } from '@/types/supabase';
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Code2, FolderOpen, FileCode2, Upload, ExternalLink, Play } from 'lucide-react';
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import CodeEngin from '@/engins/engin.CodeEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import CodeEngin from '@/engins/engin.CodeEngin';
+import { createServerClient } from '@/lib/supabase/server';
+import { Code2, FileCode2, FolderOpen, Play, Upload } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Code Daydream – Dreamengin', description: 'Code projects, snippets, files, and deployments.' };

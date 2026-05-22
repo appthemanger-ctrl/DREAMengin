@@ -10,7 +10,7 @@
  *   isBotSession(history)     → BotSessionResult
  */
 
-import { slog, slogVariance, slogEntropy } from './slog';
+import { slog, slogEntropy, slogVariance } from './slog';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

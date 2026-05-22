@@ -15,14 +15,14 @@
  *   - ShellHub API key is never returned in the response
  */
 
-import { NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase/server';
 import {
-  shellhubListDevices,
-  SHELLHUB_DEFAULT_SERVER,
-  type ShellHubDevice,
+    SHELLHUB_DEFAULT_SERVER,
+    shellhubListDevices,
+    type ShellHubDevice,
 } from '@/lib/connectors/providers/shellhub';
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 
 
 export interface ShellHubDevicesResponse {

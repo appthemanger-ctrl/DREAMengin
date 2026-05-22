@@ -11,10 +11,10 @@
 //   LAW.md §2 — nothing is exposed without auth; this route is auth-gated.
 //   ARCHITECTURE.md §10 — Next.js App Router, Supabase SSR client.
 
-import { NextRequest, NextResponse } from 'next/server';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 // Tables to export, each with the column name that identifies the owner.

@@ -29,7 +29,7 @@ const mockIDB = {
           get: vi.fn().mockImplementation((key: string) => {
             const req = { onsuccess: null as ((e: Event) => void) | null, onerror: null, result: idbStore.get(key) ?? undefined };
             // Immediately call onsuccess
-            Promise.resolve().then(() => req.onsuccess?.({ target: req } as unknown as Event));
+            Promise.resolve().then(() => req.onsuccess?.({ target: req } as any as Event));
             return req;
           }),
           delete: vi.fn().mockImplementation((key: string) => {
@@ -39,7 +39,7 @@ const mockIDB = {
         };
         return { objectStore: vi.fn().mockReturnValue(objStore) };
       }),
-    } as unknown as IDBDatabase;
+    } as any as IDBDatabase;
 
     const req = {
       result,
@@ -48,7 +48,7 @@ const mockIDB = {
       onupgradeneeded: null,
     };
     // Immediately call onsuccess
-    Promise.resolve().then(() => req.onsuccess?.({ target: req } as unknown as Event));
+    Promise.resolve().then(() => req.onsuccess?.({ target: req } as any as Event));
     return req;
   }),
 };

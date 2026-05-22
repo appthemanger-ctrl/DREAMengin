@@ -1,10 +1,10 @@
 // app/api/dreams/instances/route.ts
 // Dream System V2 — surface instance listing
 
-import { NextRequest, NextResponse, connection } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import { z } from 'zod';
 import { Surface } from '@/types/widget-system-v2';
+import { NextRequest, NextResponse, connection } from 'next/server';
+import { z } from 'zod';
 
 
 type SurfaceName = 'HOME' | 'FACE' | 'PROFILE' | 'DOCK';
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         *,
         dream_definitions!inner(*)
       `
-      ) as unknown)
+      ) as any)
       .eq('owner_id', user.id)
       .eq('surface', surface)
       .eq('surface_key', surfaceKey)

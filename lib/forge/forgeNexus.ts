@@ -13,7 +13,7 @@
  * Architecture: Pure computation from Forge history. No Supabase writes.
  */
 
-import { FORGE_HISTORY_KEY, CREATIVE_ENGINES, ENGIN_REGISTRY } from './forgeRegistry';
+import { CREATIVE_ENGINES, ENGIN_REGISTRY, FORGE_HISTORY_KEY } from './forgeRegistry';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -148,7 +148,6 @@ export function computeEdges(transitions: Map<string, number>): NexusEdge[] {
  * Compute node metrics from edges.
  */
 export function computeNodes(edges: NexusEdge[]): NexusNode[] {
-  const creativeIds = new Set(CREATIVE_ENGINES.map((e) => e.id));
   const inbound = new Map<string, number>();
   const outbound = new Map<string, number>();
 

@@ -26,9 +26,9 @@
  */
 
 import {
-  DREAM_WINDOW_STATES,
-  type DreamWindowState,
-  type ConnectionVerb,
+    DREAM_WINDOW_STATES,
+    type ConnectionVerb,
+    type DreamWindowState,
 } from '@/lib/identity/canonical-names';
 
 // ---------------------------------------------------------------------------

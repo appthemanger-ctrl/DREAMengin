@@ -1,7 +1,7 @@
 // SURFACE: dreamsurface.SettingsWidgetsLegacy
-import Link from 'next/link';
-import { LayoutGrid } from 'lucide-react';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import { LayoutGrid } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata = { title: 'Dreams – DREAMengin Settings' };
 

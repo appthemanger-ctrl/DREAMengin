@@ -55,7 +55,7 @@ export function stripHtml(input?: string | null ){
 
 // ── Image extraction ──────────────────────────────────────────────────────
 
-export function extractFirstImage(item: unknown): string | null {
+export function extractFirstImage(item: Record<string, any>): string | null {
   // 1) enclosure
   if (item.enclosure?.url) return item.enclosure.url;
 

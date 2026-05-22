@@ -23,7 +23,7 @@
  */
 
 import { normaliseFacebook } from '@/lib/connectors/normalise';
-import { parseRssFeed, facebookPageRssUrl } from '@/lib/social/rss-feed';
+import { facebookPageRssUrl, parseRssFeed } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
 export interface FacebookCredentials {

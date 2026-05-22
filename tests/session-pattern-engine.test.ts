@@ -269,7 +269,7 @@ describe('SessionPatternEngine', () => {
   it('importMatrix is a no-op for malformed data', () => {
     const engine2 = new SessionPatternEngine();
     // Should not throw on malformed input.
-    expect(() => engine2.importMatrix({ bad: null as unknown as Record<string, number> })).not.toThrow();
+    expect(() => engine2.importMatrix({ bad: null as any as Record<string, number> })).not.toThrow();
     expect(() => engine2.importMatrix({})).not.toThrow();
   });
 });

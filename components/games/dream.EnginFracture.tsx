@@ -10,8 +10,8 @@
  * Render: 2-D canvas, OS-scaffolding arena, Dreamcast-saturation grid floor.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Phase = 'menu' | 'build' | 'fight' | 'victory' | 'defeat';
 type Faction = 'lattice' | 'choir' | 'kindling';
@@ -61,13 +61,11 @@ export default function EnginFracture( ){
   const bulletsRef = useRef<Bullet[]>([]);
   const keysRef = useRef<Set<string>>(new Set());
   const timerRef = useRef(90);
-  const tickRef = useRef(0);
   const scoreRef = useRef(0);
   const submit = useSubmitScore('engin-fracture');
 
   const buildMech = useCallback((b: Build, side: 'p' | 'e'): Mech => {
-    const c = CHASSIS[b.chassis]; const a = ARMS[b.arm]; const l = LEGS[b.leg];
-    const hp = c.hp + Math.floor(a.dmg < 12 ? 10 : 0);
+    const c = CHASSIS[b.chassis]; const a = ARMS[b.arm];     const hp = c.hp + Math.floor(a.dmg < 12 ? 10 : 0);
     return {
       side, x: side === 'p' ? 120 : W - 120, y: GROUND, vx: 0, vy: 0,
       hp, maxHp: hp, facing: side === 'p' ? 1 : -1, cooldown: 0,

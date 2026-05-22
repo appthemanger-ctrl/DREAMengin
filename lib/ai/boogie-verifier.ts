@@ -2,20 +2,18 @@
 // THE BOOGIE MAN - Policy Enforcement & Risk Scoring Engine
 // Deterministic verifier for all AI intents
 
-import type { SupabaseClient } from '@supabase/supabase-js';
-import {
-  Intent,
-  ActorContext,
-  BoogieOutput,
-  BoogieIntentDecision,
-  BoogieSignals,
-  BoogieDecision,
-  ReasonCode,
-  AgentType,
-  DrEamsIntentType,
-  IDariIntentType,
-} from '@/types/ai-system';
 import { createServerClient } from '@/lib/supabase/server';
+import {
+    ActorContext,
+    AgentType,
+    BoogieDecision,
+    BoogieIntentDecision,
+    BoogieOutput,
+    BoogieSignals,
+    Intent,
+    ReasonCode,
+} from '@/types/ai-system';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ============================================================================
 // POLICY CONFIGURATION

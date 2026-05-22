@@ -23,28 +23,36 @@
  *   - Modules communicate only when explicitly wired
  */
 
-import React, { useState, useCallback, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Plus, Trash2, Play, Save, Download, Upload,
-  Zap, ChevronRight, ChevronDown, X, Check,
-  AlertTriangle, CheckCircle2, Link2, Unlink,
-} from 'lucide-react';
-import {
-  COMPONENT_INVENTORY,
-  type AtomicComponent,
-  type ComponentCategory,
+    COMPONENT_INVENTORY,
+    type AtomicComponent,
+    type ComponentCategory,
 } from '@/lib/componentInventory';
 import {
-  createAssembly,
-  validateAssembly,
-  serializeAssembly,
-  deserializeAssembly,
-  atomicPieceFromComponent,
-  type AtomicPiece,
-  type Wire,
-  type EngineAssembly,
+    atomicPieceFromComponent,
+    createAssembly,
+    deserializeAssembly,
+    serializeAssembly,
+    validateAssembly,
+    type AtomicPiece,
+    type EngineAssembly,
+    type Wire,
 } from '@/lib/forge/engineForge';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    AlertTriangle,
+    Check,
+    CheckCircle2,
+    ChevronDown,
+    ChevronRight,
+    Play,
+    Plus,
+    Save,
+    Trash2,
+    Upload,
+    X,
+} from 'lucide-react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -697,7 +705,7 @@ export default function EngineBuilderCanvas({
                 </foreignObject>
 
                 {/* Input ports (left side) */}
-                {piece.inputPorts.map((port, idx: number) => {
+                {piece.inputPorts.map((port) => {
                   const { x, y } = piecePortPos(piece, port.id, true);
                   return (
                     <g key={`in-${port.id}`}>
@@ -719,7 +727,7 @@ export default function EngineBuilderCanvas({
                 })}
 
                 {/* Output ports (right side) */}
-                {piece.outputPorts.map((port, idx: number) => {
+                {piece.outputPorts.map((port) => {
                   const { x, y } = piecePortPos(piece, port.id, false);
                   return (
                     <g key={`out-${port.id}`}>

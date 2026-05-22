@@ -17,13 +17,13 @@
  * Phase 8 Section B: Point 16 — all actions write to DB.
  */
 
+import type {
+    CreateDreamWindowBody,
+    DreamWindowRecord,
+    PatchDreamWindowBody,
+} from '@/types/dream-window';
 import { useCallback, useEffect, useState } from 'react';
 import { DREAM_WINDOW_STATES } from './DreamWindowLifecycle';
-import type {
-  DreamWindowRecord,
-  CreateDreamWindowBody,
-  PatchDreamWindowBody,
-} from '@/types/dream-window';
 
 // ---------------------------------------------------------------------------
 // Types

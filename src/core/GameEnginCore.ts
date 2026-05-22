@@ -21,9 +21,9 @@
  * initialises.
  */
 
-import { EliteGameEngine }    from '@/lib/gameengin/core';
-import { GameEnginRuntime }   from '@/lib/gameengin/gameEnginRuntime';
-import type { QualityTier }   from '@/lib/gameengin/core';
+import type { QualityTier } from '@/lib/gameengin/core';
+import { EliteGameEngine } from '@/lib/gameengin/core';
+import { GameEnginRuntime } from '@/lib/gameengin/gameEnginRuntime';
 
 // ─── Configuration Types ──────────────────────────────────────────────────────
 

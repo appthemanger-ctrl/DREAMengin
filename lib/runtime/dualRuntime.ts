@@ -23,8 +23,8 @@
  */
 
 import {
-  SURFACE_NAMES,
-  RUNTIME_REGIONS,
+    RUNTIME_REGIONS,
+    SURFACE_NAMES,
 } from '@/lib/identity/canonical-names';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
@@ -240,4 +240,4 @@ export function moveTorus(
 }
 
 // Re-export canonical name constants for consumers
-export { SURFACE_NAMES, RUNTIME_REGIONS };
+export { RUNTIME_REGIONS, SURFACE_NAMES };

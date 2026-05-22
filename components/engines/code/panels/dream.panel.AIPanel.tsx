@@ -8,8 +8,8 @@
  * Lives at /engines/code/ai.
  */
 
-import { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Loader2, Copy, CheckCheck, Sparkles } from 'lucide-react';
+import { Bot, CheckCheck, Copy, Loader2, Send, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Message {
   id: string;

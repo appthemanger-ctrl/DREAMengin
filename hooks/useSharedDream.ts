@@ -1,26 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import {
-  createSharedDreamSession,
-  leaveSharedDreamSession,
-  broadcastCursorPosition,
-  broadcastEdit,
-  broadcastStatePatch,
-  broadcastDataPacket,
-  broadcastMediaSync,
-  broadcastControlSignal,
-  broadcastModeChange,
-  broadcastPresenceUpdate,
-  type SharedDreamSession,
-  type DreamBroadcastPayload,
-  type DreamEventHandler,
-  type DreamSessionMode,
-  type DreamSessionRole,
-  type DreamPresenceUpdate,
-} from '@/lib/sharedDream';
 import { generateInviteLink } from '@/lib/collaboration';
+import {
+    broadcastControlSignal,
+    broadcastCursorPosition,
+    broadcastDataPacket,
+    broadcastEdit,
+    broadcastMediaSync,
+    broadcastModeChange,
+    broadcastPresenceUpdate,
+    broadcastStatePatch,
+    createSharedDreamSession,
+    leaveSharedDreamSession,
+    type DreamBroadcastPayload,
+    type DreamEventHandler,
+    type DreamPresenceUpdate,
+    type DreamSessionMode,
+    type DreamSessionRole,
+    type SharedDreamSession,
+} from '@/lib/sharedDream';
+import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface PeerState {
   peerId: string;

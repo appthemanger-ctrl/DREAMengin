@@ -5,12 +5,12 @@
  * No routing. No server components. Everything renders here.
  */
 
-import { useEffect, useState }            from 'react';
-import { ShoppingBag, PlusCircle, Loader2 } from 'lucide-react';
-import { createClient }                   from '@/lib/supabase/client';
-import MarketplaceListingCard             from '@/components/marketplace/dream.MarketplaceListingCard';
-import DreamWord                          from '@/components/ui/dream.DreamWord';
-import { useDreamSystem }                 from '@/lib/dreamdm/DreamSystemContext';
+import MarketplaceListingCard from '@/components/marketplace/dream.MarketplaceListingCard';
+import DreamWord from '@/components/ui/dream.DreamWord';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { createClient } from '@/lib/supabase/client';
+import { Loader2, PlusCircle, ShoppingBag } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 type Listing = {
   id: string;

@@ -1,7 +1,7 @@
 'use client'
 // SURFACE: dream.overlay.GlobalError  (framework-mandated basename: global-error.tsx)
 
-import { useEffect } from 'react'
+import { useEffect } from 'react';
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {

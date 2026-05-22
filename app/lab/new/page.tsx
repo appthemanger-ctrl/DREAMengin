@@ -1,11 +1,11 @@
 'use client';
 // SURFACE: dreamsurface.LabNew  (framework-mandated basename: page.tsx)
 
-import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, FlaskConical, Globe, Loader2, Lock, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, FlaskConical, Loader2, Globe, Lock, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 
 export default function NewProjectPage( ){

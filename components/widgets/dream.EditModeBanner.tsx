@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useEditMode } from './dream.EditModeProvider';
 
 export default function EditModeBanner( ){

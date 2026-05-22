@@ -2,15 +2,15 @@
 // Execute validated intents after confirmation.
 // Maps each IntentType to a real server-side action or client-side dispatch payload.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { writeAuditLog } from '@/lib/ai/audit';
+import { verifyConfirmToken } from '@/lib/ai/confirm';
+import { checkRateLimit } from '@/lib/ai/rateLimit';
+import { ExecuteBodySchema, type Intent } from '@/lib/ai/schemas';
+import { validateWithIdari } from '@/lib/ai/triad';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
-import { ExecuteBodySchema, type Intent } from '@/lib/ai/schemas';
-import { verifyConfirmToken } from '@/lib/ai/confirm';
-import { writeAuditLog } from '@/lib/ai/audit';
-import { checkRateLimit } from '@/lib/ai/rateLimit';
-import { validateWithIdari } from '@/lib/ai/triad';
 import type { Json } from '@/types/supabase';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 // ---------------------------------------------------------------------------

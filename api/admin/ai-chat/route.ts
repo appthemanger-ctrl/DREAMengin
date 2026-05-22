@@ -10,15 +10,15 @@
  *  3. One wrong password → permanent lockout via shared lockout module
  */
 
-import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import {
+    isAdminLocked,
+    isOwner,
+    triggerAdminLockout,
+} from '@/lib/admin/lockout';
 import { groqChat, type GroqMessage } from '@/lib/ai/groq';
 import { AI_MODELS } from '@/lib/ai/triad';
-import {
-  isAdminLocked,
-  triggerAdminLockout,
-  isOwner,
-} from '@/lib/admin/lockout';
+import { createServerClient } from '@/lib/supabase/server';
+import { NextResponse } from 'next/server';
 
 
 function deny(msg: string, status: number): NextResponse {

@@ -1,11 +1,11 @@
 // SURFACE: dreamsurface.EnginesGamesBuilder  (framework-mandated basename: page.tsx)
+import BuilderPanel from '@/components/engines/games/panels/dream.panel.BuilderPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import BuilderPanel from '@/components/engines/games/panels/dream.panel.BuilderPanel';
 import { connection } from 'next/server';
-import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
 
 export const metadata = { title: 'Character Builder – GameEngin', description: 'Paint original 32×32 game characters.' };
 

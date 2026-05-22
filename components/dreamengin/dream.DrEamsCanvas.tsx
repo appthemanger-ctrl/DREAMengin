@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useCallback } from 'react';
 import { DrEamsAnimator, type DrEamsAction } from '@/lib/dreamengin/DrEamsAnimator';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 /**
  * DrEamsCanvas -- renders the Dr. Eams mascot as an animated sprite canvas.

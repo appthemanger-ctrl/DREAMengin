@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
 import { bridge, type PeerState } from '@/lib/runtime/dualRuntimeBridge';
+import { useEffect, useState } from 'react';
 
 interface Props {
   excludeChannel?: string;

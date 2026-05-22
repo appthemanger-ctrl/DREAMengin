@@ -22,8 +22,8 @@ import 'server-only';
 
 import type { SupabaseClient } from '@/engine/io';
 import type { Database } from '@/types/supabase';
-import { dispatchSync } from './syncDispatch';
 import { deduplicateFeedItems } from './normalise';
+import { dispatchSync } from './syncDispatch';
 
 export interface ReconcileResult {
   ok: boolean;

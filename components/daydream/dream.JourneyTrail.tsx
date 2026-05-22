@@ -21,14 +21,14 @@
  *   compact — smaller layout for Dream Window mounting (default false).
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import type { JourneyDot, JourneyTimeGroup } from '@/types/journey';
 import {
-  annotateDotsWithInsights,
-  computeCurrentStreak,
-  type AnnotatedDot,
+    annotateDotsWithInsights,
+    computeCurrentStreak,
+    type AnnotatedDot,
 } from '@/lib/journey/journeyInsights';
+import type { JourneyDot, JourneyTimeGroup } from '@/types/journey';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Props {
   limit?: number;

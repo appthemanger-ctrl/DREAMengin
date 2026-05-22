@@ -17,12 +17,12 @@
  * point.
  */
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  type ReactNode,
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    type ReactNode,
 } from 'react';
 import { createEventBus, type EventBus } from '../../eventBus';
 

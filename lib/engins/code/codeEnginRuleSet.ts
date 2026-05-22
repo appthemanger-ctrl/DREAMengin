@@ -13,18 +13,18 @@
  * Architecture: docs/AGENT_PLAYBOOK.md §1 — Foundation.Ruleset.
  */
 
-import type {
-  EnginAction,
-  EnginRuleSetContract,
-  EnginRuleSetParams,
-  EnginConstraint,
-  ConstraintResult,
-} from '@/lib/engin-runtime/EnginRuleSetContract';
 import {
-  patchBaseState,
-  type EnginBaseState,
+    patchBaseState,
+    type EnginBaseState,
 } from '@/lib/engin-runtime/EnginBaseState';
 import type { EnginCapability } from '@/lib/engin-runtime/EnginCapabilities';
+import type {
+    ConstraintResult,
+    EnginAction,
+    EnginConstraint,
+    EnginRuleSetContract,
+    EnginRuleSetParams,
+} from '@/lib/engin-runtime/EnginRuleSetContract';
 
 // ─── Cell types ───────────────────────────────────────────────────────────────
 

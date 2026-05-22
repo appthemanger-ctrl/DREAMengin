@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { AlertTriangle, Trash2, X, Loader2, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, Loader2, ShieldAlert, Trash2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 type ModalType = 'delete-data' | 'delete-account' | null;
 

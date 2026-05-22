@@ -8,8 +8,8 @@
  * AND the brand on your hand grows. Clear all safe tiles before time burns out.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const N = 6;
 const TOTAL_TILES = N * N;
@@ -87,7 +87,7 @@ export default function DefuseRitual( ){
       // Mine tap?
       if (t.mine) {
         t.revealed = true; t.mineHit = true;
-        setEndsAt((e: unknown ) => e - 2_000);
+        setEndsAt((e: number) => e - 2_000);
         setBrand((br) => br + 1);
         setScore((s) => Math.max(0, Number(s) - 30));
         if (brand + 1 >= 3) setPhase('lost');
@@ -107,7 +107,7 @@ export default function DefuseRitual( ){
         }
       } else {
         // Out-of-order safe tap — small penalty
-        setEndsAt((e: unknown ) => e - 600);
+        setEndsAt((e: number) => e - 600);
         setScore((s) => Math.max(0, Number(s) - 5));
       }
       return { ...b, tiles };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import WidgetCard from './dream.widget.WidgetCard';
 
 interface Track {

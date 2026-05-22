@@ -4,7 +4,7 @@
 
 import type { GestureFrame } from './GestureFrameComputer';
 import type { Quaternion } from './quaternion';
-import { fromGestureSwipe, multiply, normalize, identityQuaternion } from './quaternion';
+import { fromGestureSwipe, identityQuaternion, multiply, normalize } from './quaternion';
 
 // Numeric thresholds (constants)
 export const PINCH_IN_THRESHOLD = 12;

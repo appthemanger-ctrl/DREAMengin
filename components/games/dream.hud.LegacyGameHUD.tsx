@@ -11,9 +11,9 @@
  * EXIT always navigates to /daydream/games via Next.js router.
  */
 
-import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import GameRemote from '@/components/games/dream.remote.GameRemote';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
 interface GameHUDProps {
   gameLabel: string;

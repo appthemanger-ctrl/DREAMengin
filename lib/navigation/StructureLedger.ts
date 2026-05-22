@@ -5,8 +5,8 @@
 // Runtime: matchState() and resolveTransition() are both O(1) map reads.
 //          Nothing is constructed on demand; only the entry point is returned.
 
-import { getStateForNode, move } from './dream-state';
 import type { DreamNode, DreamState, MoveDirection } from './dream-state';
+import { getStateForNode, move } from './dream-state';
 
 const ALL_NODES: readonly DreamNode[] = [
   '0',

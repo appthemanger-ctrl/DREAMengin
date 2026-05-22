@@ -15,13 +15,22 @@
  * No eval — all execution is simulated on the client.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Play, StopCircle, Loader2, CheckCircle,
-  FlaskConical, Activity, RefreshCw, BarChart2, ArrowLeftRight, Zap, MousePointerClick,
-} from 'lucide-react';
-import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
+import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
+import {
+    Activity,
+    ArrowLeftRight,
+    BarChart2,
+    CheckCircle,
+    FlaskConical,
+    Loader2,
+    MousePointerClick,
+    Play,
+    RefreshCw,
+    StopCircle,
+    Zap,
+} from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

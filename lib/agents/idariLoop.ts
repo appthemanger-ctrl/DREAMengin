@@ -10,15 +10,15 @@
 // The loop can run client-side (browser) or server-side.
 // Pure functions at the bottom are unit-testable without any HTTP calls.
 
-import { v4 as uuidv4 } from 'uuid';
+import { createPatchPlan, type PatchPlan, type PatchRisk } from '@/lib/agents/idari';
 import { getSnapshot, type TelemetrySnapshot } from '@/lib/observability/collector';
 import { correlate, type CorrelationResult } from '@/lib/observability/correlator';
-import { inferRootCause, type RootCauseAnalysis } from '@/lib/observability/rootCauseAnalyzer';
-import { createPatchPlan, type PatchPlan, type PatchRisk } from '@/lib/agents/idari';
 import {
-  buildImmediateRemediationAction,
-  type ImmediateRemediationAction,
+    buildImmediateRemediationAction,
+    type ImmediateRemediationAction,
 } from '@/lib/observability/immediateAction';
+import { inferRootCause, type RootCauseAnalysis } from '@/lib/observability/rootCauseAnalyzer';
+import { v4 as uuidv4 } from 'uuid';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

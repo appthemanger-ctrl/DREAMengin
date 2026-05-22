@@ -27,14 +27,14 @@
  *   const tilt = useMotionTilt({ maxTilt: 12, scale: 1.06, glare: true });
  */
 
-import { useRef } from 'react';
-import {
-  useMotionValue,
-  useSpring,
-  useTransform,
-  useMotionTemplate,
-} from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
+import {
+    useMotionTemplate,
+    useMotionValue,
+    useSpring,
+    useTransform,
+} from 'framer-motion';
+import { useRef } from 'react';
 
 export interface MotionTiltOptions {
   /** Maximum tilt angle in degrees (default: 10). */

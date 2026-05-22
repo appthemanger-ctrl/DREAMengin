@@ -1,7 +1,7 @@
 'use client';
 
+import { Download, Mic, Pause, Play, Square, Trash2, Zap } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Mic, Square, Play, Pause, Trash2, Download, Zap } from 'lucide-react';
 
 type RecorderState = 'idle' | 'recording' | 'recorded';
 
@@ -118,7 +118,7 @@ export default function SoundRecorder( ){
       const usedMime = mr.mimeType || mimeType || 'audio/webm';
 
       chunksRef.current = [];
-      mr.ondataavailable = (e: unknown ) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.ondataavailable = (e: BlobEvent) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: usedMime });

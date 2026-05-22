@@ -27,19 +27,19 @@
  * Hidden on public / pre-login routes only.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
-import DreamDMRail from '@/dreamdmbar/dreamsurface.dreamdmbar';
+import { SkipCreditBalance } from '@/components/ads/dream.SkipCreditBalance';
 import NeuralSeamCanvas from '@/components/home/dream.NeuralSeamCanvas';
-import RuntimeView from '@/components/runtime/dream.RuntimeView';
 import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
+import RuntimeView from '@/components/runtime/dream.RuntimeView';
+import DreamDMRail from '@/dreamdmbar/dreamsurface.dreamdmbar';
+import { useDreamLayout } from '@/hooks/useDreamLayout';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
-import { parseDreamDragData, surfaceForRuntime, transferDream, type DreamRuntime } from '@/lib/dreams/drag';
-import { useDreamLayout } from '@/hooks/useDreamLayout';
 import { useOS } from '@/lib/dreamenginOS/OSContext';
-import { SkipCreditBalance } from '@/components/ads/dream.SkipCreditBalance';
+import { parseDreamDragData, surfaceForRuntime, transferDream, type DreamRuntime } from '@/lib/dreams/drag';
 import { isPublicSurfacePath } from '@/lib/routing/surfaces';
+import { usePathname } from 'next/navigation';
+import React, { useCallback, useEffect, useState } from 'react';
 
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 const Z_INDEX_SKIP_CREDIT_BALANCE = 120;

@@ -6,14 +6,14 @@
  */
 
 import type {
-  VMSnapshot,
-  WasmMemorySnapshot,
-  GPUBufferSnapshot,
-  PipelineSnapshot,
-  HandleTableSnapshot,
-  BufferHandle,
-  PipelineHandle,
-  BindGroupHandle,
+    BindGroupHandle,
+    BufferHandle,
+    GPUBufferSnapshot,
+    HandleTableSnapshot,
+    PipelineHandle,
+    PipelineSnapshot,
+    VMSnapshot,
+    WasmMemorySnapshot,
 } from './types';
 import type { WasmGpuVM } from './wasmGpuVM';
 
@@ -25,7 +25,6 @@ export class SnapshotManager {
    * Create a snapshot of the current VM state.
    */
   static async createSnapshot(vm: WasmGpuVM): Promise<VMSnapshot> {
-    const stats = vm.getStats();
     const state = (vm as unknown as {state: {
       wasmMemories: Map<number, {id: number; memory: WebAssembly.Memory; shared: boolean; pages: number}>;
       buffers: Map<BufferHandle, {handle: BufferHandle; size: bigint; usage: number; buffer: GPUBuffer}>;

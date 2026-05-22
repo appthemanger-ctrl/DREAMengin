@@ -1,21 +1,23 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  Atom, Play, Pause, RotateCcw, Save, Share2, Users, 
-  FlaskConical, LineChart, Settings, FileText, Sparkles,
-  TrendingUp, Zap, Layers, Binary, Check, Loader2
+import {
+    Binary, Check,
+    FileText,
+    FlaskConical,
+    Layers,
+    LineChart,
+    Loader2,
+    Play, Save,
+    Settings,
+    Share2,
+    Sparkles,
+    TrendingUp,
+    Users,
+    Zap
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
-interface ExperimentParameter {
-  name: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  description: string;
-}
 
 interface CCCParameters {
   layers: number;

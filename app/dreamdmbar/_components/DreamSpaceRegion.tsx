@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Settings2 } from 'lucide-react';
+import DraggableDream from '@/components/dreams/dream.DraggableDream';
 import { useAccount } from '@/hooks/useAccount';
 import {
-  listSystemArtifacts,
-  listVisibleArtifacts,
-  restoreArtifact,
+    listSystemArtifacts,
+    listVisibleArtifacts,
+    restoreArtifact,
 } from '@/lib/artifactStore';
+import { useOS } from '@/lib/dreamenginOS/OSContext';
+import type { AssetEntry, AssetType } from '@/lib/ledger';
+import { getAllByKind } from '@/lib/ledger';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 import type { DreamArtifact } from '@/types/dreamArtifact';
-import { useOS } from '@/lib/dreamenginOS/OSContext';
-import { getAllByKind } from '@/lib/ledger';
-import type { AssetEntry, AssetType } from '@/lib/ledger';
-import DraggableDream from '@/components/dreams/dream.DraggableDream';
+import { Settings2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 // ─── Asset icon helpers ───────────────────────────────────────────────────────
 
@@ -49,7 +49,6 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   const [assetTick, setAssetTick] = useState(0);
   useEffect(() => {
     // Re-read ledger whenever a new asset is stored
-    const unsub = os.bus.on('ledger:asset:new', () => setAssetTick((n) => n + 1));
     return () => os.bus.off('ledger:asset:new', () => setAssetTick((n) => n + 1));
   }, [os.bus]);
   const ledgerAssets = useMemo(

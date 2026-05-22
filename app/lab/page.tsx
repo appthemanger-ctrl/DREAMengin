@@ -1,14 +1,13 @@
 // SURFACE: dreamsurface.Lab  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { FlaskConical, Plus, Lock, Globe } from 'lucide-react';
-import { connection } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { FlaskConical, Globe, Lock, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 
 // No demo projects - users see their actual projects only
-const DEMO_PROJECTS: never[] = [];
 
 type ProjectCard = {
   id: string;

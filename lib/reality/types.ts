@@ -18,7 +18,7 @@
  * Privacy: AXIOM 5 — activity timeline is scoped to members only.
  */
 
-import type { SessionRole, CollabMode } from '@/lib/collaboration';
+import type { CollabMode, SessionRole } from '@/lib/collaboration';
 
 // ── Reality identity ──────────────────────────────────────────────────────────
 

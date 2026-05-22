@@ -25,11 +25,11 @@
  * Architecture: docs/ARCHITECTURE.md §5 (Pass 5 — Shared Dream wiring).
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { createLocalChannel, type RuntimeChannel, type RuntimeChannelEvent } from '@/lib/runtime/runtimeChannel';
-import { buildInstanceKey, promoteInstanceToRealtime, useInstanceManager } from '@/lib/runtime/instanceManager';
 import type { EnginName } from '@/lib/runtime/instanceManager';
+import { buildInstanceKey, promoteInstanceToRealtime, useInstanceManager } from '@/lib/runtime/instanceManager';
+import { createLocalChannel, type RuntimeChannel, type RuntimeChannelEvent } from '@/lib/runtime/runtimeChannel';
 import type { RuntimeId } from '@/types/module-manifest';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

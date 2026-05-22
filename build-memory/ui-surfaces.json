@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-16T18:24:50.781Z",
+  "generated_at": "2026-05-21T23:35:58.973Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 121,
   "surfaces": [
@@ -23,12 +23,12 @@
       "component": "AdminPage",
       "imports": [
         {
-          "name": "IDariPanel",
-          "from": "@/components/dream.panel.IDariPanel"
-        },
-        {
           "name": "ChildSafetyPanel",
           "from": "@/components/dream.panel.ChildSafetyPanel"
+        },
+        {
+          "name": "IDariPanel",
+          "from": "@/components/dream.panel.IDariPanel"
         }
       ]
     },
@@ -143,16 +143,16 @@
       "component": "BrandDaydreamPage",
       "imports": [
         {
-          "name": "BrandingEngin",
-          "from": "@/engins/engin.BrandingEngin"
-        },
-        {
           "name": "BrandDaydream",
           "from": "@/components/daydream/dreamsurface.daydream.BrandDaydream"
         },
         {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "BrandingEngin",
+          "from": "@/engins/engin.BrandingEngin"
         }
       ]
     },
@@ -170,16 +170,16 @@
       "component": "CodeDaydreamPage",
       "imports": [
         {
-          "name": "CodeEngin",
-          "from": "@/engins/engin.CodeEngin"
-        },
-        {
           "name": "OpenDaydreamSideBButton",
           "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "CodeEngin",
+          "from": "@/engins/engin.CodeEngin"
         }
       ]
     },
@@ -209,16 +209,16 @@
       "component": "CreateDaydreamPage",
       "imports": [
         {
-          "name": "ContentEngin",
-          "from": "@/engins/engin.ContentEngin"
-        },
-        {
           "name": "OpenDaydreamSideBButton",
           "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "ContentEngin",
+          "from": "@/engins/engin.ContentEngin"
         }
       ]
     },
@@ -236,16 +236,16 @@
       "component": "ForgeDaydreamPage",
       "imports": [
         {
-          "name": "ForgeEngin",
-          "from": "@/engins/dream.ForgeEngin"
-        },
-        {
           "name": "ForgeMomentumWidget",
           "from": "@/components/forge/dream.widget.ForgeMomentumWidget"
         },
         {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "ForgeEngin",
+          "from": "@/engins/dream.ForgeEngin"
         }
       ]
     },
@@ -271,12 +271,12 @@
           "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
         {
-          "name": "AutoOpenGameEngin",
-          "from": "@/engins/autoopen/dream.AutoOpenGameEngin"
-        },
-        {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "AutoOpenGameEngin",
+          "from": "@/engins/autoopen/dream.AutoOpenGameEngin"
         }
       ]
     },
@@ -460,12 +460,12 @@
       "component": "EditProfileDreamPage",
       "imports": [
         {
-          "name": "DreamWord",
-          "from": "@/components/ui/dream.DreamWord"
-        },
-        {
           "name": "ActivityProfile",
           "from": "@/components/activity/dream.ActivityProfile"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/dream.DreamWord"
         }
       ]
     },
@@ -507,12 +507,12 @@
       "component": "BrandCampaignsPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "CampaignsPanel",
           "from": "@/components/engines/brand/panels/dream.panel.CampaignsPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -523,12 +523,12 @@
       "component": "BrandIdentityPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "IdentityPanel",
           "from": "@/components/engines/brand/panels/dream.panel.IdentityPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -557,12 +557,12 @@
       "component": "CodeAIPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "AIPanel",
           "from": "@/components/engines/code/panels/dream.panel.AIPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -573,12 +573,12 @@
       "component": "CodeNotebookPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "NotebookPanel",
           "from": "@/components/engines/code/panels/dream.panel.NotebookPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -589,12 +589,12 @@
       "component": "CodeProjectsPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "ProjectsPanel",
           "from": "@/components/engines/code/panels/dream.panel.ProjectsPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -623,12 +623,12 @@
       "component": "CreateCalendarPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "CalendarPanel",
           "from": "@/components/engines/create/panels/dream.panel.CalendarPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -639,12 +639,12 @@
       "component": "CreateEditorPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "EditorPanel",
           "from": "@/components/engines/create/panels/dream.panel.EditorPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -655,12 +655,12 @@
       "component": "CreateQueuePage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "QueuePanel",
           "from": "@/components/engines/create/panels/dream.panel.QueuePanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -689,12 +689,12 @@
       "component": "GamesBuilderPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "BuilderPanel",
           "from": "@/components/engines/games/panels/dream.panel.BuilderPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -705,12 +705,12 @@
       "component": "GamesLibraryPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "LibraryPanel",
           "from": "@/components/engines/games/panels/dream.panel.LibraryPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -721,12 +721,12 @@
       "component": "GamesScoresPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "ScoresPanel",
           "from": "@/components/engines/games/panels/dream.panel.ScoresPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -755,12 +755,12 @@
       "component": "LabDataPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "DataVizPanel",
           "from": "@/components/engines/lab/panels/dream.panel.DataVizPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -771,12 +771,12 @@
       "component": "LabExperimentsPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "ExperimentsPanel",
           "from": "@/components/engines/lab/panels/dream.panel.ExperimentsPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -787,12 +787,12 @@
       "component": "LabQuantumPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "QuantumPanel",
           "from": "@/components/engines/lab/panels/dream.panel.QuantumPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -821,12 +821,12 @@
       "component": "MusicArrangePage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "ArrangePanel",
           "from": "@/components/engines/music/panels/dream.panel.ArrangePanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -837,12 +837,12 @@
       "component": "MusicLibraryPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "MusicLibraryPanel",
           "from": "@/components/engines/music/panels/dream.panel.MusicLibraryPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -853,12 +853,12 @@
       "component": "MusicStudioPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "StudioPanel",
           "from": "@/components/engines/music/panels/dream.panel.StudioPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -887,12 +887,12 @@
       "component": "PortfolioAssetsPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "AssetsPanel",
           "from": "@/components/engines/portfolio/panels/dream.panel.AssetsPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -903,12 +903,12 @@
       "component": "PortfolioOptimizePage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "OptimizePanel",
           "from": "@/components/engines/portfolio/panels/dream.panel.OptimizePanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -919,12 +919,12 @@
       "component": "PortfolioQuantumPage",
       "imports": [
         {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
           "name": "PortfolioQuantumPanel",
           "from": "@/components/engines/portfolio/panels/dream.panel.PortfolioQuantumPanel"
+        },
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
         }
       ]
     },
@@ -1041,12 +1041,12 @@
           "from": "@/components/marketplace/dream.MarketplaceListingCard"
         },
         {
-          "name": "DreamWord",
-          "from": "@/components/ui/dream.DreamWord"
-        },
-        {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/dream.DreamWord"
         }
       ]
     },
@@ -1057,12 +1057,12 @@
       "component": "MarketplaceItemPage",
       "imports": [
         {
-          "name": "DreamWord",
-          "from": "@/components/ui/dream.DreamWord"
-        },
-        {
           "name": "MarketplaceRequestButton",
           "from": "@/components/marketplace/dream.MarketplaceRequestButton"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/dream.DreamWord"
         }
       ]
     },
@@ -1157,20 +1157,20 @@
           "from": "@/components/activity/dream.ActivityProfile"
         },
         {
-          "name": "FollowButton",
-          "from": "@/components/feed/dream.FollowButton"
-        },
-        {
-          "name": "DreamWord",
-          "from": "@/components/ui/dream.DreamWord"
-        },
-        {
           "name": "ProfileShareButton",
           "from": "@/components/dream.ProfileShareButton"
         },
         {
+          "name": "FollowButton",
+          "from": "@/components/feed/dream.FollowButton"
+        },
+        {
           "name": "ProfileCustomizeButton",
           "from": "@/components/profile/dream.ProfileCustomizeButton"
+        },
+        {
+          "name": "DreamWord",
+          "from": "@/components/ui/dream.DreamWord"
         },
         {
           "name": "InfinityIcon",
@@ -1220,12 +1220,12 @@
       "component": "AppearanceSettingsPage",
       "imports": [
         {
-          "name": "useTheme",
-          "from": "@/components/providers/dream.ThemeProvider"
-        },
-        {
           "name": "THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme",
           "from": "@/components/dream.ThemeApplicator"
+        },
+        {
+          "name": "useTheme",
+          "from": "@/components/providers/dream.ThemeProvider"
         }
       ]
     },

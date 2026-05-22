@@ -29,16 +29,16 @@
  * ARCHITECTURE.md §3 — Logic layer helpers are in lib/connectors/webhookVerification.ts
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import {
-  extractYouTubeWebSubChallenge,
-  extractMetaWebhookChallenge,
-} from '@/lib/connectors/webhookVerification';
-import {
-  supportsWebhook,
-  supportsWebhookVerification,
+    supportsWebhook,
+    supportsWebhookVerification,
 } from '@/lib/connectors/deliveryStrategy';
+import {
+    extractMetaWebhookChallenge,
+    extractYouTubeWebSubChallenge,
+} from '@/lib/connectors/webhookVerification';
+import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 // ── Service-role client (bypasses RLS for server-side webhook writes) ─────────
 

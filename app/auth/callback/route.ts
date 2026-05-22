@@ -1,9 +1,9 @@
 // app/auth/callback/route.ts
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClientWithCustomCookies } from "@/lib/supabase/server";
-import { SUPABASE_CONFIG } from "@/lib/supabase/config";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
+import { SUPABASE_CONFIG } from "@/lib/supabase/config";
+import { createServerClientWithCustomCookies } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request ): Promise<NextResponse> {
   const url = new URL(request.url);

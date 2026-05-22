@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
 import { ChevronDown, ChevronRight, Layers3, Pause, Play, Plus } from 'lucide-react';
+import { useEffect, useState, type CSSProperties } from 'react';
 
 import {
-  ARRANGEMENT_BARS,
-  type ArrangementClip,
-  type ArrangementSource,
-  type ArrangementTrackId,
-  type ArrangementTrackState,
+    ARRANGEMENT_BARS,
+    type ArrangementClip,
+    type ArrangementSource,
+    type ArrangementTrackId,
+    type ArrangementTrackState,
 } from '@/lib/music/starmakerArrangement';
 
 /**
@@ -93,13 +93,6 @@ function disclosureToggleStyle(active: boolean): CSSProperties {
   };
 }
 
-const disclosureTrayStyle: CSSProperties = {
-  padding: '12px',
-  borderRadius: 12,
-  background: 'linear-gradient(180deg, rgba(8,10,17,0.96), rgba(20,23,32,0.92))',
-  border: `1px solid ${THEME.border}`,
-  boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.32)',
-};
 
 interface Props {
   hasAudio: boolean;

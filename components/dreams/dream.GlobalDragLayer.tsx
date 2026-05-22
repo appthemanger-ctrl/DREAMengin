@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
 import type { DreamDragData } from '@/lib/dreams/drag';
+import { useEffect, useRef, useState } from 'react';
 
 interface DragLayerState {
   dream: DreamDragData;

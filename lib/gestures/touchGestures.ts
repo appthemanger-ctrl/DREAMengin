@@ -354,7 +354,7 @@ export class GestureRecogniser {
         this.startTouches.map(({ point }) => ({
           clientX: point.x,
           clientY: point.y,
-        }) as unknown as Touch),
+        }) as any as Touch),
       );
       const dx = this.lastCenter.x - startCenter.x;
       const dy = this.lastCenter.y - startCenter.y;

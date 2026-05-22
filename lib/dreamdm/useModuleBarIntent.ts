@@ -32,9 +32,9 @@
  * Guardrail: no new floating component. The bus IS the context surface.
  */
 
-import { useCallback } from 'react';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { ModuleBarAction } from '@/lib/dreamdm/DreamSystemContext';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { useCallback } from 'react';
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 

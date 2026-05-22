@@ -1,15 +1,15 @@
 // lib/ai/handlers/dreams.ts
 // Dream Management Intent Handlers
 
-import { ToolHandler } from '../tool-router';
 import {
-  DreamPreviewPayload,
-  DreamOpenPayload,
-  DreamConfigPatchPayload,
-  DreamReorderPayload,
-  DreamAddFromPresetPayload,
-  DreamRemovePayload,
+    DreamAddFromPresetPayload,
+    DreamConfigPatchPayload,
+    DreamOpenPayload,
+    DreamPreviewPayload,
+    DreamRemovePayload,
+    DreamReorderPayload,
 } from '@/types/ai-system';
+import { ToolHandler } from '../tool-router';
 
 // ============================================================================
 // DREAM_PREVIEW Handler

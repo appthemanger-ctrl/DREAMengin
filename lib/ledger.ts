@@ -12,7 +12,7 @@
  */
 
 import type { SupabaseClient } from '@/engine/io';
-import type { PeakMap, Fingerprint } from './audioFingerprint';
+import type { Fingerprint, PeakMap } from './audioFingerprint';
 
 // ─── Entry Types ─────────────────────────────────────────────────────────────
 

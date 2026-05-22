@@ -1,21 +1,21 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
-import useSWR, { mutate } from "swr";
 import { createClient } from "@/lib/supabase/client";
 import type {
-  SpaceType,
-  Widget,
-  ContentObject,
-  Album,
-  NavigationState,
-  ShareIntent,
-  CreateContentInput,
-  CreateWidgetInput,
-  CreateAlbumInput,
-  UpdateContentInput,
-  UpdateWidgetInput,
+    Album,
+    ContentObject,
+    CreateAlbumInput,
+    CreateContentInput,
+    CreateWidgetInput,
+    NavigationState,
+    ShareIntent,
+    SpaceType,
+    UpdateContentInput,
+    UpdateWidgetInput,
+    Widget,
 } from "@/types/spatial";
+import { useCallback, useMemo, useState } from "react";
+import useSWR, { mutate } from "swr";
 
 // =============================================================================
 // FETCHERS

@@ -7,8 +7,8 @@
  * Lives at /engines/portfolio/quantum.
  */
 
-import { useState, useCallback } from 'react';
-import { Zap, RotateCcw, Play, Info } from 'lucide-react';
+import { Info, Play, RotateCcw, Zap } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 const ACCENT = '#2a8ab8';
 const PURPLE = '#8b5cf6';

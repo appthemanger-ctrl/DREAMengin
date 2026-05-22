@@ -6,13 +6,13 @@
  * Back button calls openInSurface('settings') — no routing.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
-import { useTheme }          from '@/components/providers/dream.ThemeProvider';
-import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
 import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme } from '@/components/dream.ThemeApplicator';
-import { useCustomizeMode }  from '@/lib/ui/CustomizeModeContext';
-import { useDreamSystem }    from '@/lib/dreamdm/DreamSystemContext';
+import { useTheme } from '@/components/providers/dream.ThemeProvider';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
+import { DEFAULT_OVERRIDES, THEME_PRESETS } from '@/lib/ui/theme-engine';
+import { ArrowLeft, Check, RotateCcw } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 // ── Gradient theme picker (same logic as appearance page) ────────────────────
 
@@ -38,7 +38,7 @@ function GradientThemePicker( ){
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>Gradient Theme</div>
       <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>Sky-blue + gold gradients. Pick your vibe.</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji, theme }]) => {
+        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji }]) => {
           const isActive = active === id;
           return (
             <button key={id} type="button" onClick={() => select(id)} style={{

@@ -14,9 +14,9 @@
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  AnimationStateMachine,
-  ReplayBuffer,
-  TypedEventBus,
+    AnimationStateMachine,
+    ReplayBuffer,
+    TypedEventBus
 } from '../power-systems';
 
 /** Alias: AnimationFSM → AnimationStateMachine. */
@@ -28,10 +28,6 @@ export { TypedEventBus as EventBus } from '../power-systems';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  AnimationClip,
-  AnimTransition,
-  AnimState,
-  InputFrame,
-  ReplayMeta,
-  EventMap,
+    AnimState, AnimTransition, AnimationClip, EventMap, InputFrame,
+    ReplayMeta
 } from '../power-systems';

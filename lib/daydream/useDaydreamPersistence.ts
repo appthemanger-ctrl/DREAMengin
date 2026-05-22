@@ -20,8 +20,8 @@
  *   50 — back-navigation preserves context; state survives flip A↔B and route changes
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface UseDaydreamPersistenceOptions {
   /**

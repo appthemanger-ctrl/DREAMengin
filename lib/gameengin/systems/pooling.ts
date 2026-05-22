@@ -68,6 +68,6 @@ export class ObjectPoolingSystem {
     const out: Record<string, unknown> = {};
     for (const [name, pool] of this.pools) out[name] = pool.stats;
      
-    return out as Record<string, Object>;
+    return out as Record<string, object>;
   }
 }

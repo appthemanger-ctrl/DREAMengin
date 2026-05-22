@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 import { SlidePanel } from './dream.panel.ColorPanel';
 

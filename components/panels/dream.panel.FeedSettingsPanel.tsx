@@ -5,14 +5,14 @@
  * Same logic, no page chrome (no min-h-screen, no header with back Links).
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { Check } from 'lucide-react';
 import {
-  ALL_TOPICS,
-  DEFAULT_TOPIC_IDS,
-  FEED_TOPICS_KEY,
-  loadActiveTopicIds,
+    ALL_TOPICS,
+    DEFAULT_TOPIC_IDS,
+    FEED_TOPICS_KEY,
+    loadActiveTopicIds,
 } from '@/lib/feed/feedTopics';
+import { Check } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'de-feed-settings';
 

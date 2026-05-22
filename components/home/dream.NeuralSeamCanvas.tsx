@@ -28,16 +28,16 @@
  * Only active when `active` prop is true (i.e. HomeSystem divider mode).
  */
 
-import React, { useCallback, useEffect, useRef } from 'react';
-import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 import {
-  createSeamParticle,
-  createIdleParticle,
-  tickParticles,
-  evictDeadParticles,
-  type SeamParticle,
+    createIdleParticle,
+    createSeamParticle,
+    evictDeadParticles,
+    tickParticles,
+    type SeamParticle,
 } from '@/lib/dreamdm/bridgeSeamFlow';
+import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useCallback, useEffect, useRef } from 'react';
 
 // Extra canvas height above/below the seam line for glow bleed.
 const BLEED_PX = 28;

@@ -23,9 +23,9 @@
  * detection batched via requestAnimationFrame.
  */
 
-import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import type { ModuleManifest, RuntimeId } from '@/types/module-manifest';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

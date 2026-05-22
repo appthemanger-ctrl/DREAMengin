@@ -9,7 +9,6 @@
  * so it never intercepts clicks or touches.
  */
 
-import React from 'react';
 import { useWarp } from '@/lib/warp/useWarp';
 import type { WarpEffect } from '@/lib/warp/warpEngine';
 

@@ -1,12 +1,12 @@
-import type { Database } from '@/types/supabase';
-import { createServerClient } from '@/lib/supabase/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { NextRequest, NextResponse } from 'next/server';
 import { scanContent } from '@/lib/child-safety/childSafetyDetector';
-import { scanMediaUrlsForChildSafety } from '@/lib/child-safety/scanMediaUrls';
 import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
+import { scanMediaUrlsForChildSafety } from '@/lib/child-safety/scanMediaUrls';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
+import { createServerClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createHash } from 'crypto';
+import { NextRequest, NextResponse } from 'next/server';
 
 function normalizePostMedia<T extends Record<string, any>>(post: T): T & { media_url: string | null } {
   return {

@@ -1,27 +1,26 @@
-import { createServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import {
-  Music,
-  DiscAlbum,
-  TrendingUp,
-  Upload,
-  Sparkles,
-  Radio,
-  BarChart3,
-  Globe,
-  DollarSign,
-  Share2,
-  Clock,
-  CheckCircle,
-  Zap,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import SoundRecorder from '@/components/music/dream.SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import StarMakerEngin from '@/engins/engin.StarMakerEngin';
+import SoundRecorder from '@/components/music/dream.SoundRecorder';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import StarMakerEngin from '@/engins/engin.StarMakerEngin';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { createServerClient } from '@/lib/supabase/server';
+import {
+    BarChart3,
+    CheckCircle,
+    Clock,
+    DiscAlbum,
+    DollarSign,
+    Globe,
+    Music,
+    Radio,
+    Share2,
+    Sparkles,
+    TrendingUp,
+    Upload,
+    Zap,
+} from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 export const metadata = {
@@ -327,7 +326,7 @@ export default async function MusicArtistHubPage( ){
                 { icon: DiscAlbum,  label: 'Albums',   count: '—' },
                 { icon: TrendingUp, label: 'Streams',  count: '—' },
                 { icon: Upload,     label: 'Releases', count: '—' },
-              ].map(({ icon, label, count }) => (
+              ].map(({ icon: Icon, label, count }) => (
                 <div key={label} style={{
                   padding: '12px', borderRadius: 9, textAlign: 'center',
                   background: 'rgba(255,255,255,0.04)',

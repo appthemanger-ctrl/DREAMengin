@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { GameCapture, type CaptureResult } from '@/lib/h265-encoder';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Props {
   /** The overlay container — canvas is queried from this element on record start. */

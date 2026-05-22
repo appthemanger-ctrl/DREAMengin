@@ -21,11 +21,11 @@
  * AXIOM 4 — Security by Default: no secrets are returned in the response.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
+import { loadEmbedFeed } from '@/lib/feeds/embedFeedLoader';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { loadEmbedFeed } from '@/lib/feeds/embedFeedLoader';
-import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
+import { NextRequest, NextResponse } from 'next/server';
 
 export interface EmbedFeedResponse {
   ok: boolean;

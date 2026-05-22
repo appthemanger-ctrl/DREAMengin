@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { Share2 } from 'lucide-react';
 import SocialShareSheet from '@/components/ui/dream.SocialShareSheet';
+import { Share2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 interface ProfileShareButtonProps {
   /** The URL to share. Defaults to the current page URL. */

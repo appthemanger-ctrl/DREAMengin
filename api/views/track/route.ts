@@ -7,10 +7,10 @@
 // Stream 7.2 — BoogieMan fraud detection (ACTIVITY_FIRST_PROTOCOL.md §V)
 // Enhanced bot detection and per-user/per-post hourly rate-limit.
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { TrackViewRequest, TrackViewResponse } from '@/lib/activity/types';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { TrackViewRequest, TrackViewResponse } from '@/lib/activity/types';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest ): Promise<Response> {
   const supabase = await createServerClient();

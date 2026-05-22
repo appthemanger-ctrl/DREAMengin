@@ -16,9 +16,9 @@
 
 import { normaliseHackerNews } from '@/lib/connectors/normalise';
 import {
-  parseRssFeed,
-  hackerNewsRssUrl,
-  hackerNewsUserRssUrl,
+    hackerNewsRssUrl,
+    hackerNewsUserRssUrl,
+    parseRssFeed,
 } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
 

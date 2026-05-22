@@ -1,8 +1,8 @@
 // SURFACE: dreamsurface.LabId  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
-import { notFound, redirect } from 'next/navigation';
+import { ArrowLeft, Code, Download, FileText, FlaskConical, Terminal } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, FlaskConical, Download, Code, FileText, Terminal } from 'lucide-react';
+import { notFound, redirect } from 'next/navigation';
 import { connection } from 'next/server';
 
 interface LabProjectPageProps {

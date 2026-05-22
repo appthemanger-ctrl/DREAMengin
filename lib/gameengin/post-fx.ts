@@ -26,7 +26,7 @@
  *   fx.dispose();
  */
 
-import type { Scene, Camera } from '@babylonjs/core';
+import type { Camera, Scene } from '@babylonjs/core';
 import type { PerformanceBudget } from './core';
 
 export class PostFXManager {

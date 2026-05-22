@@ -1,9 +1,9 @@
 // SURFACE: dreamsurface.EnginesCodeNotebook  (framework-mandated basename: page.tsx)
+import NotebookPanel from '@/components/engines/code/panels/dream.panel.NotebookPanel';
+import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import NotebookPanel from '@/components/engines/code/panels/dream.panel.NotebookPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Notebook – CodeEngin', description: 'Live interactive notebook.' };

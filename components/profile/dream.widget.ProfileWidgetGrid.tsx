@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import Link from 'next/link';
-import { Heart, MessageCircle, Share2, Users, X, Check, Plug, ChevronLeft, ChevronRight } from 'lucide-react';
 import ConnectorWidgetPicker, { type PickerConnector, TOP_10_CONNECTORS } from '@/components/connectors/dream.widget.ConnectorWidgetPicker';
 import EditableAvatar from '@/components/profile/dream.EditableAvatar';
+import { Check, ChevronLeft, ChevronRight, Heart, MessageCircle, Plug, Share2, Users, X } from 'lucide-react';
+import Link from 'next/link';
+import React, { useRef, useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

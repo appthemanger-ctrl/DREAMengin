@@ -7,8 +7,8 @@
  * and structure sections. Lives at /engines/music/arrange.
  */
 
+import { Layers, Minus, Pause, Play, Plus, SkipBack } from 'lucide-react';
 import { useState } from 'react';
-import { Play, Pause, SkipBack, Plus, Minus, Layers } from 'lucide-react';
 
 interface Section {
   id: string;
@@ -56,7 +56,6 @@ export default function ArrangePanel( ){
     ]);
   }
 
-  const barWidth = 100 / TOTAL_BARS; // percent
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">

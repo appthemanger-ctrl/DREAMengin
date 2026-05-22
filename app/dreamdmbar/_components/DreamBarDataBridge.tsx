@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useCallback, useEffect } from 'react';
 import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
-import type { SystemPanelId } from '@/lib/panels/panelTypes';
-import { createClient } from '@/lib/supabase/client';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
+import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { EnginDispatcher } from '@/lib/runtime/EnginDispatcher';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect } from 'react';
 
 type ProfileLike = {
   id?: string;

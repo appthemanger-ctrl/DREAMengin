@@ -26,19 +26,17 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  WebGPUDirector,
-  applyDirectorFrame,
-  buildSceneObjects,
-  defaultCameraSignals,
-  defaultDirectorMetrics,
-  type CameraSignals,
-  type CameraState,
-  type DirectorBabylonEngine,
-  type DirectorBabylonMesh,
-  type DirectorBabylonScene,
-  type DirectorFrame,
-  type MeshHints,
-  type RuntimeMetrics,
+    WebGPUDirector,
+    applyDirectorFrame,
+    buildSceneObjects,
+    type CameraSignals,
+    type CameraState,
+    type DirectorBabylonEngine,
+    type DirectorBabylonMesh,
+    type DirectorBabylonScene,
+    type DirectorFrame,
+    type MeshHints,
+    type RuntimeMetrics,
 } from './director';
 
 // ─── Minimal Babylon types needed by the hook ────────────────────────────────
@@ -216,15 +214,10 @@ export function useWebGPUDirector(
 // ─── Re-exports for callers that only import from this file ───────────────────
 
 export {
-  applyDirectorFrame,
-  buildSceneObjects,
-  babylonMeshToSceneObject,
-  defaultCameraSignals,
-  defaultDirectorMetrics,
-  WebGPUDirector,
-  type CameraSignals,
-  type CameraState,
-  type DirectorFrame,
-  type MeshHints,
-  type RuntimeMetrics,
+    WebGPUDirector, applyDirectorFrame, babylonMeshToSceneObject, buildSceneObjects, defaultCameraSignals,
+    defaultDirectorMetrics, type CameraSignals,
+    type CameraState,
+    type DirectorFrame,
+    type MeshHints,
+    type RuntimeMetrics
 } from './director';

@@ -6,9 +6,9 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { AdType } from '@/lib/activity/types';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface AdUnitProps {
   adId: string;

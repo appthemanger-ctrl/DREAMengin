@@ -10,134 +10,63 @@
  *   import { RollbackNetcode, ComputeShaderPipeline, AdvancedPhysicsWorld, ... } from '@/lib/gameengin';
  */
 
-export { EliteGameEngine, ECSWorld } from './core';
 export { mapJoystickToAsset } from './control-mappings';
 export type { ControlMapping } from './control-mappings';
+export { ECSWorld, EliteGameEngine } from './core';
 export { DreamEngine } from './dream-engine';
 export type { GameAsset, GlobalRegistryEntry, WasmOutput } from './dream-engine';
 
 // ── Unified game loop ─────────────────────────────────────────────────────────
+export type {
+    Component, EntityId, FrameCallback, FrameTelemetry, PerformanceBudget, QualityChangeCallback, QualityTier, System
+} from './core';
 export {
-  registerGame,
-  unregisterGame,
-  activeGameCount,
-  isLoopRunning,
+    activeGameCount,
+    isLoopRunning, registerGame,
+    unregisterGame
 } from './unifiedLoop';
 export type { LoopPriority } from './unifiedLoop';
 export { useUnifiedLoop } from './useUnifiedLoop';
-export type {
-  EntityId,
-  Component,
-  System,
-  QualityTier,
-  PerformanceBudget,
-  FrameTelemetry,
-  FrameCallback,
-  QualityChangeCallback,
-} from './core';
 
 export { AIDirector } from './ai-director';
-export type { PlayerSignals, DirectorState } from './ai-director';
+export type { DirectorState, PlayerSignals } from './ai-director';
 
 export { PostFXManager } from './post-fx';
 
 // ── Console-class platform facade ────────────────────────────────────────────
 export { GameEnginPlatform, detectCapabilities } from './platform';
 export type {
-  PlatformCapabilities,
-  PlatformBootOptions,
-  QuickResumeEntry,
+    PlatformBootOptions, PlatformCapabilities, QuickResumeEntry
 } from './platform';
 
 // ── Game Cartridge Runtime ───────────────────────────────────────────────────
-export { default as GameRuntime } from './GameRuntime';
-export type { GameRuntimeProps } from './GameRuntime';
-export { createReactGameCartridge, defineReactCartridgeLoader } from './cartridges/reactCartridge';
 export { GRAVITY_VALUES } from './cartridge';
 export type {
-  GameCartridge,
-  GameEngineAPI,
-  GravityPreset,
-  CartridgeInputEvent,
+    CartridgeInputEvent, GameCartridge,
+    GameEngineAPI,
+    GravityPreset
 } from './cartridge';
+export { createReactGameCartridge, defineReactCartridgeLoader } from './cartridges/reactCartridge';
+export { default as GameRuntime } from './GameRuntime';
+export type { GameRuntimeProps } from './GameRuntime';
 
 // ── Cartridge bay — every repo game packaged as a GameCartridge ──────────────
 export {
-  CARTRIDGE_MANIFEST,
-  getCartridgeManifest,
-  getCartridgeCategories,
+    CARTRIDGE_MANIFEST, getCartridgeCategories, getCartridgeManifest
 } from './cartridges/manifest';
 export type {
-  CartridgeManifestEntry,
-  CartridgeRenderMode,
+    CartridgeManifestEntry,
+    CartridgeRenderMode
 } from './cartridges/manifest';
 
 // ── Power Systems (20 state-of-the-art 2026+ engine subsystems) ──────────────
 export {
-  RollbackNetcode,
-  ComputeShaderPipeline,
-  AdvancedPhysicsWorld,
-  OctreeBVH,
-  WorkerJobSystem,
-  ProceduralWorldGen,
-  SpatialAudioDSP,
-  ReplayBuffer,
-  BehaviorTreeEngine,
-  GPUProfiler,
-  TypedEventBus,
-  AnimationStateMachine,
-  LODSystem,
-  ClientSidePrediction,
-  ResourcePool,
-  WGSLShaderManager,
-  TerrainEngine,
-  GlobalIllumProbes,
-  AssetStreamManager,
-  PhysicsMaterialSystem,
+    AdvancedPhysicsWorld, AnimationStateMachine, AssetStreamManager, BehaviorTreeEngine, ClientSidePrediction, ComputeShaderPipeline, GPUProfiler, GlobalIllumProbes, LODSystem, OctreeBVH, PhysicsMaterialSystem, ProceduralWorldGen, ReplayBuffer, ResourcePool, RollbackNetcode, SpatialAudioDSP, TerrainEngine, TypedEventBus, WGSLShaderManager, WorkerJobSystem
 } from './power-systems';
 
 export type {
-  NetInput,
-  RollbackConfig,
-  ComputeKernel,
-  ComputeDispatch,
-  PhysicsBodyDef,
-  PhysicsBody,
-  PhysicsConstraint,
-  PhysicsBodyType,
-  ShapeType,
-  RaycastResult,
-  AABB,
-  SpatialEntry,
-  JobPriority,
-  Job,
-  JobResult,
-  WorldGenConfig,
-  WorldChunk,
-  AudioSourceDef,
-  ListenerState,
-  InputFrame,
-  ReplayMeta,
-  BTStatus,
-  BTContext,
-  BTNode,
-  ProfileSpan,
-  ProfileFrame,
-  EventMap,
-  AnimationClip,
-  AnimTransition,
-  AnimState,
-  LODLevel,
-  LODObject,
-  PredictionState,
-  ServerSnapshot,
-  ShaderVariant,
-  TerrainPage,
-  SHCoeffs,
-  GIProbe,
-  AssetHandle,
-  AssetType,
-  AssetState,
-  PhysicsMaterial,
-  MaterialPair,
+    AABB, AnimState, AnimTransition, AnimationClip, AssetHandle, AssetState, AssetType, AudioSourceDef, BTContext,
+    BTNode, BTStatus, ComputeDispatch, ComputeKernel, EventMap, GIProbe, InputFrame, Job, JobPriority, JobResult, LODLevel,
+    LODObject, ListenerState, MaterialPair, NetInput, PhysicsBody, PhysicsBodyDef, PhysicsBodyType, PhysicsConstraint, PhysicsMaterial, PredictionState, ProfileFrame, ProfileSpan, RaycastResult, ReplayMeta, RollbackConfig, SHCoeffs, ServerSnapshot,
+    ShaderVariant, ShapeType, SpatialEntry, TerrainPage, WorldChunk, WorldGenConfig
 } from './power-systems';

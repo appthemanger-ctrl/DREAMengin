@@ -1,13 +1,13 @@
+import {
+    isAdminLocked,
+    isDomainBlocked,
+    isOwner,
+    triggerAdminLockout,
+} from '@/lib/admin/lockout';
+import { createServerClient } from '@/lib/supabase/server';
+import fs from 'fs/promises';
 import { NextResponse } from 'next/server';
 import path from 'path';
-import fs from 'fs/promises';
-import { createServerClient } from '@/lib/supabase/server';
-import {
-  isAdminLocked,
-  triggerAdminLockout,
-  isOwner,
-  isDomainBlocked,
-} from '@/lib/admin/lockout';
 
 // fs/path require Node.js runtime (the default in Next.js 16+).
 // NOTE: Do not add `export const runtime = 'nodejs'` here — it is incompatible

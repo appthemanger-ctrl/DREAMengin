@@ -17,9 +17,9 @@
  * Architecture: ARCHITECTURE.md §10 (App Router, Supabase SSR client).
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 export async function GET( ): Promise<NextResponse> {

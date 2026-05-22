@@ -1,15 +1,15 @@
-import { connection } from 'next/server';
-import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
-import { createServerClient } from '@/lib/supabase/server';
-import { safeGetUser } from '@/lib/supabase/safeGetUser';
+import DreamBarDataBridge from '@/app/dreamdmbar/_components/DreamBarDataBridge';
+import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
+import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
-import DreamBarDataBridge from '@/app/dreamdmbar/_components/DreamBarDataBridge';
-import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
-import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
+import { safeGetUser } from '@/lib/supabase/safeGetUser';
+import { createServerClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
+import { Suspense } from 'react';
 
 const DEV_BYPASS_USER_ID = 'dev-bypass-user';
 
