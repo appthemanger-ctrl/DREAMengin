@@ -21,7 +21,7 @@ import type {
     RankedItem,
     RuntimeContext,
     SearchResult,
-    WidgetPriority,,
+    WidgetPriority,
     HardFailureReason,
 } from './types';
 
