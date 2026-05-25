@@ -19,9 +19,6 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      # ────────────────────────────────────────────────────────────────
-      # SETUP
-      # ────────────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
@@ -30,7 +27,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
         with:
-          version: latest
+          packageManager: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -45,9 +42,6 @@ jobs:
       - name: Create audit report directory
         run: mkdir -p audit-reports
 
-      # ────────────────────────────────────────────────────────────────
-      # 1. TYPESCRIPT — type errors across every .ts / .tsx file
-      # ────────────────────────────────────────────────────────────────
       - name: '[1/12] TypeScript — type check'
         id: typescript
         run: |
@@ -69,9 +63,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 2. ESLINT — lint every JS / TS / JSX / TSX file
-      # ────────────────────────────────────────────────────────────────
       - name: '[2/12] ESLint — lint errors & warnings'
         id: eslint
         run: |
@@ -99,9 +90,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 3. NEXT.JS BUILD — catch build-time failures
-      # ────────────────────────────────────────────────────────────────
       - name: '[3/12] Next.js — production build check'
         id: nextbuild
         run: |
@@ -117,9 +105,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 4. MISSING / BROKEN IMPORTS — files imported but not found
-      # ────────────────────────────────────────────────────────────────
       - name: '[4/12] Import resolution — missing modules'
         id: imports
         run: |
@@ -143,9 +128,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 5. UNUSED EXPORTS — dead exports that are never imported
-      # ────────────────────────────────────────────────────────────────
       - name: '[5/12] Dead code — unused exports'
         id: unused_exports
         run: |
@@ -167,9 +149,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 6. CIRCULAR DEPENDENCIES
-      # ────────────────────────────────────────────────────────────────
       - name: '[6/12] Circular dependencies'
         id: circular
         run: |
@@ -195,9 +174,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 7. ENV VARIABLE USAGE — .env vars used in code but not declared
-      # ────────────────────────────────────────────────────────────────
       - name: '[7/12] Environment variables — undeclared usages'
         id: env_vars
         run: |
@@ -240,9 +216,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 8. SECURITY — hardcoded secrets, API keys, tokens
-      # ────────────────────────────────────────────────────────────────
       - name: '[8/12] Security — hardcoded secrets scan'
         id: secrets
         run: |
@@ -284,9 +257,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 9. DEPENDENCY VULNERABILITIES — npm audit
-      # ────────────────────────────────────────────────────────────────
       - name: '[9/12] Dependencies — vulnerability audit'
         id: deps
         run: |
@@ -317,9 +287,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 10. SUPABASE — detect query layers & unsafe casting escapes
-      # ────────────────────────────────────────────────────────────────
       - name: '[10/12] Supabase — table usage vs type definitions'
         id: supabase
         run: |
@@ -342,9 +309,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 11. FILE-BY-FILE TYPESCRIPT ERROR BREAKDOWN
-      # ────────────────────────────────────────────────────────────────
       - name: '[11/12] Per-file TypeScript error breakdown'
         id: per_file
         run: |
@@ -385,9 +349,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # 12. RUNTIME DANGER PATTERNS — built entirely via safe string matching
-      # ────────────────────────────────────────────────────────────────
       - name: '[12/12] Runtime danger patterns'
         id: patterns
         run: |
@@ -436,9 +397,6 @@ jobs:
           echo "" >> audit-reports/report.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # FINAL SUMMARY — aggregated markdown matrix compilation
-      # ────────────────────────────────────────────────────────────────
       - name: Build final summary report
         run: |
           SUMMARY_FILE="audit-reports/summary.md"
@@ -467,9 +425,6 @@ jobs:
           cp $SUMMARY_FILE audit-reports/FULL_AUDIT_REPORT.md
         continue-on-error: true
 
-      # ────────────────────────────────────────────────────────────────
-      # UPLOAD — attach the full report as a downloadable artifact
-      # ────────────────────────────────────────────────────────────────
       - name: Upload full audit report
         uses: actions/upload-artifact@v4
         with:
@@ -478,9 +433,6 @@ jobs:
           retention-days: 30
         if: always()
 
-      # ────────────────────────────────────────────────────────────────
-      # OPTIONAL FAIL — trigger deployment blocking errors conditionally
-      # ────────────────────────────────────────────────────────────────
       - name: Fail workflow if errors found (optional)
         if: ${{ inputs.fail_on_error == 'true' }}
         run: |
