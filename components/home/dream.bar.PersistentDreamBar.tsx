@@ -1,4 +1,5 @@
 'use client';
+import type { Post } from '@/components/runtime/dream.RuntimeView';
 
 /**
  * PersistentDreamBar — Shell-First DreamDMBar wrapper and home container.

@@ -124,9 +124,10 @@ class EngineRegistry {
     }
   }
 
-  hydrate(groups: RegistryHydrationInput): void {
-    this.groupedLoaders = groups;
-    for (const loaderMap of Object.values(groups) as Record<string, LoaderFactory>[]) {
+  hydrate(groups: RegistryHydrationInput | Record<string, unknown>): void {
+    const typedGroups = groups as RegistryHydrationInput;
+    this.groupedLoaders = typedGroups;
+    for (const loaderMap of Object.values(typedGroups) as Record<string, LoaderFactory>[]) {
       for (const [id, loader] of Object.entries(loaderMap)) {
         this.loaders.set(id, loader);
       }

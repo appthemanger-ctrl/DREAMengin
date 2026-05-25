@@ -87,7 +87,7 @@ const fetcher = async (key: string) => {
 /**
  * Hook for managing spatial navigation state
  */
-export function useSpatialNavigation(initialSpace: WidgetSpaceResult = "home" ){
+export function useSpatialNavigation(initialSpace: SpaceType = 'home') {
   const [navigation, setNavigation] = useState<NavigationState>({
     space: initialSpace,
     currentIndex: 0,
@@ -123,7 +123,7 @@ export function useSpatialNavigation(initialSpace: WidgetSpaceResult = "home" ){
     }));
   }, []);
 
-  const switchSpace = useCallback((space: WidgetSpaceResult) => {
+  const switchSpace = useCallback((space: SpaceType) => {
     setNavigation((prev) => ({
       ...prev,
       space,
@@ -155,7 +155,7 @@ export function useSpatialNavigation(initialSpace: WidgetSpaceResult = "home" ){
 
 type WidgetSpace = string;
 
-export interface WidgetSpaceResult {
+export interface UseWidgetsResult {
   widgets: Widget[];
   isLoading: boolean;
   error: Error | null;
@@ -165,7 +165,7 @@ export interface WidgetSpaceResult {
   reorderWidgets: (widgetIds: string[]) => Promise<void>;
 }
 
-export function useWidgets(userId: string, space?: string): WidgetSpaceResultResult {
+export function useWidgets(userId: string, space?: string): UseWidgetsResult {
   const key = space ? `widgets/${userId}/${space}` : `widgets/${userId}`;
   const { data: widgets, error, isLoading } = useSWR<Widget[]>(key, fetcher);
 

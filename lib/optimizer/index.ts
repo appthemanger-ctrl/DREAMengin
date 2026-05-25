@@ -21,7 +21,8 @@ import type {
     RankedItem,
     RuntimeContext,
     SearchResult,
-    WidgetPriority,
+    WidgetPriority,,
+    HardFailureReason,
 } from './types';
 
 export class DreamOptimizer {
@@ -553,7 +554,7 @@ export class DreamOptimizer {
 
     // Check for cost indicators in metadata
     if (option.metadata?.implementationCost) {
-      cost = option.metadata.implementationCost;
+      cost = Number(option.metadata.implementationCost);
     } else {
       // Estimate based on content complexity
       const contentLength = option.content.length;
@@ -586,7 +587,7 @@ export class DreamOptimizer {
 
     // Check for risk indicators in metadata
     if (option.metadata?.riskLevel) {
-      risk = option.metadata.riskLevel;
+      risk = Number(option.metadata.riskLevel);
     } else {
       // Check for risky patterns
       const riskyPatterns = [

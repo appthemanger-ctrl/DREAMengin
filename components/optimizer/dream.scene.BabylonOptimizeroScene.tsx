@@ -39,7 +39,7 @@ export default function BabylonOptimizeroScene({
   initialPreset = 'default',
 }: BabylonOptimizeroSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<import('@babylonjs/core').Engine | null>(null);
+  const engineRef = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
   const godTierRef = useRef(new DreamEngineGodTierSystem());
   const [weightPreset, setWeightPreset] = useState<WeightPreset>(initialPreset);
   const [customWeights, setCustomWeights] = useState<OptimizeroWeights>(DEFAULT_WEIGHTS);

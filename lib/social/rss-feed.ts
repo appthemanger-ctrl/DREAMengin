@@ -371,25 +371,24 @@ export async function parseRssFeed(
  * @param channelTitle - Feed-level channel/show title (from feed.title)
  */
 export function normaliseRssItem(
-   
-  item: unknown,
+  item: Record<string, unknown>,
   config: RssFeedConfig,
   channelTitle: string,
 ): UnifiedFeedItem {
   const externalId = (item as Record<string, unknown>).guid ?? (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).link ?? String(Math.random());
   const pubDate: string =
-    (item.isoDate as string | undefined) ?? (item.pubDate as string | undefined) ?? new Date().toISOString();
+    (item['isoDate'] as string | undefined) ?? (item['pubDate'] as string | undefined) ?? new Date().toISOString();
 
   const rawAuthor: string =
-    (item as Record<string, unknown>).author ?? item['dc:creator'] ?? item.creator ?? channelTitle;
+    (item['author'] ?? item['dc:creator'] ?? item['creator'] ?? channelTitle) as string;
 
   const authorHandle = config.authorHandle ?? rawAuthor;
   const authorName = config.authorName ?? rawAuthor;
 
   const rawText =
-    item.contentEncoded ?? item['content:encoded'] ?? (item as Record<string, unknown>).content ?? (item as Record<string, unknown>).description ?? '';
+    item['contentEncoded'] ?? item['content:encoded'] ?? item['content'] ?? (item as Record<string, unknown>).description ?? '';
 
-  const contentText = stripHtml(rawText) || stripHtml((item as Record<string, unknown>).title ?? '') || '';
+  const contentText = stripHtml(String(rawText || '')) || stripHtml(String(item['title'] ?? '')) || '';
   const contentHtml = rawText || undefined;
 
   const image = extractFirstImage(item);
@@ -457,7 +456,7 @@ export function extractFirstImage(item: Record<string, unknown>): string | null 
   if (item.mediaGroup) {
     const group = item.mediaGroup;
      
-    const thumb = Array.isArray(group['media:thumbnail'])
+    const thumb = Array.isArray(group['media:thumbnail'] as unknown)
        
       ? group['media:thumbnail'].find((x: any) => x?.$?.url)?.$?.url
       : group['media:thumbnail']?.$?.url;
@@ -466,7 +465,7 @@ export function extractFirstImage(item: Record<string, unknown>): string | null 
 
   // 5) <img src> inside HTML
   const html: string =
-    item.contentEncoded ??
+    item['contentEncoded'] ??
     item['content:encoded'] ??
     (item as Record<string, unknown>).content ??
     (item as Record<string, unknown>).description ??

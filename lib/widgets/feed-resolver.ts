@@ -60,8 +60,8 @@ export async function resolveFeedHost(
      
     let query = (supabase as SupabaseClient)
       .from('feed_items')
-    .returns<FeedItemRow[]>()
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
+      .returns<FeedItemRow[]>()
       .eq('user_id', targetUserId)
       .order('ts', { ascending: false })
       .limit(hostConfig.limit);
@@ -88,7 +88,7 @@ export async function resolveFeedHost(
     }
     
     // Transform to FeedItemSummary format and fetch engagement counts
-    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item) => {
+    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item: FeedItemRow) => {
       // Fetch engagement counts for this item
        
       const { data: engagementData } = await (supabase as SupabaseClient)

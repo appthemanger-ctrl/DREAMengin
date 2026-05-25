@@ -341,7 +341,7 @@ function TaskJobManager( ){
 // CI & SECURITY HELPERS (REAL API CALLS)
 // ----------------------------------------------------------------------
 
-async function callCI(apiKey: string): Promise<unknown> {
+async function callCI(apiKey: string): Promise<CIResults> {
   const res = await fetch('/api/ci/run', {
     method: 'POST',
     headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
@@ -349,7 +349,7 @@ async function callCI(apiKey: string): Promise<unknown> {
   return res.json();
 }
 
-async function callSecurityScan(apiKey: string): Promise<unknown> {
+async function callSecurityScan(apiKey: string): Promise<SecResults> {
   const res = await fetch('/api/security/scan', {
     method: 'POST',
     headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
