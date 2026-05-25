@@ -92,7 +92,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const { data: project, error } = await supabase
-    .from('projects')
+    .from('projects' as never)
     .insert({
       user_id: user.id as string,
       title: title.trim() as string,
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       template: (template || null) as string | null,
       tags: tags as string[],
       data: {} as Record<string, unknown>, // Empty project data to start
-    })
+    } as never)
     .select(`
       *,
       profiles!inner(id, handle, display_name, avatar_url)
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     await (supabase as SupabaseClient).from('feed_items').insert({
       user_id: user.id,
       type: 'project',
-      content: { title: project.title, project_id: project.id },
+      content: { title: (project as Record<string, unknown>).title, project_id: (project as Record<string, unknown>).id },
       ts: new Date().toISOString(),
     });
   }

@@ -1,4 +1,3 @@
-import type { PointerState } from './PointerEventCapture';
 // SpatialNavigationEngine - Main engine coordinating all subsystems
 // Mobile-optimized: 60fps target, zero allocations per frame
 
@@ -142,7 +141,7 @@ export class SpatialNavigationEngine {
     const frame = this.frameComputer.compute(state, now);
     
     // Resolve intent
-    const resolved = this.intentResolver.resolve(frame as PointerState, now);
+    const resolved = this.intentResolver.resolve(frame, now);
     
     // Execute navigation mutation
     this.executeIntent(resolved.intent, resolved.magnitude);

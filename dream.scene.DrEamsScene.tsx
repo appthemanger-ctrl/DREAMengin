@@ -11,6 +11,8 @@ import {
     type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
 import {
+    AbstractMesh,
+    AbstractEngine,
     Mesh,
     ArcRotateCamera,
     Color3,
@@ -37,7 +39,7 @@ type RuntimeState = {
 
 const DR_EAMS_HEIGHT = 0.9144; // 3 feet
 
-function clamp(value: number, min: number, max: number): number {
+function clamp(value: number, min: number, max: any): number {
   return Math.max(min, Math.min(max, value));
 }
 
@@ -278,7 +280,7 @@ export default function DrEamsScene( ){
     if (!canvas) return;
 
     let disposed = false;
-    let engineInst: import('@babylonjs/core').AbstractEngine | null = null;
+    let engineInst: AbstractEngine | null = null;
     let sceneInst: Scene | null = null;
     let disposeActor: (() => void) | null = null;
 

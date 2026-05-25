@@ -67,7 +67,6 @@ type RegistryHydrationInput = {
   personas: Record<string, LoaderFactory>;
   systems: Record<string, LoaderFactory>;
   hooks: Record<string, LoaderFactory>;
-  [key: string]: Record<string, LoaderFactory>;
 };
 
 interface ApplyOutcome {
@@ -126,8 +125,9 @@ class EngineRegistry {
   }
 
   hydrate(groups: RegistryHydrationInput | Record<string, unknown>): void {
-    this.groupedLoaders = groups;
-    for (const loaderMap of Object.values(groups)) {
+    const typedGroups = groups as RegistryHydrationInput;
+    this.groupedLoaders = typedGroups;
+    for (const loaderMap of Object.values(typedGroups) as Record<string, LoaderFactory>[]) {
       for (const [id, loader] of Object.entries(loaderMap)) {
         this.loaders.set(id, loader);
       }

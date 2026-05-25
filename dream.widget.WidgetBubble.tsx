@@ -79,11 +79,9 @@ export default function WidgetBubble({ widget }: WidgetBubbleProps) {
   };
 
   const getNotificationCount = (): React.ReactNode => {
-    if (widget.type === 'notifications' && ((widget.config_json as Record<string, unknown>) as Record<string, unknown>).unread) {
-      return String(((widget.config_json as Record<string, unknown>) as Record<string, unknown>).unread);
-    }
-    if (widget.type === 'messages' && ((widget.config_json as Record<string, unknown>) as Record<string, unknown>).unread) {
-      return String(((widget.config_json as Record<string, unknown>) as Record<string, unknown>).unread);
+    const cfg = widget.config_json as Record<string, unknown>;
+    if ((widget.type === 'notifications' || widget.type === 'messages') && cfg?.unread) {
+      return String(cfg.unread);
     }
     return null;
   };
