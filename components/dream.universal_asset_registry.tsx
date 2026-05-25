@@ -1,4 +1,3 @@
-import { DatabaseIcon } from "lucide-react";
 'use client';
 
 /**

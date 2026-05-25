@@ -209,8 +209,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
   // ─────────────────────────────────────────────────────────────────────────
 
-  const { data: post, error } = await supabase
-    .from('app_posts')
+  const { data: post, error } = await (supabase as SupabaseClient)
+    .from('app_posts' as never)
     .insert({
       user_id: user.id,
       content: content.trim(),
@@ -218,7 +218,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       media_urls,
       post_visibility: post_visibility as string,
       ...(original_post_id ? { original_post_id } : {}),
-    })
+    } as never)
     .select(`
       *,
       profiles!inner(id, handle, display_name, avatar_url)

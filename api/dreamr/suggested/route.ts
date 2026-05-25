@@ -144,7 +144,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
       likes_count: number;
       comments_count: number;
     }
-    for (const row of visible as SuggRow[]) {
+    for (const row of (visible as unknown) as SuggRow[]) {
       const uid = row.user_id;
       const p   = row.profiles ?? { id: uid, handle: '', display_name: null, avatar_url: null, bio: null };
 
@@ -172,7 +172,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
         const scored = scoreDreamRPost({
           id:             row.id,
           content:        row.content ?? '',
-          media_url:      getPrimaryPostMediaUrl(row as Record<string, unknown>),
+          media_url:      getPrimaryPostMediaUrl((row as unknown) as Record<string, unknown>),
           created_at:     row.created_at,
           views_count:    row.view_count     ?? 0,
           likes_count:    row.likes_count    ?? 0,

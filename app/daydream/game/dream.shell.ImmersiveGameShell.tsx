@@ -218,7 +218,7 @@ export default function ImmersiveGameShell( ){
         await target.requestFullscreen();
       }
     } catch { /* fullscreen denied — continue */ }
-    dismissTimer.current = window.setTimeout(() => setBootDone(true), 500);
+    dismissTimer.current = setTimeout(() => setBootDone(true), 500);
   }, [fadingOut, bootDone]);
 
   useEffect(() => () => { if (dismissTimer.current) window.clearTimeout(dismissTimer.current); }, []);
