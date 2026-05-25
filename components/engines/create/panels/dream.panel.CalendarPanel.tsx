@@ -67,7 +67,7 @@ export default function CalendarPanel( ){
   }
 
   function removeItem(id: string ){
-    setItems((prev) => prev.filter((i: number ) => i.id !== id));
+    setItems((prev) => prev.filter((i: CalItem) => i.id !== id));
   }
 
   return (

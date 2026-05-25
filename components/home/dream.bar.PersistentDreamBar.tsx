@@ -1,4 +1,5 @@
 'use client';
+import type { Post } from '@/components/runtime/dream.RuntimeView';
 
 /**
  * PersistentDreamBar — Shell-First DreamDMBar wrapper and home container.
@@ -233,7 +234,7 @@ export default function PersistentDreamBar( ){
             world={dualRuntime.state.surfaceSpaceWorld}
             isActive={true}
             profile={homeData?.profile ?? null}
-            posts={homeData?.initialPosts ?? []}
+            posts={(homeData?.initialPosts ?? []) as Post[]}
             isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
@@ -311,7 +312,7 @@ export default function PersistentDreamBar( ){
             world={dualRuntime.state.dreamSpaceWorld}
             isActive={true}
             profile={homeData?.profile ?? null}
-            posts={homeData?.initialPosts ?? []}
+            posts={(homeData?.initialPosts ?? []) as Post[]}
             isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={handleHomeDreamSpace}

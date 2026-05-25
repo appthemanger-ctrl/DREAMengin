@@ -209,8 +209,8 @@ export async function POST(req: NextRequest ): Promise<Response> {
   }
   // ─────────────────────────────────────────────────────────────────────────
 
-  const { data: post, error } = await supabase
-    .from('app_posts')
+  const { data: post, error } = await (supabase as SupabaseClient)
+    .from('app_posts' as never)
     .insert({
       user_id: user.id,
       content: content.trim(),
@@ -218,7 +218,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       media_urls,
       post_visibility: post_visibility as string,
       ...(original_post_id ? { original_post_id } : {}),
-    })
+    } as never)
     .select(`
       *,
       profiles!inner(id, handle, display_name, avatar_url)
@@ -234,7 +234,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
   await (supabase as SupabaseClient).from('feed_items').insert({
     user_id: user.id,
     type: 'post',
-    content: { text: content.trim(), post_id: post.id },
+    content: { text: content.trim(), post_id: (post as Record<string, unknown>).id },
     ts: new Date().toISOString(),
   });
 

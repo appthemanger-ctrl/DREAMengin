@@ -301,7 +301,7 @@ export const BABYLON_HARD_CHECKS = [
   // Check for excessive particle counts
   (candidate: CreativeCandidate<BabylonUICandidate>) => {
     if (candidate.data.type === 'particle-system') {
-      const count = candidate.data.metadata?.particleCount || 0;
+      const count = (candidate.data.metadata?.['particleCount'] as number | undefined) || 0;
       if (count > 10000) {
         return 'particle count too high (breaks performance)';
       }
