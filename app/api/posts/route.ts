@@ -234,7 +234,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   await (supabase as SupabaseClient).from('feed_items').insert({
     user_id: user.id,
     type: 'post',
-    content: { text: content.trim(), post_id: post.id },
+    content: { text: content.trim(), post_id: (post as Record<string, unknown>).id },
     ts: new Date().toISOString(),
   });
 

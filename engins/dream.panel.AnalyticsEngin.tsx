@@ -80,11 +80,11 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
       if (data.user) {
         setUserId(data.user.id);
         // Check admin role
-        (supabase as SupabaseClient)
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', data.user.id)
-          .single()
+        Promise.resolve((supabase as SupabaseClient)
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', data.user.id)
+            .single())
           .then(({ data: roleData }: { data: { role?: string } | null }) => {
             setIsAdmin(roleData?.role === 'admin');
           })

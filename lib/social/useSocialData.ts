@@ -71,17 +71,20 @@ async function fetchPlatformFeed(
       deriveSource(String((item as Record<string, unknown>).id ?? '')),
     provider: (item as Record<string, unknown>).platform ?? 'unknown',
     content: stripHtml((item as Record<string, unknown>).content ?? ''),
-    author: {
-      handle: (item as Record<string, unknown>).author?.handle ?? (item as Record<string, unknown>).author?.acct ?? 'unknown',
-      displayName: (item as Record<string, unknown>).author?.displayName ?? (item as Record<string, unknown>).author?.display_name ?? null,
-      avatarUrl: (item as Record<string, unknown>).author?.avatar ?? null,
-    },
-    mediaUrl: item.mediaUrl ?? item.media_url ?? null,
-    permalink: item.originalUrl ?? (item as Record<string, unknown>).url ?? null,
+    author: (() => {
+      const a = (item.author ?? {}) as Record<string, unknown>;
+      return {
+        handle: String(a.handle ?? a.acct ?? 'unknown'),
+        displayName: (a.displayName ?? a.display_name ?? null) as string | null,
+        avatarUrl: (a.avatar ?? null) as string | null,
+      };
+    })(),
+    mediaUrl: (item.mediaUrl ?? item.media_url ?? null) as string | null,
+    permalink: (item.originalUrl ?? item.url ?? null) as string | null,
     createdAt:
-      (item as Record<string, unknown>).timestamp instanceof Date
-        ? (item as Record<string, unknown>).timestamp.toISOString()
-        : String((item as Record<string, unknown>).timestamp ?? (item as Record<string, unknown>).created_at ?? new Date().toISOString()),
+      item.timestamp instanceof Date
+        ? (item.timestamp as Date).toISOString()
+        : String(item.timestamp ?? item.created_at ?? new Date().toISOString()),
     visibility: 'public',
   }));
 }

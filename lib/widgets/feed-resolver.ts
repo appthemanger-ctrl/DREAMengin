@@ -59,7 +59,8 @@ export async function resolveFeedHost(
     // Build query for feed items
      
     let query = (supabase as SupabaseClient)
-      .from('feed_items' as never)
+      .from('feed_items')
+    .returns<FeedItemRow[]>()
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
       .eq('user_id', targetUserId)
       .order('ts', { ascending: false })

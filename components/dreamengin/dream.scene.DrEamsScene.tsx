@@ -278,7 +278,7 @@ export default function DrEamsScene( ){
     if (!canvas) return;
 
     let disposed = false;
-    let engineInst: import('@babylonjs/core').AbstractMesh = null;
+    let engineInst: import('@babylonjs/core').AbstractEngine | null = null;
     let sceneInst: Scene | null = null;
     let disposeActor: (() => void) | null = null;
 

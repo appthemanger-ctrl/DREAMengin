@@ -1,5 +1,10 @@
 'use client';
 
+interface CIStage { name: string; passed: boolean; output: string; }
+interface CIResults { status: string; stages: CIStage[]; }
+interface SecAdvisory { title: string; severity: string; package: string; vulnerable_versions: string; patched_versions: string; }
+interface SecResults { summary?: { total?: number; high?: number; moderate?: number; low?: number }; advisories?: SecAdvisory[]; }
+
 /**
  * CodeEngin – Real IDE with real CI and real security scanner
  * All features are real. No mock data.
@@ -136,7 +141,7 @@ sys.stdout = StringIO()
     await pyodide.runPythonAsync(code);
     const output = pyodide.runPython('sys.stdout.getvalue()');
     let lastExpr = '';
-    try { lastExpr = pyodide.runPython('_') || ''; } catch {}
+    try { lastExpr = String(pyodide.runPython('_') || ''); } catch {}
     return output + (lastExpr ? (output ? '\n' : '') + lastExpr : '');
   } catch (err: any) {
     return `Error: ${(err as Error).message}`;
@@ -478,12 +483,12 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
 
   // CI state
   const [ciRunning, setCiRunning] = useState(false);
-  const [ciResults, setCiResults] = useState<unknown>(null);
+  const [ciResults, setCiResults] = useState<CIResults | null>(null);
   const [ciError, setCiError] = useState<string | null>(null);
 
   // Security state
   const [secRunning, setSecRunning] = useState(false);
-  const [secResults, setSecResults] = useState<unknown>(null);
+  const [secResults, setSecResults] = useState<SecResults | null>(null);
   const [secError, setSecError] = useState<string | null>(null);
 
   // Project manager state
@@ -951,11 +956,11 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
               {ciError && <div style={{ color: OUT_ERR, marginBottom: 12 }}>Error: {ciError}</div>}
               {ciResults && (
                 <div>
-                  <div style={{ marginBottom: 8 }}>Overall status: <strong style={{ color: (ciResults as Record<string, unknown>).status === 'passing' ? OUT_OK : OUT_ERR }}>{(ciResults as Record<string, unknown>).status.toUpperCase()}</strong></div>
-                  {(ciResults as Record<string, unknown>).stages.map((stage: any, i: number) => (
-                    <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 8, background: (stage as Record<string, unknown>).passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${(stage as Record<string, unknown>).passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
-                      <div style={{ fontWeight: 700, marginBottom: 4 }}>{(stage as Record<string, unknown>).name} {(stage as Record<string, unknown>).passed ? <CheckCircle size={12} style={{ color: OUT_OK, display: 'inline', marginLeft: 6 }} /> : <XCircle size={12} style={{ color: OUT_ERR, display: 'inline', marginLeft: 6 }} />}</div>
-                      <pre style={{ fontSize: 10, whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0 }}>{(stage as Record<string, unknown>).output}</pre>
+                  <div style={{ marginBottom: 8 }}>Overall status: <strong style={{ color: ciResults.status === 'passing' ? OUT_OK : OUT_ERR }}>{ciResults.status.toUpperCase()}</strong></div>
+                  {ciResults.stages.map((stage: CIStage, i: number) => (
+                    <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 8, background: stage.passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${stage.passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>{stage.name} {stage.passed ? <CheckCircle size={12} style={{ color: OUT_OK, display: 'inline', marginLeft: 6 }} /> : <XCircle size={12} style={{ color: OUT_ERR, display: 'inline', marginLeft: 6 }} />}</div>
+                      <pre style={{ fontSize: 10, whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0 }}>{stage.output}</pre>
                     </div>
                   ))}
                 </div>
@@ -977,9 +982,9 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
                 <div>
                   <div style={{ marginBottom: 8 }}>Total vulnerabilities: <strong>{secResults.summary?.total || 0}</strong> (High: {secResults.summary?.high || 0}, Moderate: {secResults.summary?.moderate || 0}, Low: {secResults.summary?.low || 0})</div>
                   {secResults.advisories && secResults.advisories.length > 0 ? (
-                    secResults.advisories.map((adv: any, i: number) => (
+                    secResults.advisories.map((adv: SecAdvisory, i: number) => (
                       <div key={i} style={{ marginBottom: 8, padding: 8, borderRadius: 8, background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.2)' }}>
-                        <div><strong>{adv.title}</strong> – {(adv as Record<string, unknown>).severity.toUpperCase()}</div>
+                        <div><strong>{adv.title}</strong> – {adv.severity.toUpperCase()}</div>
                         <div>Package: {adv.package}</div>
                         <div>Vulnerable versions: {adv.vulnerable_versions}</div>
                         <div>Patched versions: {adv.patched_versions}</div>

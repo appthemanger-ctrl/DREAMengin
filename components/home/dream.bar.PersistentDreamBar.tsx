@@ -233,7 +233,7 @@ export default function PersistentDreamBar( ){
             world={dualRuntime.state.surfaceSpaceWorld}
             isActive={true}
             profile={homeData?.profile ?? null}
-            posts={homeData?.initialPosts ?? []}
+            posts={(homeData?.initialPosts ?? []) as Post[]}
             isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
@@ -311,7 +311,7 @@ export default function PersistentDreamBar( ){
             world={dualRuntime.state.dreamSpaceWorld}
             isActive={true}
             profile={homeData?.profile ?? null}
-            posts={homeData?.initialPosts ?? []}
+            posts={(homeData?.initialPosts ?? []) as Post[]}
             isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={handleHomeDreamSpace}
