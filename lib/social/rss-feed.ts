@@ -375,15 +375,15 @@ export function normaliseRssItem(
   config: RssFeedConfig,
   channelTitle: string,
 ): UnifiedFeedItem {
-  const externalId = (item as Record<string, unknown>).guid ?? (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).link ?? String(Math.random());
+  const externalId = String((item as Record<string, unknown>).guid ?? (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).link ?? Math.random());
   const pubDate: string =
     (item['isoDate'] as string | undefined) ?? (item['pubDate'] as string | undefined) ?? new Date().toISOString();
 
   const rawAuthor: string =
     (item['author'] ?? item['dc:creator'] ?? item['creator'] ?? channelTitle) as string;
 
-  const authorHandle = config.authorHandle ?? rawAuthor;
-  const authorName = config.authorName ?? rawAuthor;
+  const authorHandle: string = config.authorHandle ?? rawAuthor;
+  const authorName: string = config.authorName ?? rawAuthor;
 
   const rawText =
     item['contentEncoded'] ?? item['content:encoded'] ?? item['content'] ?? (item as Record<string, unknown>).description ?? '';
@@ -396,7 +396,7 @@ export function normaliseRssItem(
     ? [{ url: image, type: guessMediaType(config.provider, image) }]
     : [];
 
-  const permalink: string = (item as Record<string, unknown>).link ?? config.feedUrl;
+  const permalink: string = String((item as Record<string, unknown>).link ?? config.feedUrl);
 
   return {
     provider: config.provider,
@@ -454,12 +454,10 @@ export function extractFirstImage(item: Record<string, unknown>): string | null 
 
   // 4) media:group → media:thumbnail
   if (item.mediaGroup) {
-    const group = item.mediaGroup;
-     
-    const thumb = Array.isArray(group['media:thumbnail'] as unknown)
-       
-      ? group['media:thumbnail'].find((x: any) => x?.$?.url)?.$?.url
-      : group['media:thumbnail']?.$?.url;
+    const group = item.mediaGroup as Record<string, unknown>;
+    const thumb = Array.isArray(group['media:thumbnail'])
+      ? (group['media:thumbnail'] as Array<{$?: {url?: string}}>).find((x) => x?.$?.url)?.$?.url
+      : (group['media:thumbnail'] as {$?: {url?: string}} | undefined)?.$?.url;
     if (thumb) return thumb;
   }
 

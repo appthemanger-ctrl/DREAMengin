@@ -5,6 +5,7 @@ import { GestureFrameComputer } from './GestureFrameComputer';
 import { GestureIntent, GestureIntentResolver } from './GestureIntentResolver';
 import { LAYER_HOME, NavStateBuffer } from './NavStateBuffer';
 import { PointerEventCapture } from './PointerEventCapture';
+import type { PointerState } from './PointerEventCapture';
 import { ReturnStack } from './ReturnStack';
 import { TransformSolver, type ViewportMetrics } from './TransformSolver';
 import { WidgetInstanceMemory } from './WidgetInstanceMemory';
@@ -138,7 +139,7 @@ export class SpatialNavigationEngine {
     }
     
     // Compute gesture frame
-    const frame = this.frameComputer.compute(state, now);
+    const frame = this.frameComputer.compute(state as PointerState, now);
     
     // Resolve intent
     const resolved = this.intentResolver.resolve(frame, now);
