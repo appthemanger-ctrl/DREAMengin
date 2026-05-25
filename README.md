@@ -2004,7 +2004,7 @@ Auto-synced from `backend/**`, `core/**`, `coresurfaces/**`, `system/**`, `app/a
 
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **135**
+- Files tracked: **136**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2031,7 +2031,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │   │   ├── validate_game_sandbox.py
 │   │   └── validate_report_agent_spec.py
 │   └── workflows
-│       ├── autofixaudit.yml
+│       ├── Repo Audit Auto Fix.yml
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
@@ -2092,7 +2092,8 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │       ├── update-embed-feed.yml
 │       ├── update-repo-state.yml
 │       ├── vercel-deploy.yml
-│       └── visual-schematic.yml
+│       ├── visual-schematic.yml
+│       └── visual-schematicpages.yml
 ├── agents
 │   ├── .gitkeep
 │   ├── humanAI
@@ -2129,10 +2130,9 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     │   ├── maestro-analyze.ts
     │   ├── mechanic-run.ts
     │   ├── package-cartridge.ts
-    │   ├── prophet-run.ts
-… (15 more files)
+… (16 more files)
 ```
-<details><summary>Agents & Workflow file index (135 files)</summary>
+<details><summary>Agents & Workflow file index (136 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2152,7 +2152,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/scripts/scan_gameengin_context.py` — project file (py).
 - `.github/scripts/validate_game_sandbox.py` — project file (py).
 - `.github/scripts/validate_report_agent_spec.py` — project file (py).
-- `.github/workflows/autofixaudit.yml` — project file (yml).
+- `.github/workflows/Repo Audit Auto Fix.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -2214,6 +2214,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/workflows/update-repo-state.yml` — project file (yml).
 - `.github/workflows/vercel-deploy.yml` — project file (yml).
 - `.github/workflows/visual-schematic.yml` — project file (yml).
+- `.github/workflows/visual-schematicpages.yml` — project file (yml).
 - `agents/.gitkeep` — project file (no extension).
 - `agents/humanAI.persona.md` — documentation file.
 - `agents/humanAI/orchestrator.md` — documentation file.
@@ -2354,7 +2355,7 @@ Auto-synced from `research/**`, `research-and-development/**`, `experiments/**`,
 
 ## Infra & Ops
 Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflows/**`, `vercel.json`, `docker-compose.yml` using repository introspection.
-- Files tracked: **67**
+- Files tracked: **68**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2362,7 +2363,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 ```text
 ├── .github
 │   └── workflows
-│       ├── autofixaudit.yml
+│       ├── Repo Audit Auto Fix.yml
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
@@ -2423,7 +2424,8 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │       ├── update-embed-feed.yml
 │       ├── update-repo-state.yml
 │       ├── vercel-deploy.yml
-│       └── visual-schematic.yml
+│       ├── visual-schematic.yml
+│       └── visual-schematicpages.yml
 ├── grafana
 │   ├── dashboards
 │   │   └── default.yml
@@ -2435,9 +2437,9 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │   └── main.tf
 └── vercel.json
 ```
-<details><summary>Infra & Ops file index (67 files)</summary>
+<details><summary>Infra & Ops file index (68 files)</summary>
 
-- `.github/workflows/autofixaudit.yml` — project file (yml).
+- `.github/workflows/Repo Audit Auto Fix.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -2499,6 +2501,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 - `.github/workflows/update-repo-state.yml` — project file (yml).
 - `.github/workflows/vercel-deploy.yml` — project file (yml).
 - `.github/workflows/visual-schematic.yml` — project file (yml).
+- `.github/workflows/visual-schematicpages.yml` — project file (yml).
 - `grafana/dashboards/default.yml` — project file (yml).
 - `grafana/datasources/prometheus.yml` — project file (yml).
 - `prometheus/prometheus.yml` — project file (yml).
@@ -3116,7 +3119,7 @@ Auto-synced from `.env.example`, `.env.local.example`, `app/api/**` using reposi
 
 ## Contributing
 Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
-- Files tracked: **275**
+- Files tracked: **276**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -3242,9 +3245,9 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
-… (155 more files)
+… (156 more files)
 ```
-<details><summary>Contributing file index (275 files)</summary>
+<details><summary>Contributing file index (276 files)</summary>
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
 - `.github/actions/resilient-engine/action.yml` — project file (yml).
@@ -3363,7 +3366,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/scripts/scan_gameengin_context.py` — project file (py).
 - `.github/scripts/validate_game_sandbox.py` — project file (py).
 - `.github/scripts/validate_report_agent_spec.py` — project file (py).
-- `.github/workflows/autofixaudit.yml` — project file (yml).
+- `.github/workflows/Repo Audit Auto Fix.yml` — project file (yml).
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
@@ -3425,6 +3428,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/workflows/update-repo-state.yml` — project file (yml).
 - `.github/workflows/vercel-deploy.yml` — project file (yml).
 - `.github/workflows/visual-schematic.yml` — project file (yml).
+- `.github/workflows/visual-schematicpages.yml` — project file (yml).
 - `AGENTS.md` — documentation file.
 - `docs/ACTION_AUDIT.md` — documentation file.
 - `docs/ACTIVITY_FIRST_PROTOCOL.md` — documentation file.
