@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)](https://www.typescriptlang.org/) [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/) [![pnpm workspace](https://img.shields.io/badge/pnpm-workspace-orange?logo=pnpm)](https://pnpm.io/workspaces) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Live Demo](https://img.shields.io/badge/Live-dreamengin.vercel.app-000?logo=vercel)](https://dreamengin.vercel.app)
 
 ## 🗺️ Visual Repository Schematic
-See [`VISUAL-SCHEMATIC.md`](VISUAL-SCHEMATIC.md) for a live, auto-updated visual map of every file, function, and connection in this repo — including orphan/floating nodes. Live viewer: https://appthemanger-ctrl.github.io/DREAMengin/
+See [`VISUAL-SCHEMATIC.md`](VISUAL-SCHEMATIC.md) for a live, auto-updated visual map of every file, function, and connection in this repo — including orphan/floating nodes. Live viewer: https://tmdapple09.github.io
 
 ## What is DREAMengin?
 DREAMengin is a spatial creative operating environment built around the **Creative Operating Law**: one fixed engine for universal concerns (state, I/O, events, security), and swappable rule-sets for product behavior. In practice, this means HomeDream, DreamSpace, Dream Windows, Engins, messaging, media, and commerce all share one runtime contract instead of each feature inventing its own stack.
