@@ -219,6 +219,23 @@ Auto-synced from `engins/**`, `components/runtime/**`, `lib/runtime/**`, `lib/dr
 
 </details>
 
+### AnalyticsEngin
+Auto-synced from `engins/dream.panel.AnalyticsEngin.tsx` using repository introspection.
+- Files tracked: **1**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: `PanelAnalyticsEngin`
+#### AnalyticsEngin file structure
+```text
+└── engins
+    └── dream.panel.AnalyticsEngin.tsx
+```
+<details><summary>AnalyticsEngin file index (1 files)</summary>
+
+- `engins/dream.panel.AnalyticsEngin.tsx` — React UI module for PanelAnalyticsEngin.
+
+</details>
+
 ### CodeEngin
 Auto-synced from `engins/engin.CodeEngin.tsx`, `engins/CodeEngin/**` using repository introspection.
 - Files tracked: **6**
@@ -4053,3 +4070,19 @@ Auto-synced from `api/**` using repository introspection.
 
 </details>
 
+## Optimizer
+Auto-synced from `optimizer/**` using repository introspection.
+- Files tracked: **1**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Optimizer file structure
+```text
+└── optimizer
+    └── index.ts
+```
+<details><summary>Optimizer file index (1 files)</summary>
+
+- `optimizer/index.ts` — TypeScript/JavaScript runtime module.
+
+</details>
