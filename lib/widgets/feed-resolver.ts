@@ -61,7 +61,7 @@ export async function resolveFeedHost(
     let query = (supabase as SupabaseClient)
       .from('feed_items')
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
-      .eq('user_id', targetUserId)
+      .eq('user_id' as never, targetUserId)
       .order('ts', { ascending: false })
       .limit(hostConfig.limit);
     

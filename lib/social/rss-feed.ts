@@ -389,7 +389,7 @@ export function normaliseRssItem(
     item['contentEncoded'] ?? item['content:encoded'] ?? item['content'] ?? (item as Record<string, unknown>).description ?? '';
 
   const contentText = stripHtml(String(rawText || '')) || stripHtml(String(item['title'] ?? '')) || '';
-  const contentHtml = rawText || undefined;
+  const contentHtml: string | undefined = rawText ? String(rawText) : undefined;
 
   const image = extractFirstImage(item);
   const media: FeedItemMedia[] = image
@@ -462,12 +462,13 @@ export function extractFirstImage(item: Record<string, unknown>): string | null 
   }
 
   // 5) <img src> inside HTML
-  const html: string =
+  const html: string = String(
     item['contentEncoded'] ??
     item['content:encoded'] ??
     (item as Record<string, unknown>).content ??
     (item as Record<string, unknown>).description ??
-    '';
+    ''
+  );
   const match = html.match(/<img[^>]+src="([^"]+)"/i);
   if (match?.[1]) return match[1];
 
