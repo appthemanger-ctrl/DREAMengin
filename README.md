@@ -4076,17 +4076,24 @@ Auto-synced from `api/**` using repository introspection.
 
 ## Optimizer
 Auto-synced from `optimizer/**` using repository introspection.
-- Files tracked: **1**
+- Files tracked: **4**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
 #### Optimizer file structure
 ```text
 └── optimizer
-    └── index.ts
+    ├── constraint-solver.ts
+    ├── creative-validator.ts
+    ├── index.ts
+    └── types.ts
 ```
-<details><summary>Optimizer file index (1 files)</summary>
+<details><summary>Optimizer file index (4 files)</summary>
 
+- `optimizer/constraint-solver.ts` — TypeScript/JavaScript runtime module.
+- `optimizer/creative-validator.ts` — TypeScript/JavaScript runtime module.
 - `optimizer/index.ts` — TypeScript/JavaScript runtime module.
+- `optimizer/types.ts` — TypeScript/JavaScript runtime module.
 
 </details>
+
