@@ -44,11 +44,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore(visual-schematic): auto-update file-level schematic [skip ci] [skip vercel]"
-          git push origin HEAD:${{ github.ref }}
-
-      - name: Setup Pages Infrastructure
-        uses: actions/configure-pages@v5
-
+          git push
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

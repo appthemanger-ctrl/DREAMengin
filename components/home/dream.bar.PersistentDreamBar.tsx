@@ -1,5 +1,7 @@
 'use client';
-import type { Post } from '@/components/runtime/dream.RuntimeView';
+
+type Post = { id: string; content?: string; created_at?: string; [key: string]: unknown };
+
 
 /**
  * PersistentDreamBar — Shell-First DreamDMBar wrapper and home container.
