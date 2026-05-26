@@ -48,7 +48,8 @@ jobs:
           echo "## 1. TypeScript Type Errors" >> audit-reports/report.md
           pnpm tsc --noEmit --pretty false 2>&1 | tee audit-reports/typescript-raw.txt || true
           
-          COUNT=$(grep -c "error TS" audit-reports/typescript-raw.txt || echo 0)
+          COUNT=$(grep -c "error TS" audit-reports/typescript-raw.txt | head -n 1 || echo 0)
+          if [ -z "$COUNT" ]; then COUNT=0; fi
           echo "typescript_errors=$COUNT" >> $GITHUB_OUTPUT
           
           if [ "$COUNT" -gt 0 ]; then
@@ -68,13 +69,14 @@ jobs:
         run: |
           echo "## 2. ESLint Errors & Warnings" >> audit-reports/report.md
           pnpm eslint . \
-            --ext .js,.jsx,.ts,.tsx \
             --format unix \
             --max-warnings 9999 \
             2>&1 | tee audit-reports/eslint-raw.txt || true
 
-          ERRORS=$(grep -c ": error " audit-reports/eslint-raw.txt || echo 0)
-          WARNINGS=$(grep -c ": warning " audit-reports/eslint-raw.txt || echo 0)
+          ERRORS=$(grep -c ": error " audit-reports/eslint-raw.txt | head -n 1 || echo 0)
+          WARNINGS=$(grep -c ": warning " audit-reports/eslint-raw.txt | head -n 1 || echo 0)
+          if [ -z "$ERRORS" ]; then ERRORS=0; fi
+          if [ -z "$WARNINGS" ]; then WARNINGS=0; fi
           echo "eslint_errors=$ERRORS" >> $GITHUB_OUTPUT
           echo "eslint_warnings=$WARNINGS" >> $GITHUB_OUTPUT
 
@@ -408,9 +410,13 @@ jobs:
           echo "## 🗂 Executive Summary Metrics" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
 
-          TS_ERRORS=$(grep -c "error TS" audit-reports/typescript-raw.txt 2>/dev/null || echo 0)
-          ESLINT_E=$(grep -c ": error " audit-reports/eslint-raw.txt 2>/dev/null || echo 0)
-          ESLINT_W=$(grep -c ": warning " audit-reports/eslint-raw.txt 2>/dev/null || echo 0)
+          TS_ERRORS=$(grep -c "error TS" audit-reports/typescript-raw.txt 2>/dev/null | head -n 1 || echo 0)
+          ESLINT_E=$(grep -c ": error " audit-reports/eslint-raw.txt 2>/dev/null | head -n 1 || echo 0)
+          ESLINT_W=$(grep -c ": warning " audit-reports/eslint-raw.txt 2>/dev/null | head -n 1 || echo 0)
+          
+          if [ -z "$TS_ERRORS" ]; then TS_ERRORS=0; fi
+          if [ -z "$ESLINT_E" ]; then ESLINT_E=0; fi
+          if [ -z "$ESLINT_W" ]; then ESLINT_W=0; fi
 
           echo "| Engine Target Vector | Detected Integrity Anomalies |" >> $SUMMARY_FILE
           echo "|---|---|" >> $SUMMARY_FILE
@@ -436,7 +442,8 @@ jobs:
       - name: Fail workflow if errors found (optional)
         if: ${{ inputs.fail_on_error == 'true' }}
         run: |
-          TS_ERRORS=$(grep -c "error TS" audit-reports/typescript-raw.txt 2>/dev/null || echo 0)
+          TS_ERRORS=$(grep -c "error TS" audit-reports/typescript-raw.txt 2>/dev/null | head -n 1 || echo 0)
+          if [ -z "$TS_ERRORS" ]; then TS_ERRORS=0; fi
           if [ "$TS_ERRORS" -gt 0 ]; then
              echo "❌ Static verification failure metrics exceeded threshold limitations. Blocking runtime execution chain."
              exit 1
