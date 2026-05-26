@@ -71,7 +71,7 @@ export class DreamOptimizer {
       this.config.feed_selection.constraints
     );
 
-    return ranked.map((r) => ({
+    return ranked.map((r: { item: { id: string }; score: number; rank: number; metadata?: Record<string, unknown> }) => ({
       item: feedItems.find((f) => f.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
@@ -113,7 +113,7 @@ export class DreamOptimizer {
       this.config.search_ranking.constraints
     );
 
-    return ranked.map((r) => ({
+    return ranked.map((r: { item: { id: string }; score: number; rank: number; metadata?: Record<string, unknown> }) => ({
       item: searchResults.find((s) => s.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
@@ -149,7 +149,7 @@ export class DreamOptimizer {
       this.config.widget_priority.constraints
     );
 
-    return ranked.map((r) => ({
+    return ranked.map((r: { item: { id: string }; score: number; rank: number; metadata?: Record<string, unknown> }) => ({
       item: widgets.find((w) => w.widget_id === r.item.id)!,
       score: r.score,
       rank: r.rank,
@@ -185,7 +185,7 @@ export class DreamOptimizer {
       this.config.asset_loading.constraints
     );
 
-    return ranked.map((r) => ({
+    return ranked.map((r: { item: { id: string }; score: number; rank: number; metadata?: Record<string, unknown> }) => ({
       item: assets.find((a) => a.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
@@ -223,7 +223,7 @@ export class DreamOptimizer {
       this.config.notification_priority.constraints
     );
 
-    return ranked.map((r) => ({
+    return ranked.map((r: { item: { id: string }; score: number; rank: number; metadata?: Record<string, unknown> }) => ({
       item: notifications.find((n) => n.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
@@ -261,7 +261,7 @@ export class DreamOptimizer {
       this.config.offline_queue.constraints
     );
 
-    return ranked.map((r) => ({
+    return ranked.map((r: { item: { id: string }; score: number; rank: number; metadata?: Record<string, unknown> }) => ({
       item: queuedActions.find((a) => a.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
@@ -389,7 +389,7 @@ export class DreamOptimizer {
   ): number {
     let totalScore = 0;
 
-    for (const constraint of constraints) {
+    for (const constraint of constraints as Constraint[]) {
       const weight = constraint.weight;
       const priorityMultiplier = this.getWeightMultiplier(constraint.priority);
       const scoreValue = (scores as unknown as Record<string, number>)[constraint.name] || 0;

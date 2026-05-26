@@ -71,8 +71,8 @@ async function fetchPlatformFeed(
     source:
       (item.platform as NormalizedPost['source']) ??
       deriveSource(String((item as Record<string, unknown>).id ?? '')),
-    provider: (item as Record<string, unknown>).platform ?? 'unknown',
-    content: stripHtml((item as Record<string, unknown>).content ?? ''),
+    provider: String((item as Record<string, unknown>).platform ?? 'unknown'),
+    content: stripHtml(String((item as Record<string, unknown>).content ?? '')),
     author: (() => {
       const a = (item.author ?? {}) as Record<string, unknown>;
       return {

@@ -18,7 +18,7 @@ import json
 MAX_TOTAL_CHARS = 100_000
 
 # Max per-file snippet so no single file dominates.
-MAX_CHARS_PER_FILE = 4_000
+MAX_CHARS_PER_FILE = 5_000
 
 ROOTS = ["README.md", "docs", "spec", "app", "components", "lib", "styles"]
 EXTS  = [".md", ".mjs", ".js", ".ts", ".tsx", ".css", ".json"]

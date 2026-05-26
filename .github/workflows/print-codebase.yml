@@ -1,3 +1,4 @@
+# Updated: May 2026
 name: Print Codebase (code only)
 
 on:
@@ -102,9 +103,17 @@ jobs:
             PRUNE_ARGS+=(-path "*/${d}" -prune -o)
           done
 
+          # ── binary/media file extensions to exclude ────────────────────────────
+          EXCLUDE_ARGS=(
+            ! -name "*.jpg"
+            ! -name "*.jpeg"
+            ! -name "*.glp"
+            ! -name "*.mov"
+          )
+
           total=0
 
-          # ── walk & print ──────────────────────────────────────────────────────
+          # ── walk & print ───────────────────────────────────────────────────────
           while IFS= read -r -d '' file; do
             echo ""
             echo "================================================================="
@@ -117,6 +126,7 @@ jobs:
             find "${SEARCH_ROOTS[@]}" \
               "${PRUNE_ARGS[@]}" \
               \( "${NAME_ARGS[@]}" \) \
+              "${EXCLUDE_ARGS[@]}" \
               -type f \
               -print0 \
             | sort -z
@@ -130,7 +140,8 @@ jobs:
       - name: Create Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dream-engin-source
+          name: dream-engin-source-${{ github.run_number }}
           path: .
           include-hidden-files: false
           if-no-files-found: error
+          retention-days: 30
